@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# msarib-portfolio
 
-## Getting Started
+Production source for [msarib.dev](https://msarib.dev). Lead Unreal Engine 5 developer portfolio targeting German and Japanese AAA studios.
 
-First, run the development server:
+## Tech stack
+
+- **Framework:** Next.js 16 (App Router, Turbopack, React Compiler)
+- **UI:** React 19
+- **Styling:** Tailwind v4 (CSS-first `@theme` in `globals.css`, no `tailwind.config.js`)
+- **Language:** TypeScript 5 (strict + `noUncheckedIndexedAccess`)
+- **Package manager:** pnpm 10
+- **Animation:** Motion v12 (added Phase 3+)
+- **Smooth scroll:** Lenis (added Phase 4+)
+- **Content:** Keystatic (git-based MDX, browser UI, added Phase 10)
+- **Media CDN:** Cloudinary (added Phase 14)
+- **Hosting:** Vercel Hobby plan
+- **DNS:** Cloudflare (proxy OFF on all Vercel records)
+
+## Prerequisites
+
+- Node 22+ (see `.nvmrc`)
+- pnpm 10+
+
+Install pnpm if missing:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+corepack enable
+corepack use pnpm@latest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone git@github.com:msarib305/msarib-portfolio.git
+cd msarib-portfolio
+pnpm install
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Dev server runs at [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Available scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Script | Command | What it does |
+|---|---|---|
+| `dev` | `next dev` | Start dev server with Turbopack |
+| `build` | `next build` | Production build |
+| `start` | `next start` | Serve the production build locally |
+| `lint` | `eslint src` | Run ESLint against `src/` |
+| `lint:fix` | `eslint src --fix` | Auto-fix lint errors |
+| `typecheck` | `tsc --noEmit` | Run TypeScript compiler without emitting |
+| `format` | `prettier --write .` | Format all files |
+| `format:check` | `prettier --check .` | Check formatting without writing |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Directory structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+msarib-portfolio/
+├── src/app/            App Router pages and layouts
+├── public/             Static assets served at /
+├── docs/               Engineering documentation
+│   ├── DESIGN_SYSTEM.md  Canonical visual spec (tokens, components, interactions)
+│   ├── DECISIONS.md      Architectural decision records
+│   └── CHANGELOG.md      Timestamped change log
+├── AGENTS.md           AI agent contract (writing rules, MCP protocol, content schema)
+├── CLAUDE.md           Claude Code CLI overrides and guard rails
+└── README.md           This file
+```
 
-## Deploy on Vercel
+Content collections (`content/projects/`) and the Keystatic admin route (`/keystatic`) are added in Phase 10.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Every push to `main` triggers a Vercel preview deployment automatically. There is no manual deploy step. The production domain (`msarib.dev`) is mapped in the Vercel dashboard.
+
+Vercel environment variables required at Phase 1: none. Cloudinary keys are added in Phase 14 via `vercel env add`.
+
+## Content schema
+
+Project case study schema (Keystatic MDX frontmatter) is documented in `AGENTS.md` under the "Content schema" section. Content lives in `content/projects/` as MDX files once Phase 10 is complete.
+
+## Contact
+
+- Portfolio: [msarib.dev](https://msarib.dev)
+- Email: contact@msarib.dev
+- GitHub: [msarib305](https://github.com/msarib305)
+- LinkedIn: [msarib305](https://linkedin.com/in/msarib305)
