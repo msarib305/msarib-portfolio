@@ -24,6 +24,26 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-19 PKT
+### feat(hero): showreel with canvas-mirrored glow, word-by-word reveal, hero meta row, hero CTAs
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push to main
+- Playwright: accessibility snapshot confirmed h1, video, CTAs, meta row present; zero console errors
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/app/page.tsx`: replaced Phase 2 placeholder with `<Hero />`. `<Cursor />` retained as first fragment child.
+- `src/components/Hero.tsx`: new Server Component. Two-column grid (0.85fr 1.4fr). Headline and subhead split into per-word `React.Fragment` wrappers (space as sibling text node, not inside inline-block span). Hero meta row (Years in engine, Shipped projects, Currently). PillButton CTAs (Get in touch / View my work). Imports ShowreelGlow.
+- `src/components/ShowreelGlow.tsx`: new client component. Single `<video>` with poster, autoPlay, muted, loop, playsInline. `<canvas>` sibling paints video frames at ~10fps (INTERVAL_MS=100, canvas 160px wide proportional height, ctx alpha:false). prefers-reduced-motion: video.pause() + RAF not started. cancelAnimationFrame cleanup on unmount.
+- `src/app/globals.css`: appended `.hero`, `.hero-grid`, `.hero-text`, `.hero-headline`, `.hero-headline-accent`, `.hero-headline-word`, `.hero-subhead`, `.hero-subhead-word`, `.hero-actions`, `.hero-meta`, `.hero-meta-item`, `.hero-meta-label`, `.hero-meta-value`, `.showreel`, `.showreel-frame`, `.showreel-video`, `.showreel-glow-canvas`, `.reel-label`, `.reel-label-dot`, `.reel-credits`, `.reel-credits-title` to `@layer components`. Responsive breakpoints at 1200px, 900px, 600px. Reduced-motion guards for canvas (display:none) and reel dot (animation:none). `@keyframes word-reveal` appended outside @layer.
+- `docs/DECISIONS.md`: DEC-021 (pure CSS word reveal, no Motion), DEC-022 (10fps canvas throttle), DEC-023 (matchMedia reduced motion in ShowreelGlow).
+- `docs/DESIGN_SYSTEM.md`: Hero, ShowreelGlow component specs and @keyframes word-reveal entry added.
+
+---
+
+## 2026-05-19 PKT
 ### feat(shell): nav, footer, mobile menu, skip link, Dark Reader safety meta
 
 - pnpm typecheck: pass

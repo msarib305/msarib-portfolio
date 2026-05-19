@@ -305,3 +305,50 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** The meta tag is still emitted. The `metadata` object is cleaner (no `other` field). The `Viewport` type provides compile-time safety for all viewport-related properties.
 
 **Alternatives considered:** Keep `metadata.other` (rejected: undocumented side channel; the `viewport` export is the explicit, typed, documented API in Next.js 16).
+
+---
+
+## DEC-021: Pure CSS @keyframes for hero word reveal — no Motion install at Phase 5
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** The hero headline and subhead needed a staggered word-by-word reveal animation on page load. Motion v12 is listed in MASTER_CONTEXT as the animation library but had not been installed. The choice was whether to install it now or use pure CSS.
+
+**Decision:** Pure CSS `@keyframes word-reveal` with per-word `animation-delay` inline styles. Motion v12 is not installed this phase.
+
+**Consequences:** The headline is a Server Component (no `'use client'` needed for the animation). The existing `@layer base` `prefers-reduced-motion` block already collapses `animation-duration` to `0.01ms !important`, so reduced-motion devices see words in their final state instantly with zero extra CSS. Words are rendered as `<span>` elements with `animation-fill-mode: both` so they start invisible during the delay period.
+
+**Alternatives considered:** Motion v12 (rejected: a finite one-shot animation on a known word list is the weakest justification for a new dependency; no downstream phase through Phase 10 has a confirmed Motion requirement).
+
+**Revisit trigger:** Phase 11 (writings page transitions) or Phase 13 (case study page transitions) if those need orchestrated sequences CSS cannot express cleanly.
+
+---
+
+## DEC-022: Canvas draw rate throttled to 10fps for showreel glow
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** The ShowreelGlow component uses a `requestAnimationFrame` loop to paint video frames onto a `<canvas>` that produces the image-derived glow behind the showreel. The naive approach draws every RAF tick (60fps). v15 uses a throttle.
+
+**Decision:** The RAF loop checks `if (now - lastDraw >= 100)` before each `drawImage` call, throttling draws to approximately 10fps. The RAF itself runs at 60fps but skips all frames that arrive within the 100ms interval.
+
+**Consequences:** `drawImage` is called roughly 10 times per second instead of 60. The canvas is 160px wide (height proportional). CSS `filter: blur(80px)` hides all temporal detail below approximately 3fps, so 10fps is indistinguishable from 60fps to the human eye. CPU cost of the glow draw is reduced by roughly 6x compared to 60fps. Two RAF loops coexist on `/` (Cursor at 60fps, ShowreelGlow throttled to 10fps).
+
+**Alternatives considered:** 60fps draws (rejected: wasted work; the blur makes sub-10fps invisible). Static image fallback (rejected: the glow must track the video content dynamically for the effect to work on arbitrary showreels).
+
+---
+
+## DEC-023: prefers-reduced-motion for showreel handled via JS matchMedia
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** Users who prefer reduced motion should not see the video autoplaying or the canvas glow animating. CSS `@media (prefers-reduced-motion: reduce)` alone cannot stop `<video autoPlay>`.
+
+**Decision:** ShowreelGlow checks `window.matchMedia('(prefers-reduced-motion: reduce)').matches` inside `useEffect`. If the preference is set: call `video.pause()` and return without starting the RAF loop. The poster image remains visible. CSS `display: none` on `.showreel-glow-canvas` is an additional guard for the canvas in case the JS check is delayed.
+
+**Consequences:** On reduced-motion devices: the poster frame is shown, no video plays, no canvas draws, no RAF loop runs. The word reveal animation is handled separately by the existing `@layer base` `animation-duration: 0.01ms !important` override. No additional CSS is needed for the words.
+
+**Alternatives considered:** `prefers-reduced-motion` media query on the video element via CSS (rejected: CSS cannot pause the `autoPlay` attribute; it fires at the media element level independent of CSS evaluation).

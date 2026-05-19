@@ -962,6 +962,135 @@ All layouts use asymmetric editorial grids.
 
 ---
 
+## Hero (Phase 5)
+
+**File:** `src/components/Hero.tsx`
+**Type:** Server Component
+
+**Purpose:** Home page hero section. Two-column grid with headline/subhead/CTAs/meta row on the left and the showreel on the right.
+
+**Props:** None. Copy and URLs are module-level constants.
+
+**Structure:**
+```
+<section.hero aria-labelledby="hero-headline">
+  <div.hero-grid>
+    <div.hero-text>
+      <h1#hero-headline.hero-headline>
+        [HEADLINE_LINE_1 words as .hero-headline-word spans]
+        <span.hero-headline-accent>
+          [HEADLINE_LINE_2 words as .hero-headline-word spans]
+        </span>
+      </h1>
+      <p.hero-subhead>
+        [SUBHEAD_WORDS as .hero-subhead-word spans]
+      </p>
+      <div.hero-actions>
+        <PillButton variant="primary" size="lg" href="/contact">
+        <PillButton variant="secondary" size="lg" href="/work">
+      </div>
+      <div.hero-meta>
+        [three .hero-meta-item blocks]
+      </div>
+    </div>
+    <ShowreelGlow ... />
+  </div>
+</section>
+```
+
+**Word reveal animation:** Each `.hero-headline-word` and `.hero-subhead-word` span has an inline `animationDelay` style. CSS `@keyframes word-reveal` drives `opacity: 0; transform: translateY(40px)` to `opacity: 1; transform: translateY(0)` over 800ms with `var(--ease-out)` and `animation-fill-mode: both`. Headline stagger: 100ms base + 70ms per word. Subhead stagger: starts 200ms after headline completes, 60ms per word.
+
+**Spacing:** Words are split into `<span>` siblings. A text-node space is rendered between spans using `React.Fragment` to preserve native inline-flow word spacing. Space inside an `inline-block` span does not contribute to inter-element spacing.
+
+**Accessibility:** `<section aria-labelledby="hero-headline">` names the landmark from the h1 text. `<video aria-label="...">` names the media. Canvas and reel overlays are `aria-hidden="true"`.
+
+**Reduced motion:** Handled at two levels: CSS `@layer base` collapses `animation-duration` to `0.01ms` (words appear instantly); JS `matchMedia` in ShowreelGlow pauses the video and skips the RAF loop.
+
+**CSS classes introduced:**
+| Class | Purpose |
+|---|---|
+| `.hero` | Section container, max-width, padding |
+| `.hero-grid` | Two-column grid (0.85fr 1.4fr) |
+| `.hero-text` | Left column flex container |
+| `.hero-headline` | h1 styles: display family, size clamp, line-height, tracking |
+| `.hero-headline-accent` | `display: block` to force accent line below |
+| `.hero-headline-word` | Per-word span: `display: inline-block`, word-reveal animation |
+| `.hero-subhead` | p styles: 16px, 1.55 line-height, secondary colour |
+| `.hero-subhead-word` | Per-word span: same animation pattern as headline |
+| `.hero-actions` | Flex row for CTA buttons |
+| `.hero-meta` | Flex row for stat columns, top border |
+| `.hero-meta-item` | Single stat column (label + value) |
+| `.hero-meta-label` | Mono font, 11px uppercase, secondary colour |
+| `.hero-meta-value` | Display font, 14px bold |
+
+**Breakpoints:**
+- 1200px: columns 1fr 1.2fr, gap 48px
+- 900px: single column, showreel moves above text via `order: -1`
+- 600px: padding reduced, meta gap reduced
+
+**Where used:** `src/app/page.tsx`
+
+---
+
+## ShowreelGlow (Phase 5)
+
+**File:** `src/components/ShowreelGlow.tsx`
+**Type:** Client Component (`'use client'`)
+
+**Purpose:** Renders the showreel `<video>` element alongside a `<canvas>` sibling that mirrors the video frames at low resolution to produce an image-derived glow behind the frame. One network request for the video; the canvas reads from the same DOM node.
+
+**Props:**
+| Prop | Type | Default | Purpose |
+|---|---|---|---|
+| `src` | `string` | required | Cloudinary video delivery URL |
+| `poster` | `string` | required | Still frame URL (shown during load and on reduced-motion) |
+| `reelLabel` | `string` | `"SHOWREEL · 2026"` | Overlay chip text |
+| `creditsTitle` | `string` | `"Selected highlights"` | Credits strong text |
+| `creditsBody` | `string` | `"Samurai Saga · TGS 2024 · NVIDIA · Cesium"` | Credits detail |
+| `className` | `string` | — | Optional passthrough for layout overrides |
+
+**Canvas glow technique:**
+- Canvas is sized to 160px wide, height proportional to video aspect ratio.
+- `ctx.getContext('2d', { alpha: false })` skips alpha compositing.
+- RAF loop throttled to ~10fps via `INTERVAL_MS = 100` check; draws only when `video.readyState >= 2` and `video.videoWidth > 0`.
+- CSS applies `filter: blur(80px) saturate(1.4); transform: scale(1.05); opacity: 0.7` to the canvas element.
+- Canvas sits at `z-index: 0`; `.showreel-frame` sits at `z-index: 2`. `isolation: isolate` on `.showreel` contains these z-indices.
+
+**Reduced motion:** `matchMedia('(prefers-reduced-motion: reduce)').matches` checked in `useEffect`. If true: `video.pause()` called, RAF loop not started. CSS also hides the canvas via `display: none` as an additional guard (DEC-023).
+
+**Cleanup:** `cancelAnimationFrame(rafId)` in the `useEffect` cleanup.
+
+**CSS classes introduced:**
+| Class | Purpose |
+|---|---|
+| `.showreel` | Container: `position: relative; aspect-ratio: 16/10; isolation: isolate` |
+| `.showreel-frame` | Inner frame: `overflow: hidden; z-index: 2; border-radius` |
+| `.showreel-video` | `width/height: 100%; object-fit: cover` |
+| `.showreel-glow-canvas` | Absolute, overflows 10%, blur/saturate/scale/opacity filter |
+| `.reel-label` | Overlay chip: top-left, backdrop blur, mono font |
+| `.reel-label-dot` | Pulsing accent dot |
+| `.reel-credits` | Bottom-left overlay: credits text with text-shadow legibility treatment |
+| `.reel-credits-title` | Bold credits headline |
+
+**Performance budget:** Canvas draws at ~10fps. At 160x90px, each draw is 14,400 pixels. `filter: blur(80px)` is GPU-composited. Total idle CPU contribution: well under 5% on a modern machine.
+
+**Where used:** `src/components/Hero.tsx`
+
+---
+
+## @keyframes word-reveal (Phase 5)
+
+```css
+@keyframes word-reveal {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+```
+
+Used by `.hero-headline-word` and `.hero-subhead-word`. Duration 800ms, easing `var(--ease-out)`, `fill-mode: both` so words start invisible during their delay period.
+
+---
+
 ## Dark Reader safety
 
 - `<meta name="color-scheme" content="dark">` in `<head>` (set via `metadata.other` in `layout.tsx`).
