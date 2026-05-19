@@ -103,6 +103,7 @@
   --color-accent-hover:   #4de6d3;
   --color-accent-press:   #00b8a6;
   --color-accent-fg:      #00231f;
+  --color-badge-fg:       #1a1a1f;
 
   --color-light-005:      rgba(255, 255, 255, 0.05);
   --color-light-010:      rgba(255, 255, 255, 0.10);
@@ -297,4 +298,253 @@
 body[data-font="montreal"] {
   --font-display: 'PP Neue Montreal', system-ui, -apple-system, sans-serif;
   --font-base: 'PP Neue Montreal Text', 'PP Neue Montreal', system-ui, sans-serif;
+}
+
+/* ============================================================
+   @layer components — design-system primitives (Phase 3)
+   All values are var() references to @theme or :root tokens.
+   The only rgba() literals are the badge/cursor shadow layers,
+   which are visual-signature values, not theme values.
+   ============================================================ */
+@layer components {
+
+  /* ----------------------------------------------------------
+     S-LOGO
+     Defined once (CLAUDE.md singleton rule). Size via
+     --s-logo-size CSS variable. Variant classes override it.
+     Arbitrary sizes use inline style on the React element.
+     ---------------------------------------------------------- */
+  .s-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    position: relative;
+    text-decoration: none;
+  }
+
+  .s-logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--s-logo-size);
+    height: var(--s-logo-size);
+    background: var(--s-logo-bg);
+    color: var(--s-logo-fg);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: calc(var(--s-logo-size) * 0.56);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    transition: background 240ms var(--ease-base), color 240ms var(--ease-base);
+    will-change: transform;
+    user-select: none;
+    padding-bottom: 0.05em;
+  }
+
+  .s-logo:hover .s-logo-mark {
+    background: var(--s-logo-bg-hover);
+    color: var(--s-logo-fg-hover);
+  }
+
+  .s-logo-mark.spinning {
+    animation: s-logo-spin var(--logo-spin-duration) var(--logo-spin-easing);
+  }
+
+  .s-logo-text {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+
+  .s-logo-text .sub {
+    display: inline-block;
+    color: var(--color-text-secondary);
+    margin-left: 10px;
+    font-family: var(--font-base);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .s-logo.s-logo-lg { --s-logo-size: 36px; }
+  .s-logo.s-logo-lg .s-logo-text { font-size: 18px; }
+  .s-logo.s-logo-lg .s-logo-text .sub { font-size: 14px; }
+
+  .s-logo.s-logo-xl { --s-logo-size: 44px; }
+  .s-logo.s-logo-xl .s-logo-text { font-size: 22px; }
+
+  @media (max-width: 600px) {
+    .s-logo-text .sub { display: none; }
+  }
+
+  /* ----------------------------------------------------------
+     PILL BUTTON
+     primary and secondary variants, sm/md/lg sizes.
+     Renders as <button> or <a> depending on the React component;
+     CSS is agnostic to element type.
+     ---------------------------------------------------------- */
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
+    min-height: 40px;
+    font-family: var(--font-base);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition:
+      background 240ms var(--ease-base),
+      color 240ms var(--ease-base),
+      border-color 240ms var(--ease-base),
+      box-shadow 320ms var(--ease-base);
+  }
+
+  .pill-btn:active {
+    transform: scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  .pill-btn--primary {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    font-weight: 700;
+    box-shadow: 0 0 0 0 rgba(0, 217, 196, 0);
+  }
+
+  .pill-btn--primary:hover {
+    background: var(--color-accent-hover);
+    box-shadow: var(--shadow-pill-glow);
+  }
+
+  .pill-btn--secondary {
+    background: var(--color-light-005);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-subtle);
+    font-weight: 500;
+  }
+
+  .pill-btn--secondary:hover {
+    background: var(--color-light-010);
+    border-color: var(--color-border-default);
+  }
+
+  .pill-btn--lg { padding: 14px 28px; min-height: 48px; font-size: 15px; }
+  .pill-btn--sm { padding: 6px 14px;  min-height: 32px; font-size: 12px; }
+
+  /* ----------------------------------------------------------
+     PILL BADGE
+     3D gradient badge. Three gradient tones from @theme grad
+     tokens. The rgba() shadow layers are the 3D visual recipe
+     and are not theme values.
+     ---------------------------------------------------------- */
+  .pill-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-family: var(--font-base);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-badge-fg);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: var(--radius-full);
+    align-self: flex-start;
+    position: relative;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 1px 1px rgba(0, 0, 0, 0.30),
+      0 3px 6px rgba(0, 0, 0, 0.35),
+      0 6px 14px rgba(0, 0, 0, 0.18);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  .pill-badge--grad-1 {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 50%),
+      linear-gradient(225deg, var(--color-grad-1-a), var(--color-grad-1-b));
+  }
+
+  .pill-badge--grad-2 {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 50%),
+      linear-gradient(225deg, var(--color-grad-2-a), var(--color-grad-2-b));
+  }
+
+  .pill-badge--grad-3 {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 50%),
+      linear-gradient(225deg, var(--color-grad-3-a), var(--color-grad-3-b));
+  }
+
+  /* ----------------------------------------------------------
+     CURSOR
+     Mounted only on the home route via Cursor.tsx.
+     --cursor-x / --cursor-y are set on document.documentElement
+     by JS on every mousemove frame; the gradient reads them via
+     var(). The @media gates hide both elements before JS runs.
+     ---------------------------------------------------------- */
+  .cursor-gradient {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      600px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+      rgba(0, 217, 196, 0.10),
+      rgba(0, 217, 196, 0.04) 25%,
+      transparent 55%
+    );
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+    will-change: background;
+  }
+
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    background: var(--color-text-primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    opacity: 0;
+    transition:
+      opacity 200ms var(--ease-base),
+      width 200ms var(--ease-base),
+      height 200ms var(--ease-base);
+    transform: translate3d(-100px, -100px, 0);
+    will-change: transform;
+  }
+
+  .cursor-dot--visible { opacity: 1; }
+  .cursor-dot--hover   { width: 12px; height: 12px; }
+
+  @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .cursor-dot, .cursor-gradient { display: none !important; }
+  }
+
+} /* end @layer components */
+
+/* @keyframes are global regardless of @layer context. */
+@keyframes s-logo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(720deg); }
 }

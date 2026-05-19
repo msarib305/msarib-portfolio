@@ -213,3 +213,20 @@ Each entry follows the ADR (Architectural Decision Record) pattern.
 **Consequences:** No licence cost during the job search and portfolio phases. A future obligation exists: buy the commercial licence before monetizing the domain. This is noted here so it is not forgotten.
 
 **Alternatives considered:** Buy commercial licence now (deferred: unnecessary cost before the site generates revenue); use a different typeface (rejected: no alternative matches PP Right Grotesk Wide Black for this specific design).
+
+---
+
+## DEC-015: Phase 3 token additions to Phase 2 @theme
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** Phase 3 component implementation surfaced one missing semantic token. The pill badge needed a foreground colour (`#1a1a1f`) that was not present in the Phase 2 @theme block. `--color-accent-fg` (`#00231f`) was already present for primary pill button text; badge foreground is a distinct value and warranted its own token.
+
+**Decision:** Added `--color-badge-fg: #1a1a1f` to the `@theme` block alongside the other `--color-*` tokens. The pill badge CSS rule uses `var(--color-badge-fg)` rather than a hardcoded hex literal.
+
+**Consequences:** Tailwind utility `text-badge-fg` is now available. Badge foreground is a single source of truth. Any future badge variant that needs the same dark foreground references the token instead of duplicating the hex.
+
+**Alternatives considered:** Hardcoded `#1a1a1f` hex in `@layer components` (rejected: inconsistent with the rest of the system where every colour value is a `var()` reference; makes future palette changes require hunting for literals).
+
+Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on the `/design-system` page is intentional. The design-system page is internal-only (`robots: noindex`) and does not ship in any user-facing template. An arbitrary token-derived value here adds complexity with no design benefit; 80px vertical rhythm is correct for a wide-spaced component showcase.

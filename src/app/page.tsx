@@ -1,6 +1,9 @@
+import { Cursor } from '@/components/Cursor'
+
 export default function Home() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 px-8">
+      <Cursor />
       <h1 className="font-display text-hero font-black tracking-hero text-text-primary text-center">
         Sarib
       </h1>

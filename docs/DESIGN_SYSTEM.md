@@ -35,6 +35,7 @@ Primary brand colour. Locked. Never substituted with Unreal blue or any other hu
 | `--color-accent-hover` | `#4de6d3` | Teal hover state. |
 | `--color-accent-press` | `#00b8a6` | Teal press/active state. |
 | `--color-accent-fg` | `#00231f` | Text on teal backgrounds. Also used for `::selection` text. |
+| `--color-badge-fg` | `#1a1a1f` | Text on 3D pill badge gradient backgrounds. Added Phase 3 (DEC-015). |
 
 ### Overlay whites
 
@@ -313,9 +314,43 @@ All transforms, animations, and auto-playing video are disabled. Cursor gradient
 
 ## S-logo component
 
-The recurring visual signature. Defined **once** in `src/app/globals.css` (Phase 3) as the `.s-logo` class. Used in nav, hero, and footer. Never duplicated, never redefined.
+**File:** `src/components/SLogo.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.s-logo` and child classes.
 
-**CSS variable surface** (all defined in `:root` in globals.css):
+The recurring visual signature. Defined once in CSS (CLAUDE.md singleton rule). Used in nav, hero, and footer. Never duplicated.
+
+### Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `size` | `number` | (unset) | Mark diameter in px. Sets `--s-logo-size` via inline style. Omit to use `:root` default (32px) or a size variant class. |
+| `href` | `string` | `'/'` | Navigation target. |
+| `ariaLabel` | `string` | `'Go to home'` | Accessible label on the anchor. Used when `showText` is false. |
+| `showText` | `boolean` | `false` | Renders the text label beside the mark. |
+| `textLabel` | `string` | `'SARIB'` | Primary text label. Used when `showText` is true. |
+| `subText` | `string` | (unset) | Secondary grey label beside the primary text. |
+| `className` | `string` | `''` | Additional classes. Use for size variants (`.s-logo-lg`, `.s-logo-xl`) or layout utilities. |
+
+### Class anatomy
+
+| Class | Element | Role |
+|---|---|---|
+| `.s-logo` | `<a>` (Next.js `<Link>`) | Flex wrapper, hover trigger. `text-decoration: none`. |
+| `.s-logo-mark` | `<span>` | Circle mark containing the S character. Size and colours from CSS variables. `aria-hidden="true"`. |
+| `.s-logo-mark.spinning` | `<span>` | Applied on `mouseenter`, removed on `animationend`. Triggers `s-logo-spin` keyframe. |
+| `.s-logo-text` | `<span>` | Primary text label. Display font, 900, uppercase, 0.04em tracking. |
+| `.s-logo-text .sub` | `<span>` | Secondary text. Base font, 500, `--color-text-secondary`. Hidden on mobile (`max-width: 600px`). |
+
+### Size variants
+
+| Class | `--s-logo-size` override | Text size |
+|---|---|---|
+| (default) | 32px (`:root`) | 15px |
+| `.s-logo-lg` | 36px | 18px |
+| `.s-logo-xl` | 44px | 22px |
+| `style="--s-logo-size: Npx"` | arbitrary | inherits base |
+
+### CSS variable surface (defined in `:root`)
 
 | Variable | Value | Purpose |
 |---|---|---|
@@ -327,56 +362,140 @@ The recurring visual signature. Defined **once** in `src/app/globals.css` (Phase
 | `--logo-spin-duration` | `700ms` | Spin animation duration |
 | `--logo-spin-easing` | `cubic-bezier(0.16, 1, 0.3, 1)` | Same as `--ease-out` |
 
-Size variants: `.s-logo-lg` (36px), `.s-logo-xl` (44px).
+### Spin mechanics
 
-**Spin behaviour:** 720deg rotation. JS adds `.spinning` class on `mouseenter`. Removes on `animationend`. Animation always completes even if cursor leaves mid-rotation.
+1. `mouseenter` on `.s-logo` fires `handleMouseEnter`.
+2. Guard: if `.s-logo-mark` already has `.spinning`, return. Prevents re-entry during animation.
+3. `.spinning` class added. `s-logo-spin` keyframe fires: `rotate(0deg)` to `rotate(720deg)` over `--logo-spin-duration` (700ms) with `--logo-spin-easing`.
+4. `animationend` on `.s-logo-mark` fires `handleAnimationEnd`. `.spinning` removed.
+5. Spin always completes; cursor leaving mid-rotation does not cancel it.
 
-**Navigation:** The S-logo is always wrapped in an `<a href="/">` anchor. Click navigates to home.
+### Accessibility
 
----
+- `aria-label` is on the `<Link>` only when `showText` is false. When `showText` is true the visible text provides the accessible name.
+- `aria-hidden="true"` on `.s-logo-mark`. The S character is decorative; the link label provides the name.
+- Keyboard-activatable via Enter (the anchor receives focus).
+- Reduced motion: the global `@layer base` `prefers-reduced-motion` rule collapses `animation-duration` to `0.01ms`, so the spin completes instantly instead of being skipped.
 
-## Primary pill button
+### Where used
 
-```css
-background:    var(--color-accent)     /* #00d9c4 */
-color:         var(--color-accent-fg)  /* #00231f */
-font-weight:   700
-border-radius: var(--radius-full)      /* 9999px */
-```
-
-**Hover:** `box-shadow: var(--shadow-pill-glow)`. No position movement (locked).
-
-**Active:** `transform: scale(0.98)`, transition 80ms.
+Nav (Phase 4), hero (Phase 5), footer (Phase 4). `/design-system` for visual verification.
 
 ---
 
-## Secondary pill button
+## Pill button
 
-Outlined variant. Values from v15. Defined in Phase 3.
+**File:** `src/components/PillButton.tsx` (server component, no `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.pill-btn` and modifier classes.
+
+Renders as `<button>` when no `href` is passed, or as a Next.js `<Link>` when `href` is passed. Discriminated union type enforces this at the TypeScript level.
+
+### Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `variant` | `'primary' \| 'secondary'` | `'primary'` | Visual style. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size modifier. `'md'` adds no modifier class. |
+| `icon` | `ReactNode` | (unset) | Decorative icon rendered before children, wrapped in `aria-hidden="true"` span. |
+| `children` | `ReactNode` | required | Button label. |
+| `className` | `string` | `''` | Additional classes. |
+| `href` | `string` | (unset) | When set, renders as `<Link>`. Switches the TypeScript variant to `PillButtonAsLink`. |
+| `prefetch` | `boolean` | (Next.js default) | `<Link>` only. |
+| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | `<button>` only. |
+| `onClick` | `MouseEventHandler` | (unset) | `<button>` only. |
+| `disabled` | `boolean` | (unset) | `<button>` only. |
+
+### Class anatomy
+
+| Class | Role |
+|---|---|
+| `.pill-btn` | Base: flex, padding 10px 22px, min-height 40px, `--radius-full`, transitions. |
+| `.pill-btn--primary` | Teal background (`--color-accent`), dark text (`--color-accent-fg`), bold. |
+| `.pill-btn--secondary` | Transparent-white background (`--color-light-005`), white text, subtle border. |
+| `.pill-btn--lg` | 14px 28px padding, 48px min-height, 15px font. |
+| `.pill-btn--sm` | 6px 14px padding, 32px min-height, 12px font. |
+
+No size class is added for `'md'`. The base `.pill-btn` rules are the medium size.
+
+### Hover and active states
+
+- **Primary hover:** `background: var(--color-accent-hover)`, `box-shadow: var(--shadow-pill-glow)`. No position movement.
+- **Secondary hover:** `background: var(--color-light-010)`, `border-color: var(--color-border-default)`.
+- **Active (both):** `transform: scale(0.98)`, `transition-duration: 80ms`.
+- All transitions use `var(--ease-base)`. Box-shadow uses 320ms; others use 240ms.
+
+### Accessibility
+
+- Renders semantic `<button>` or `<a>` based on `href`. No `role="button"` on a non-interactive element.
+- `type="button"` is set by default on `<button>` to prevent accidental form submission.
+- Icon slot uses `aria-hidden="true"`. Icon is purely decorative; the text label is the accessible name.
+- Reduced motion: `transition-duration: 0.01ms !important` via the global `@layer base` override. The scale(0.98) active state collapses to instant.
+
+### Where used
+
+Nav CTA (Phase 4), hero CTAs (Phase 5), contact section (Phase 8).
 
 ---
 
 ## 3D pill badge
 
-Used for "Technical depth", "Current", and category labels.
+**File:** `src/components/PillBadge.tsx` (server component, no `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.pill-badge` and tone modifier classes.
 
-**Shadow stack:**
+### Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `tone` | `'grad-1' \| 'grad-2' \| 'grad-3'` | `'grad-1'` | Gradient colour pair. |
+| `children` | `ReactNode` | required | Badge text. |
+| `className` | `string` | `''` | Additional classes. |
+
+### Gradient tones
+
+| Tone | Gradient A | Gradient B | Visual | v15 use |
+|---|---|---|---|---|
+| `grad-1` | `--color-grad-1-a` `#c7c8fe` lilac | `--color-grad-1-b` `#44d5bf` teal | Lilac to teal | "Technical depth" card |
+| `grad-2` | `--color-grad-2-a` `#feb4b4` blush | `--color-grad-2-b` `#bb6bf0` purple | Pink to purple | "Engineering leadership" card |
+| `grad-3` | `--color-grad-3-a` `#ffc6a3` peach | `--color-grad-3-b` `#e166b6` magenta | Peach to magenta | "Shipped products" card |
+
+Each tone applies:
+
+```css
+background:
+  linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 50%),
+  linear-gradient(225deg, var(--color-grad-N-a), var(--color-grad-N-b));
+```
+
+The top overlay (`rgba(255,255,255,0.18)` to `transparent`) creates the 3D highlight on the upper half.
+
+### Shadow anatomy
 
 ```css
 box-shadow:
-  inset 0 1px 0 rgba(255, 255, 255, 0.55),
-  inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-  inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-  0 1px 1px rgba(0, 0, 0, 0.X),
-  0 3px 6px rgba(0, 0, 0, 0.X),
-  0 6px 14px rgba(0, 0, 0, 0.X);
+  inset 0 1px 0 rgba(255, 255, 255, 0.55),   /* top inset highlight */
+  inset 0 -1px 0 rgba(0, 0, 0, 0.18),         /* bottom inset shadow */
+  inset 0 0 0 1px rgba(255, 255, 255, 0.08),  /* inner 1px border edge */
+  0 1px 1px rgba(0, 0, 0, 0.30),              /* tight drop shadow */
+  0 3px 6px rgba(0, 0, 0, 0.35),              /* medium drop shadow */
+  0 6px 14px rgba(0, 0, 0, 0.18);             /* diffuse drop shadow */
+text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); /* emboss */
 ```
 
-**Text shadow:** `0 1px 0 rgba(255, 255, 255, 0.35)` (emboss feel).
+These rgba() literals are the 3D visual recipe, not theme values. They are not tokenized.
 
-**Background:** gradient overlay + gradient base. Gradient pairs from `--color-grad-1-a/b`, `--color-grad-2-a/b`, `--color-grad-3-a/b`.
+### Typography
 
-Exact outer shadow opacity values are sourced from v15 during Phase 3.
+11px, 700 weight, uppercase, 0.08em tracking. Text colour: `var(--color-badge-fg)` (`#1a1a1f` — added to @theme in Phase 3, documented in DEC-015).
+
+### Accessibility
+
+Renders as `<span>`. Text is readable by screen readers. No interactive role. No focus handling needed.
+
+### Where used
+
+Three-card animated gradient section (Phase 6).
+
+---
 
 ---
 
@@ -424,12 +543,93 @@ mask-image: radial-gradient(ellipse 75% 95% at center, #000 50%, transparent 100
 
 ## Cursor system
 
-Desktop hover-capable devices only. Hidden on touch and `prefers-reduced-motion: reduce`.
+**File:** `src/components/Cursor.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.cursor-dot` and `.cursor-gradient`.
 
-- Small white dot: 6px, `mix-blend-mode: difference`.
-- Lerps to cursor position via `requestAnimationFrame`.
-- Homepage only: site-wide radial gradient (600px circle) following cursor. Toggled via `body.on-home` class.
-- No ring. No trail.
+### Architecture
+
+v15 uses `body.on-home::before` (a CSS pseudo-element) for the radial gradient. React cannot inject content into pseudo-elements. Phase 3 replaces this with two dedicated `<div>` elements rendered by `<Cursor />`. Behaviour is identical; the implementation path differs.
+
+`<Cursor />` is mounted inside `src/app/page.tsx` only. It does not appear in the layout. No `usePathname` hook is needed. The cursor system is absent on every other route by default.
+
+### Elements
+
+| Element | Class | Role |
+|---|---|---|
+| `<div>` | `.cursor-gradient` | Full-viewport fixed overlay. Radial gradient reads `--cursor-x` and `--cursor-y` via `var()`. `mix-blend-mode: screen`. `z-index: 1`. |
+| `<div>` | `.cursor-dot` | 6px circle. `mix-blend-mode: difference`. `z-index: 9999`. Position updated via `transform: translate3d()` in the RAF loop. |
+
+### CSS variable bridge
+
+On every `mousemove` frame, JS sets on `document.documentElement`:
+
+```javascript
+document.documentElement.style.setProperty('--cursor-x', `${mouseX}px`)
+document.documentElement.style.setProperty('--cursor-y', `${mouseY}px`)
+```
+
+`.cursor-gradient` reads them via:
+
+```css
+background: radial-gradient(
+  600px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+  rgba(0, 217, 196, 0.10),
+  rgba(0, 217, 196, 0.04) 25%,
+  transparent 55%
+);
+```
+
+The gradient fallback (`50% 50%`) centres the glow before the first mousemove fires.
+
+### Dot lerp
+
+```javascript
+dotX += (mouseX - dotX) * 0.55
+dotY += (mouseY - dotY) * 0.55
+dot.style.transform = `translate3d(${dotX - 3}px, ${dotY - 3}px, 0)`
+```
+
+Factor 0.55 produces a fast follow with slight lag. `dotX - 3` centres the 6px dot on the hot spot (half the dot width).
+
+### Hover enlargement
+
+`mouseover` and `mouseout` events delegate to `a, button, [role="button"]`. The dot grows from 6px to 12px (`cursor-dot--hover` class) when the pointer enters a hoverable element. Width and height transition at 200ms `var(--ease-base)`.
+
+### Visibility
+
+- `cursor-dot--visible` class is added on first `mousemove`. The dot starts hidden (`opacity: 0`) so it does not flash at position `(-100px, -100px)` before any pointer interaction.
+- `mouseleave` on the document removes `cursor-dot--visible`. This event fires when the pointer exits the browser viewport; it does not handle inactivity timeout.
+
+### Guard conditions
+
+JS guard (checked in `useEffect` before attaching any listeners):
+
+```javascript
+const prefersNoHover       = !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+if (prefersNoHover || prefersReducedMotion) return
+```
+
+CSS gate (CSS-only fallback before JS executes):
+
+```css
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-dot, .cursor-gradient { display: none !important; }
+}
+```
+
+Both gates are needed: the CSS gate fires immediately on render; the JS guard prevents the RAF loop from starting on devices that match after hydration.
+
+### Cleanup
+
+On unmount, `useEffect` cleanup:
+- Removes all four event listeners (`mousemove`, `mouseleave`, `mouseover`, `mouseout`).
+- Cancels the RAF loop.
+- Removes `--cursor-x` and `--cursor-y` from `document.documentElement` so stale values do not persist if the user navigates back to the home route.
+
+### Where used
+
+Home route (`src/app/page.tsx`) only. No other route.
 
 ---
 
