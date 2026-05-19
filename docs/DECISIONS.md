@@ -414,3 +414,48 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** Phase 10 Keystatic migration becomes a change to the import source only, with no component rewrites. All Cloudinary URLs in the data files carry `// TODO: <slug>` comments so the placeholder-to-real-asset swap is mechanical and auditable.
 
 **Alternatives considered:** Keystatic now (rejected: Phase 10 scope; installing Keystatic in Phase 6 pulls in CMS config, reader API, and a content directory that are not needed until the writing and projects pages exist).
+
+---
+
+## DEC-028: Transform-only animation for WhatIBring blobs
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The WhatIBring section has three ambient radial-gradient blobs that drift slowly in the background. Two CSS approaches exist: (a) animate `background-position` on a repeating gradient, or (b) animate `transform` on fixed-gradient elements.
+
+**Decision:** Animate `transform` only (`translate` + `scale`). The radial gradient background is static. Only the element position and scale change.
+
+**Consequences:** `transform` animations run entirely on the GPU compositor thread with zero paint and zero layout operations per frame. This is the correct performance path for long-running ambient animations on a page that already has 8 expertise cards and a canvas glow. Any future ambient background animation in this project must follow the same pattern.
+
+**Alternatives considered:** `background-position` animation on a CSS gradient (rejected: triggers repaint on every frame, forcing the CPU to re-rasterize the gradient; expensive on low-end devices).
+
+---
+
+## DEC-029: `min()` for ContactCTA card width centring
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The ContactCTA card must respect the `--container-max` ceiling on wide viewports and stay inset from the viewport edge on narrow viewports, without a separate wrapper element.
+
+**Decision:** `max-width: min(var(--container-max), calc(100% - 64px))` on `.contact-cta-card`. The outer `.contact-cta-section` provides only vertical padding.
+
+**Consequences:** The card always has at least 32px clearance from the viewport edge (64px total inset / 2 sides) and never exceeds `--container-max`. One declaration replaces the `max-width` + horizontal `padding` pattern that would require compensating for the padding in width calculations. The outer section retains its standard `96px 32px` padding for vertical rhythm.
+
+**Alternatives considered:** Outer section with `padding: 96px 32px`, inner card with `max-width: var(--container-max)` and no inset. Rejected because on narrow viewports the 32px section padding already provides the inset; `min()` keeps the card centred correctly without coupling the inset to the section padding value.
+
+---
+
+## DEC-030: `<article>` element for WhatIBringCard
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** WhatIBringCard renders a self-contained unit: PillBadge label, h3 headline, body paragraph, and a bullet detail list. A generic `<div>` would work, but a more specific semantic element is available.
+
+**Decision:** Use `<article>` as the card wrapper.
+
+**Consequences:** Each card is semantically self-contained, matching the HTML spec definition of `<article>` (independently distributable or reusable content). Screen readers surface `<article>` in the document outline alongside `<section>` and `<nav>`, improving navigability for assistive technology users. The element carries no visual difference; CSS targets the `.wib-card` class, not the element type.
+
+**Alternatives considered:** `<div>` (rejected: loses semantic meaning with no benefit; `<article>` is more correct for self-contained content blocks). `<section>` (rejected: requires an accessible name; `<article>` does not).

@@ -24,6 +24,29 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(home-closing): what I bring cards with blob bg, contact CTA
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push to main
+- Playwright: N/A this phase
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/app/page.tsx`: added WhatIBring and ContactCTA imports and renders after ExpertiseGrid.
+- `src/app/globals.css`: added `--radius-20: 20px` token to `@theme`. Appended `.wib-section`, `.wib-head`, `.wib-lede`, `.wib-grid`, `.wib-bg`, `.wib-blob3`, `.wib-card`, `.wib-card-headline`, `.wib-card-body`, `.wib-card-detail`, `.contact-cta-section`, `.contact-cta-card`, `.contact-cta-body`, `.contact-cta-actions` to `@layer components`. Responsive breakpoints at 900px and 600px. Reduced-motion blob animation guard. Appended `@keyframes wib-drift1`, `wib-drift2`, `wib-drift3`.
+- `src/data/what-i-bring.ts`: new file. `WhatIBringItem` interface and 3-item array (Technical depth, Engineering leadership, Shipped products).
+- `src/components/WhatIBringCard.tsx`: new Server Component. `<article>` wrapper with PillBadge, h3 headline, body paragraph, arrow-marker bullet list.
+- `src/components/WhatIBring.tsx`: new Server Component. Section with heading block and 3-column `.wib-grid` containing `.wib-bg` blob layer and three WhatIBringCard instances.
+- `src/components/ContactCTA.tsx`: new Server Component. Two-element pattern: `.contact-cta-section` outer + `.contact-cta-card` inner. Two PillButtons: primary "Contact me" (/contact) and secondary "Download resume" (/resume.pdf).
+- `public/resume.pdf`: Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf copied from docs/ to public/. Served statically at /resume.pdf.
+- `docs/DECISIONS.md`: DEC-028 (transform-only blob animation), DEC-029 (min() for CTA card width), DEC-030 (article element for WhatIBringCard).
+- `docs/DESIGN_SYSTEM.md`: Phase 7 component specs for WhatIBringCard, WhatIBring, ContactCTA.
+
+---
+
+## 2026-05-20 PKT
 ### feat(home-mid): selected work grid, feature showcase, expertise grid
 
 - pnpm typecheck: pass

@@ -153,6 +153,7 @@
   --radius-8:             8px;
   --radius-12:            12px;
   --radius-16:            16px;
+  --radius-20:            20px;
   --radius-24:            24px;
   --radius-32:            32px;
   --radius-full:          9999px;
@@ -1659,6 +1660,257 @@ body[data-font="montreal"] {
     }
   }
 
+  /* ----------------------------------------------------------
+     WHAT I BRING SECTION
+     Three-card grid with animated radial-gradient blob
+     background. Blobs use transform animation only (GPU
+     compositor path, no repaint). isolation: isolate on
+     .wib-grid keeps blob z-stacking within the grid.
+     ---------------------------------------------------------- */
+  .wib-section {
+    padding: 96px 32px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  .wib-head {
+    margin-bottom: 56px;
+    max-width: 760px;
+  }
+
+  .wib-head h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+
+  .wib-lede {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 640px;
+  }
+
+  /* Blob wrapper + grid share the same relative container.
+     isolation: isolate ensures blobs do not bleed into the
+     page background via mix-blend-mode from neighbouring
+     sections. */
+  .wib-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    isolation: isolate;
+  }
+
+  /* Animated blob background — three layers via ::before,
+     ::after, and the .wib-blob3 child element.
+     Blobs animate ONLY transform (no background-position on
+     a CSS gradient) so they run on the GPU compositor thread
+     with zero repaint. */
+  .wib-bg {
+    position: absolute;
+    inset: -40px;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: var(--radius-32);
+    pointer-events: none;
+  }
+
+  .wib-bg::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 217, 196, 0.18) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -100px;
+    left: -100px;
+    animation: wib-drift1 18s ease-in-out infinite;
+  }
+
+  .wib-bg::after {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(187, 107, 240, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    bottom: -80px;
+    right: -50px;
+    animation: wib-drift2 22s ease-in-out infinite;
+  }
+
+  /* Third blob: centre. Separate child element because ::before
+     and ::after on .wib-bg are already occupied. */
+  .wib-blob3 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(115, 113, 255, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: wib-drift3 25s ease-in-out infinite;
+  }
+
+  /* z-index: 1 ensures cards sit above the blob layer (z-index: 0) */
+  .wib-card {
+    position: relative;
+    z-index: 1;
+    background: var(--color-light-005);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-20);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition:
+      background 280ms var(--ease-base),
+      border-color 280ms var(--ease-base),
+      transform 400ms var(--ease-out);
+  }
+
+  .wib-card:hover {
+    background: var(--color-light-010);
+    border-color: var(--color-border-subtle);
+    transform: translateY(-4px);
+  }
+
+  .wib-card-headline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(18px, 1.8vw, 22px);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .wib-card-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  .wib-card-detail {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wib-card-detail li {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    padding-left: 16px;
+    position: relative;
+    letter-spacing: 0.02em;
+  }
+
+  .wib-card-detail li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
+
+  /* ----------------------------------------------------------
+     CONTACT CTA
+     Two-element pattern: .contact-cta-section provides the
+     vertical padding; .contact-cta-card provides the centred
+     card with min() width. Keeps side spacing correct at all
+     viewport widths without double-counting on wide screens.
+     ---------------------------------------------------------- */
+  .contact-cta-section {
+    padding: 96px 32px;
+  }
+
+  .contact-cta-card {
+    max-width: min(var(--container-max), calc(100% - 64px));
+    margin: 0 auto;
+    background: var(--color-light-005);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-24);
+    padding: 80px 64px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .contact-cta-card h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+  }
+
+  .contact-cta-body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 480px;
+  }
+
+  .contact-cta-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* RESPONSIVE BREAKPOINTS — Phase 7 */
+
+  @media (max-width: 900px) {
+    .wib-grid {
+      grid-template-columns: 1fr;
+    }
+    .wib-section {
+      padding: 72px 20px;
+    }
+    .contact-cta-card {
+      padding: 64px 32px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .wib-section {
+      padding: 56px 16px;
+    }
+    .wib-card {
+      padding: 28px 24px;
+    }
+    .contact-cta-card {
+      padding: 48px 24px;
+      border-radius: var(--radius-16);
+    }
+    .contact-cta-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  /* REDUCED MOTION — Phase 7
+     Blob animations stopped. Card lift is handled globally by
+     @layer base (transition-duration: 0.01ms !important). */
+  @media (prefers-reduced-motion: reduce) {
+    .wib-bg::before,
+    .wib-bg::after,
+    .wib-blob3 {
+      animation: none;
+    }
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */
@@ -1681,4 +1933,21 @@ body[data-font="montreal"] {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes wib-drift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(120px, 80px) scale(1.15); }
+  66%       { transform: translate(-60px, 140px) scale(0.9); }
+}
+
+@keyframes wib-drift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-100px, -60px) scale(1.2); }
+  70%       { transform: translate(80px, -120px) scale(0.85); }
+}
+
+@keyframes wib-drift3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%       { transform: translate(-50%, -50%) scale(1.3); }
 }

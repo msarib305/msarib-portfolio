@@ -1247,3 +1247,92 @@ item: ExpertiseItem  // from src/data/expertise.ts
 **Accessibility:** Section has `aria-labelledby="expertise-heading"` pointing to the `<h2>`.
 
 **Where used:** `src/app/page.tsx`
+
+---
+
+## WhatIBringCard
+
+**File:** `src/components/WhatIBringCard.tsx`
+**Type:** Server Component
+
+**Purpose:** Single card in the "What I bring" three-card grid. Renders a PillBadge label, h3 headline, body paragraph, and a bullet detail list with teal right-arrow markers.
+
+**Props:**
+- `card: WhatIBringItem` — from `src/data/what-i-bring.ts`
+
+**WhatIBringItem shape:**
+```typescript
+{
+  slug:     string
+  tone:     'grad-1' | 'grad-2' | 'grad-3'
+  label:    string
+  headline: string
+  body:     string
+  details:  string[]
+}
+```
+
+**Class anatomy:**
+- `.wib-card` — `<article>`, flex column, `--radius-20` border-radius, `z-index: 1` above blob layer, hover: lift 4px + border/bg shift
+- `.wib-card-headline` — `<h3>`, display font 800, clamp(18px, 1.8vw, 22px), `margin: 0`
+- `.wib-card-body` — 15px body copy, text-secondary
+- `.wib-card-detail` — unstyled `<ul>`, flex column, 8px gap
+- `.wib-card-detail li` — mono font 12px, 16px left-padding; `::before` pseudo injects `→` (U+2192) in accent colour
+
+**Accessibility:** `<article>` wrapper provides a self-contained landmark. Screen readers surface it in the document outline. No `aria-label` needed; the h3 headline provides the accessible name.
+
+**Motion:** Hover lift via `transform: translateY(-4px)` at 400ms ease-out. Suppressed globally at reduced motion by `@layer base` `transition-duration: 0.01ms !important`.
+
+**Where used:** `WhatIBring.tsx`
+
+---
+
+## WhatIBring
+
+**File:** `src/components/WhatIBring.tsx`
+**Type:** Server Component
+
+**Purpose:** Home-page "Why hire me" section. Three-card grid with animated radial-gradient blob background.
+
+**Props:** None. Reads `whatIBring` array from `src/data/what-i-bring.ts`.
+
+**Class anatomy:**
+- `.wib-section` — max-width container, 96px vertical padding
+- `.wib-head` — heading block, max-width 760px; `.eyebrow` label, `<h2>`, `.wib-lede` paragraph
+- `.wib-grid` — `position: relative; isolation: isolate;` 3-column grid, 20px gap; collapses to 1 column at 900px
+- `.wib-bg` — `position: absolute; inset: -40px;` blob container; `::before` (teal blob, `wib-drift1` 18s), `::after` (purple blob, `wib-drift2` 22s), `.wib-blob3` child (indigo blob, `wib-drift3` 25s)
+- `.wib-blob3` — centre-positioned indigo radial gradient, animated scale
+
+**Blob animation:** Three `@keyframes` (`wib-drift1`, `wib-drift2`, `wib-drift3`) animate `transform: translate + scale` only. No repaint. GPU compositor path. (DEC-028)
+
+**Accessibility:** Section has `aria-labelledby="wib-heading"`. `.wib-bg` has `aria-hidden="true"`. All blob elements are visual-only.
+
+**Motion (reduced):** `@media (prefers-reduced-motion: reduce)` sets `animation: none` on `.wib-bg::before`, `.wib-bg::after`, `.wib-blob3`. Blobs freeze at their initial position.
+
+**Where used:** `src/app/page.tsx`
+
+---
+
+## ContactCTA
+
+**File:** `src/components/ContactCTA.tsx`
+**Type:** Server Component
+
+**Purpose:** Home-page closing call-to-action. Centred card with eyebrow, large heading, body paragraph, and two PillButtons.
+
+**Props:** None. All copy is hardcoded as module-level constants.
+
+**Class anatomy:**
+- `.contact-cta-section` — outer section, `padding: 96px 32px` only; no width constraint
+- `.contact-cta-card` — centred card; `max-width: min(var(--container-max), calc(100% - 64px))` ensures the card never touches viewport edges (minimum 32px inset each side) and respects container-max on wide screens (DEC-029); flex column, text centred, 24px gap
+- `.contact-cta-card h2` — display font 900, clamp(36px, 5vw, 64px), tight letter-spacing
+- `.contact-cta-body` — 16px text-secondary, max-width 480px
+- `.contact-cta-actions` — flex row, 16px gap, wraps on mobile; collapses to column at 600px
+
+**CTAs:**
+- Primary: `<PillButton variant="primary" size="lg" href="/contact">Contact me</PillButton>`
+- Secondary: `<PillButton variant="secondary" size="lg" href="/resume.pdf">Download resume</PillButton>` — PDF served statically from `public/resume.pdf`
+
+**Accessibility:** Section has `aria-labelledby="cta-home-heading"` pointing to the `<h2>`. The eyebrow paragraph precedes the heading in DOM order for correct reading flow.
+
+**Where used:** `src/app/page.tsx`
