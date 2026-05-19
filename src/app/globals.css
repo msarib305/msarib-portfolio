@@ -1,9 +1,300 @@
 @import "tailwindcss";
 
-@theme {
-  /* Design tokens defined in Phase 2 */
+/* ============================================================
+   @font-face — must live outside @theme
+   font-display: swap on every declaration
+   ============================================================ */
+
+/* PP Right Grotesk — display family */
+@font-face {
+  font-family: 'PP Right Grotesk';
+  src: url('/fonts/PPRightGrotesk-WideBlack.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Right Grotesk';
+  src: url('/fonts/PPRightGrotesk-SpatialBlack.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Right Grotesk';
+  src: url('/fonts/PPRightGrotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 
+/* PP Right Grotesk Text — body family */
+@font-face {
+  font-family: 'PP Right Grotesk Text';
+  src: url('/fonts/PPRightGroteskText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Right Grotesk Text';
+  src: url('/fonts/PPRightGroteskText-CompactMedium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* PP Neue Montreal — A/B alternative display */
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Extrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* PP Neue Montreal Text — A/B alternative body */
+@font-face {
+  font-family: 'PP Neue Montreal Text';
+  src: url('/fonts/PPNeueMontrealText-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   @theme — Tailwind v4 design tokens
+   Only CSS custom properties live here.
+   Namespace resets first, then custom values.
+   ============================================================ */
+@theme {
+  /* Namespace resets — removes Tailwind defaults in each namespace */
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --ease-*: initial;
+  --breakpoint-*: initial;
+
+  /* === COLOUR ============================================== */
+  --color-bg:             #101014;
+  --color-bg-low:         #18181c;
+  --color-bg-high:        #202024;
+  --color-bg-hover:       #28282c;
+
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.65);
+  --color-text-muted:     rgba(255, 255, 255, 0.35);
+
+  --color-accent:         #00d9c4;
+  --color-accent-hover:   #4de6d3;
+  --color-accent-press:   #00b8a6;
+  --color-accent-fg:      #00231f;
+
+  --color-light-005:      rgba(255, 255, 255, 0.05);
+  --color-light-010:      rgba(255, 255, 255, 0.10);
+  --color-light-015:      rgba(255, 255, 255, 0.15);
+
+  --color-border-default: rgba(255, 255, 255, 0.35);
+  --color-border-subtle:  rgba(255, 255, 255, 0.15);
+  --color-border-subdued: rgba(255, 255, 255, 0.10);
+  --color-border-faint:   rgba(255, 255, 255, 0.05);
+
+  --color-tint-pink:      #e166b6;
+  --color-tint-blue:      #26bbff;
+  --color-tint-cyan:      #44d5bf;
+  --color-tint-purple:    #bb6bf0;
+  --color-tint-indigo:    #7371ff;
+  --color-tint-orange:    #ff8e1f;
+  --color-tint-lilac:     #c7c8fe;
+  --color-tint-magenta:   #fe54ba;
+  --color-tint-teal:      #00d9c4;
+
+  --color-grad-1-a:       #c7c8fe;
+  --color-grad-1-b:       #44d5bf;
+  --color-grad-2-a:       #feb4b4;
+  --color-grad-2-b:       #bb6bf0;
+  --color-grad-3-a:       #ffc6a3;
+  --color-grad-3-b:       #e166b6;
+
+  /* === TYPOGRAPHY ========================================== */
+  --font-display:         'PP Right Grotesk', system-ui, -apple-system, sans-serif;
+  --font-base:            'PP Right Grotesk Text', system-ui, -apple-system, sans-serif;
+  /* --font-mono defined in @theme inline below */
+
+  /* Type scale additions (Tailwind defaults kept) */
+  --text-hero:            clamp(36px, 4.5vw, 64px);
+  --text-h2:              clamp(28px, 3.5vw, 44px);
+
+  /* Line height additions */
+  --leading-hero:         1.05;
+  --leading-heading:      1.1;
+
+  /* Letter spacing additions */
+  --tracking-hero:        -0.025em;
+  --tracking-h2:          -0.02em;
+  --tracking-eyebrow:     0.1em;
+
+  /* === RADIUS ============================================== */
+  --radius-8:             8px;
+  --radius-12:            12px;
+  --radius-16:            16px;
+  --radius-24:            24px;
+  --radius-32:            32px;
+  --radius-full:          9999px;
+
+  /* === SHADOW (additions, Tailwind defaults kept) ========== */
+  --shadow-pill-glow:     0 0 0 6px rgba(0, 217, 196, 0.18),
+                          0 8px 28px rgba(0, 217, 196, 0.35),
+                          0 0 60px rgba(0, 217, 196, 0.25);
+
+  /* === EASING ============================================== */
+  --ease-base:            cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-out:             cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:          cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* === BREAKPOINTS ========================================= */
+  --breakpoint-sm:        600px;
+  --breakpoint-md:        900px;
+  --breakpoint-lg:        1200px;
+  --breakpoint-xl:        1600px;
+}
+
+/* Thread next/font/google CSS variable into --font-mono.
+   @theme inline required: the value is a CSS var set at runtime on
+   <html> by next/font. Without inline, Tailwind creates a
+   double-reference that breaks cascade resolution. */
+@theme inline {
+  --font-mono: var(--font-jetbrains-mono), 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* ============================================================
+   @layer base — structural resets (mirrors v15 base styles)
+   ============================================================ */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-base);
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+    min-height: 100dvh;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  img, video {
+    max-width: 100%;
+    display: block;
+  }
+
+  input, select, textarea {
+    font-size: 16px;
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-8);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* ============================================================
+   App-specific custom properties — not in @theme (no Tailwind
+   utility needed), not in @layer base (must stay unlayered so
+   body[data-font] override, also unlayered, wins cleanly).
+   ============================================================ */
 :root {
   color-scheme: dark;
+
+  --container-max: 1600px;
+
+  --duration-fast:   200ms;
+  --duration-base:   300ms;
+  --duration-slow:   600ms;
+  --duration-reveal: 900ms;
+  --duration-page:   360ms;
+
+  --s-logo-size:        32px;
+  --s-logo-bg:          var(--color-text-primary);
+  --s-logo-fg:          var(--color-bg);
+  --s-logo-bg-hover:    var(--color-accent);
+  --s-logo-fg-hover:    #00231f;
+  --logo-spin-duration: 700ms;
+  --logo-spin-easing:   cubic-bezier(0.16, 1, 0.3, 1);
+
+  --mx: 50%;
+  --my: 50%;
+}
+
+/* Font A/B toggle — JS sets body[data-font="montreal"] in Phase 4.
+   CSS mechanism wired now; Phase 4 only needs the JS toggle. */
+body[data-font="montreal"] {
+  --font-display: 'PP Neue Montreal', system-ui, -apple-system, sans-serif;
+  --font-base: 'PP Neue Montreal Text', 'PP Neue Montreal', system-ui, sans-serif;
 }
