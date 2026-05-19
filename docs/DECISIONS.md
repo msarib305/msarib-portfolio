@@ -352,3 +352,65 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** On reduced-motion devices: the poster frame is shown, no video plays, no canvas draws, no RAF loop runs. The word reveal animation is handled separately by the existing `@layer base` `animation-duration: 0.01ms !important` override. No additional CSS is needed for the words.
 
 **Alternatives considered:** `prefers-reduced-motion` media query on the video element via CSS (rejected: CSS cannot pause the `autoPlay` attribute; it fires at the media element level independent of CSS evaluation).
+
+---
+
+## DEC-024: Plain `<img>` vs `next/image` for Cloudinary URLs in Phase 6
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Phase 6 introduces static cover images for work cards, the feature showcase, and BW images for expertise cards. All images are served via Cloudinary CDN.
+
+**Decision:** Plain `<img>` elements with Cloudinary URL transforms (`f_auto,q_auto`). `next/image` is deferred to Phase 14 when `next-cloudinary` is introduced.
+
+**Consequences:** Cloudinary's `f_auto,q_auto` handles format negotiation (WebP/AVIF where supported) and adaptive quality at the CDN level. `loading="lazy"` on `<img>` achieves the same lazy-load benefit as `next/image`. No changes to `next.config.ts` are needed; `images.remotePatterns` is not required for plain `<img>`.
+
+**Alternatives considered:** `next/image` with a Cloudinary custom loader (rejected: requires adding `res.cloudinary.com` to `images.remotePatterns` and configuring a loader to avoid double-transformation; added config complexity not justified until Phase 14).
+
+---
+
+## DEC-025: Pure-CSS duplicate-image glow for FeatureShowcase
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The feature showcase panel needs an image-derived blurred glow behind the main image frame, matching the v15 design.
+
+**Decision:** Two `<img>` elements with the same `src`. The glow `<img>` is `aria-hidden`, absolutely positioned behind the frame, and styled with `filter: blur(80px) saturate(1.4); transform: scale(1.05); opacity: 0.55`. Cloudinary CDN sets `Cache-Control: public, max-age=31536000`, so the second element is served from memory cache with zero additional network cost.
+
+**Consequences:** One HTTP request for the showcase image. No JavaScript overhead. CSS-only effect identical to the v15 design.
+
+**Alternatives considered:** Canvas (rejected: correct for video sources like the showreel because frame content changes over time; for a static image, a CSS-filtered duplicate `<img>` is simpler with no JS overhead and produces identical output).
+
+---
+
+## DEC-026: `preload="metadata"` for expertise hover videos
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Eight expertise cards each have a hover-reveal video. The browser needs to know when to fetch video data.
+
+**Decision:** Set `src` directly on the `<video>` element with `preload="metadata"`. The browser fetches metadata only (the moov box, approximately 5 to 30 KB per video depending on encoding) on page load; the full video streams on hover when `play()` is called.
+
+**Cost:** With 8 expertise videos, total metadata cost is approximately 40 to 240 KB across 8 to 16 HTTP requests (single request per video if moov-at-start via faststart; two requests per video if moov-at-end). Cloudinary's `f_auto,q_auto` delivery typically applies faststart during transcoding, so expect 8 single requests. Verify with DevTools Network during local testing.
+
+**Consequences:** Hover-to-play feels near-instant because the media element is already initialised. On reduced-motion devices, `matchMedia` in the `onHover` handler gates `play()` so no video ever starts. CSS guard also zeroes `.exp-card:hover .exp-video { opacity: 0 }` under `prefers-reduced-motion: reduce`.
+
+**Alternatives considered:** IntersectionObserver + `data-lazy-src` (rejected: v15 uses this to delay even the metadata fetch until cards scroll into view; in React, implementing this cleanly for 8 individual cards requires either a context or ref-forwarding pattern that adds complexity not justified by the approximately 40 to 240 KB savings on a section that is below the fold but typically visible within seconds of arrival; remains available as a future optimisation in Phase 14's performance pass).
+
+---
+
+## DEC-027: Hardcoded data layer in `src/data/*` as Phase 10 placeholder
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Phase 6 needs project and expertise data. Phase 10 will introduce Keystatic as a CMS. The data must be structured in a way that makes Phase 10 a drop-in replacement.
+
+**Decision:** `src/data/featured-work.ts` and `src/data/expertise.ts` export typed arrays. The TypeScript interfaces (`FeaturedWorkItem`, `ExpertiseItem`) are designed to match the Keystatic schema that Phase 10 will introduce.
+
+**Consequences:** Phase 10 Keystatic migration becomes a change to the import source only, with no component rewrites. All Cloudinary URLs in the data files carry `// TODO: <slug>` comments so the placeholder-to-real-asset swap is mechanical and auditable.
+
+**Alternatives considered:** Keystatic now (rejected: Phase 10 scope; installing Keystatic in Phase 6 pulls in CMS config, reader API, and a content directory that are not needed until the writing and projects pages exist).

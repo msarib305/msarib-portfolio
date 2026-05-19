@@ -23,6 +23,31 @@ Entries are written at commit time, not at phase start.
 
 ---
 
+## 2026-05-20 PKT
+### feat(home-mid): selected work grid, feature showcase, expertise grid
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push to main
+- Playwright: N/A this phase
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/app/page.tsx`: added FeaturedWork, FeatureShowcase, ExpertiseGrid imports and renders after Hero.
+- `src/app/globals.css`: appended `.eyebrow`, `.section`, `.section-head`, `.work-grid`, `.work-card`, `.work-card-media`, `.work-card-img`, `.work-card-overlay`, `.work-card-tag-img`, `.work-card-body`, `.work-card-meta`, `.work-card-title`, `.work-card-summary`, `.wc-1` through `.wc-4`, `.feature-showcase`, `.feature-text`, `.feature-visual-wrap`, `.feature-visual-frame`, `.feature-img`, `.feature-img-glow`, `.feature-credit`, `.expertise-section`, `.expertise-head`, `.expertise-grid`, `.exp-card`, `.exp-media`, `.exp-img`, `.exp-video`, `.exp-tint`, `.ec-title`, `.c1` through `.c8` to `@layer components`. Responsive breakpoints at 1200px, 900px, 600px. Reduced-motion guard restores BW image and tint on expertise card hover.
+- `src/data/featured-work.ts`: new file. `FeaturedWorkItem` interface and 4-item array (Samurai Saga, NVIDIA AI Assistant, Character Creator System, TRESemmé Metaverse). Cloudinary demo placeholders with `// TODO: <slug>` comments.
+- `src/data/expertise.ts`: new file. `ExpertiseItem` interface and 8-item array. Cloudinary demo placeholders with `// TODO: <slug>` comments.
+- `src/components/WorkCard.tsx`: new Server Component. `<Link prefetch={false}>` renders as `<a>` in DOM (cursor enlarge works). Tint via CSS variable on the `<Link>` element.
+- `src/components/FeaturedWork.tsx`: new Server Component. `.section` container, `.section-head` with PillButton, `.work-grid` mapping WorkCard.
+- `src/components/FeatureShowcase.tsx`: new Server Component. Two-column layout. Duplicate `<img>` glow technique (DEC-025).
+- `src/components/ExpertiseCard.tsx`: new Client Component. `onMouseEnter`/`onMouseLeave` handlers for video play/pause. `matchMedia` reduced-motion check inline in `onHover`. `<h3>` for card title.
+- `src/components/ExpertiseGrid.tsx`: new Server Component. `content-visibility: auto` on section.
+- `docs/DECISIONS.md`: DEC-024 (plain img vs next/image), DEC-025 (duplicate-image glow), DEC-026 (preload=metadata for expertise videos), DEC-027 (hardcoded data layer).
+- `docs/DESIGN_SYSTEM.md`: Phase 6 component specs for WorkCard, FeaturedWork, FeatureShowcase, ExpertiseCard, ExpertiseGrid.
+
+---
+
 ## 2026-05-19 PKT
 ### feat(hero): showreel with canvas-mirrored glow, word-by-word reveal, hero meta row, hero CTAs
 

@@ -1109,3 +1109,141 @@ Used by `.hero-headline-word` and `.hero-subhead-word`. Duration 800ms, easing `
 **Viewports:** every aspect ratio from small mobile portrait to ultrawide desktop landscape.
 
 **Minimum requirements:** CSS Grid, CSS custom properties, `backdrop-filter`, `mix-blend-mode`, `IntersectionObserver`, `requestAnimationFrame`. All supported in evergreen browsers.
+
+---
+
+## WorkCard
+
+**File:** `src/components/WorkCard.tsx`
+**Type:** Server Component
+
+**Purpose:** Renders a single project card in the Selected Work grid. Links to `/projects/<slug>` with `prefetch={false}` (route does not exist until Phase 8).
+
+**Props:**
+```ts
+project: FeaturedWorkItem  // from src/data/featured-work.ts
+```
+
+**Class anatomy:**
+- `.work-card.<tintClass>` — outer `<Link>`, flex column, card background, border, rounded corners, hover lift
+- `.work-card-media` — 16/9 aspect ratio container for the image and overlays
+- `.work-card-img` — absolute-fill `<img>`, `loading="lazy"`, scales on parent hover
+- `.work-card-overlay` — gradient overlay carrying `--card-tint` per card; fades on hover
+- `.work-card-tag-img` — pill tag over the image at bottom-left (first tag in the array)
+- `.work-card-body` — padded flex column for meta, title, summary
+- `.work-card-meta` — mono 11px date and client
+- `.work-card-title` — display 22px h3, turns accent on hover
+- `.work-card-summary` — two-line clamp body text
+
+**Tint variants:** `wc-1` (teal), `wc-2` (purple), `wc-3` (pink), `wc-4` (cyan)
+
+**Accessibility:** `<Link>` renders as `<a>` in the DOM, so `.cursor-dot--hover` enlarges the cursor on hover. Image has descriptive `alt` text from `coverAlt`.
+
+**Motion:** Card lifts 4px on hover (`transform: translateY(-4px)`). Image scales 1.06 and desaturate filter releases. Overlay fades from 0.4 to 0.25 opacity. All transitions snap to instant under `prefers-reduced-motion: reduce` via the `@layer base` collapse.
+
+**Where used:** `FeaturedWork.tsx`
+
+---
+
+## FeaturedWork
+
+**File:** `src/components/FeaturedWork.tsx`
+**Type:** Server Component
+
+**Purpose:** Renders the Selected Work section with a 2x2 card grid and a "View all projects" CTA link.
+
+**Props:** None. Reads `featuredWork` array from `src/data/featured-work.ts`.
+
+**Class anatomy:**
+- `.section` — max-width container with 96px vertical padding
+- `.section-head` — flex row: h2 on left, PillButton on right
+- `.work-grid` — 2-column CSS grid, 24px gap
+
+**Accessibility:** Section has `aria-labelledby="selected-work-heading"` pointing to the `<h2>`.
+
+**Where used:** `src/app/page.tsx`
+
+---
+
+## FeatureShowcase
+
+**File:** `src/components/FeatureShowcase.tsx`
+**Type:** Server Component
+
+**Purpose:** Engineering leadership feature panel. Two-column layout: copy and CTA left, image with blurred glow right.
+
+**Props:** None. Image URLs are module-level constants (`SHOWCASE_IMG`, `SHOWCASE_ALT`, `SHOWCASE_CREDIT`).
+
+**Class anatomy:**
+- `.feature-showcase` — 2-column grid (1fr 1.2fr), 80px gap, vertically centred
+- `.feature-text` — flex column: eyebrow, h2, body copy, PillButton
+- `.eyebrow` — mono 11px accent uppercase label
+- `.feature-visual-wrap` — 16/11 aspect ratio, `isolation: isolate`
+- `.feature-img-glow` — `aria-hidden` `<img>` with `filter: blur(80px) saturate(1.4)`, z-index 0
+- `.feature-visual-frame` — rounded border container, z-index 2, with `::after` bottom gradient
+- `.feature-img` — full-fill `<img>` inside the frame
+- `.feature-credit` — glassmorphic pill badge top-left of the frame (aria-hidden)
+
+**Glow technique:** Two `<img>` elements share the same `src`. Cloudinary CDN `Cache-Control: public, max-age=31536000` means the second element is served from memory cache. One network request total. (DEC-025)
+
+**Accessibility:** Section has `aria-labelledby="leadership-heading"`. The glow image has `alt=""` and `aria-hidden="true"`. Credit badge is `aria-hidden`.
+
+**Where used:** `src/app/page.tsx`
+
+---
+
+## ExpertiseCard
+
+**File:** `src/components/ExpertiseCard.tsx`
+**Type:** Client Component (`'use client'`)
+
+**Purpose:** Single card in the Expertise Grid. Shows a BW image with a coloured tint at rest; on hover, BW image fades out and a colour video fades in and plays.
+
+**Props:**
+```ts
+item: ExpertiseItem  // from src/data/expertise.ts
+```
+
+**Class anatomy:**
+- `.exp-card.<tintClass>` — aspect-ratio 1/1.1 container, `isolation: isolate`, flex align-end
+- `.exp-media` — absolute-fill container for image and video layers
+- `.exp-img` — BW still image (`filter: grayscale(1) brightness(0.5)`), z-index 1, fades out on hover
+- `.exp-video` — colour hover video, z-index 2, fades in on hover, `preload="metadata"`
+- `.exp-tint` — tint overlay with `mix-blend-mode: color`, z-index 3, fades out on hover
+- `.exp-card::after` — bottom dark gradient pseudo-element, z-index 4, not pointer-interactive
+- `.ec-title` — `<h3>` with `margin: 0`, z-index 5, always visible
+
+**Tint variants:** `c1` (teal), `c2` (blue), `c3` (cyan), `c4` (purple), `c5` (indigo), `c6` (orange), `c7` (pink), `c8` (magenta)
+
+**Blend mode notes:** `mix-blend-mode: color` on `.exp-tint` uses the hue/saturation of the tint colour while keeping the luminosity of the grayscale image beneath, producing a colourised-BW effect. `isolation: isolate` on `.exp-card` contains the blend within the card's stacking context. Avoid `will-change` on `.exp-card` or its ancestors.
+
+**Video behaviour:**
+- `onMouseEnter`: calls `matchMedia('(prefers-reduced-motion: reduce)')` at hover time (not in `useEffect`, so it reflects system preference changes mid-session). If not reduced-motion, calls `videoRef.current?.play().catch(() => {})`.
+- `onMouseLeave`: calls `v.pause(); v.currentTime = 0` — pauses and resets to start.
+- `preload="metadata"`: browser fetches moov box (~5 to 30 KB per video) on page load; full video streams on hover. (DEC-026)
+
+**Accessibility:** `<video>` has `aria-hidden="true"`. `.exp-tint` has `aria-hidden="true"`. Card title is an `<h3>`.
+
+**Motion (reduced):** CSS `prefers-reduced-motion: reduce` block restores `.exp-img { opacity: 1; transform: none }`, keeps `.exp-video { opacity: 0 }`, and restores `.exp-tint { opacity: 0.8 }`. JS `matchMedia` in `onHover` also prevents `play()`. Card is visually identical hovered vs not-hovered on reduced-motion devices.
+
+**Where used:** `ExpertiseGrid.tsx`
+
+---
+
+## ExpertiseGrid
+
+**File:** `src/components/ExpertiseGrid.tsx`
+**Type:** Server Component
+
+**Purpose:** Expertise section heading and 8-card grid. Uses `content-visibility: auto` for rendering performance since it is below the fold.
+
+**Props:** None. Reads `expertise` array from `src/data/expertise.ts`.
+
+**Class anatomy:**
+- `.expertise-section` — max-width container, 96px vertical padding, `content-visibility: auto`, `contain-intrinsic-size: 800px`
+- `.expertise-head` — max-width 880px heading block with h2 and body copy
+- `.expertise-grid` — 4-column CSS grid at desktop, 3 at 1200px, 2 at 900px, 2 at 600px
+
+**Accessibility:** Section has `aria-labelledby="expertise-heading"` pointing to the `<h2>`.
+
+**Where used:** `src/app/page.tsx`
