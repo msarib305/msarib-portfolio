@@ -633,21 +633,320 @@ Home route (`src/app/page.tsx`) only. No other route.
 
 ---
 
-## Navigation
+## SkipToContent
 
-- Grid layout, three-column: `[s-logo] [nav-links] [cta]`.
-- S-logo left. Nav links centred. Resume download CTA right.
+**File:** `src/components/SkipToContent.tsx` (server component, no `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.skip-link`.
+
+### Purpose
+
+First focusable element in the DOM. Keyboard-only users Tab to it before reaching the nav and can jump past the chrome to `#main-content`.
+
+### Props
+
+None. Self-contained.
+
+### Class anatomy
+
+| Class | Role |
+|---|---|
+| `.skip-link` | `position: absolute; top: -100px` (off-screen). On `:focus`: `top: 16px` slides it into view. `z-index: 9999`, teal background, black text, `--radius-12` corners. |
+
+### Accessibility
+
+- The only visible-on-focus element rendered before the nav.
+- `href="#main-content"` targets the `<main id="main-content" tabIndex={-1}>` in `layout.tsx`.
+- `main[tabindex="-1"]:focus { outline: none; }` in `@layer base` suppresses the browser's default focus ring on the main element itself (keyboard users do not need a ring on a non-interactive scroll target).
+- Meets WCAG 2.4.1 Bypass Blocks.
+
+### Where used
+
+`src/app/layout.tsx` only, as the first child of `<body>`.
+
+---
+
+## Nav
+
+**File:** `src/components/Nav.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.nav` and child classes.
+
+### Purpose
+
+Fixed top navigation bar. Present on every route via `layout.tsx`.
+
+### Props
+
+None. Self-contained. Uses `usePathname` internally.
+
+### Class anatomy
+
+| Class | Element | Role |
+|---|---|---|
+| `.nav` | `<header>` | Fixed bar. Three-column grid: `minmax(0,1fr) auto minmax(0,1fr)`. Outer 1fr columns absorb equal remaining space, centring the auto-width link column at the viewport optical centre. `z-index: 100`. `backdrop-filter: blur(50px)`. |
+| `.nav--scrolled` | `<header>` | Applied when `window.scrollY > 30`. Reduces padding to 10px; darkens background to `rgba(16,16,20,0.85)`. |
+| `.nav-links` | `<ul>` | Desktop link row. `display: flex; gap: 2px; justify-content: center`. Hidden at `max-width: 1200px`. |
+| `.nav-actions` | `<div>` | Column 3. `display: flex; justify-content: flex-end; gap: 8px`. |
+| `.nav-link` | `<Link>` | Base link style. 14px, 500 weight, `--radius-full` hover bg. `::after` underline indicator (0px width default; 20px on hover/active). |
+| `.nav-link--active` | `<Link>` | Added alongside `aria-current="page"` on the active link. Sets `color: var(--color-accent)` and activates the underline. |
+| `.nav-cta` | `<PillButton>` | Hire me pill. Hidden at `max-width: 1200px` (merged into the same media query as `.nav-links`). |
+| `.nav-burger` | `<button>` | Hamburger. `display: none` desktop; `display: inline-flex` at `max-width: 1200px`. 40px circle, three 1.5px spans. |
+| `.nav-burger--open` | `<button>` | Open state. Spans 1 and 3 rotate to X; span 2 fades out. |
+
+### Active link detection
+
+```tsx
+function isActive(href: string, pathname: string): boolean {
+  if (href === '/') return pathname === '/'
+  return pathname === href || pathname.startsWith(href + '/')
+}
+```
+
+Home only activates on exact `/`. All other links activate for the path and any sub-routes.
+
+### Scroll listener
+
+`requestAnimationFrame`-throttled `scroll` listener. Sets `scrolled` state when `window.scrollY > 30`. Passive event. Removed on unmount.
+
+### Mobile menu state
+
+`menuOpen` boolean state. Passed to `<MobileMenu>`. Reset to `false` on every `pathname` change.
+
+### Accessibility
+
+- `<header>` landmark wraps the entire nav bar.
+- `<nav aria-label="Main navigation">` wraps the link list.
+- `aria-current="page"` on the active link (set to `undefined` on inactive links so the attribute is omitted from the DOM).
+- `aria-expanded` and `aria-controls="mobile-menu"` on the burger button.
+- `aria-label` switches between "Open menu" and "Close menu" based on state.
+
+### Motion
+
+- Nav padding transition: 300ms `var(--ease-out)`.
+- Nav link underline `::after`: width + left at 300ms `var(--ease-out)`.
+- Nav link background: 240ms `var(--ease-base)`.
+- Burger spans: 320ms `var(--ease-out)` transform, 200ms `var(--ease-base)` opacity.
+- `@supports not (backdrop-filter)` fallback: background becomes `rgba(16,16,20,0.95)`.
+- Reduced motion: all nav transitions set to `none` in `@media (prefers-reduced-motion: reduce)`.
+
+### Where used
+
+`src/app/layout.tsx` only, after `<SkipToContent />`.
+
+---
+
+## MobileMenu
+
+**File:** `src/components/MobileMenu.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.mobile-menu` and child classes.
+
+### Purpose
+
+Right-sliding drawer. Shown only when the burger is activated at `max-width: 1200px`. Contains the full link list, a Hire me CTA, and the FontToggle.
+
+### Props
+
+| Prop | Type | Description |
+|---|---|---|
+| `open` | `boolean` | Controls open/close state. |
+| `onClose` | `() => void` | Called on Escape, close button click, or link click. |
+| `triggerRef` | `React.RefObject<HTMLButtonElement \| null>` | Ref to the burger button. Focus returns here on close. |
+| `pathname` | `string` | Current pathname from `usePathname()` in Nav. Used to compute active link state. |
+
+### Class anatomy
+
+| Class | Element | Role |
+|---|---|---|
+| `.mobile-menu` | `<div>` | Fixed drawer. `width: min(100%, 380px)`. `height: 100dvh`. `transform: translateX(100%)` (off-screen right). `visibility: hidden`. `z-index: 90` (below nav at 100). |
+| `.mobile-menu--open` | `<div>` | `transform: translateX(0); visibility: visible`. 400ms `var(--ease-out)` transition. |
+| `.mm-link` | `<Link>` | Menu link. 18px display font, 700. `padding: 18px 20px`. `--radius-12`. |
+| `.mm-link--active` | `<Link>` | Active state. `background: var(--color-light-005); color: var(--color-accent)`. |
+| `.mm-arr` | `<span>` | Arrow glyph (`→`). 14px, muted colour. `transition: transform 200ms`. Translates right on link hover. |
+| `.mm-cta` | `<div>` | Wraps the Hire me `<PillButton>`. `margin-top: 24px`. |
+| `.mm-info` | `<div>` | Info block at the bottom. `margin-top: auto`. Tagline, timezone, email, FontToggle. Separated from links by a top border. |
+
+### Focus trap
+
+On open:
+1. `document.body.style.overflow = 'hidden'` (scroll lock).
+2. Focus moves to the close button (`closeBtnRef`).
+3. `keydown` listener added to `document`.
+4. `Tab`/`Shift+Tab` cycle through all focusable elements inside the dialog and wrap at both ends.
+5. `Escape` calls `onClose`.
+
+On close (cleanup):
+1. `keydown` listener removed.
+2. `document.body.style.overflow = ''` (scroll unlock).
+3. Focus returns to `triggerRef.current` (the burger) only when `document.activeElement` is `document.body`, `null`, or still inside the dialog. This prevents stealing focus when a menu link was clicked and navigation has already begun.
+
+### ARIA
+
+- `role="dialog"`, `aria-modal="true"`, `aria-labelledby="mobile-menu-heading"`.
+- `<h2 id="mobile-menu-heading" className="sr-only">Menu</h2>` provides the accessible name.
 - `aria-current="page"` on the active link.
-- Skip-link as the first focusable element.
+
+### Motion
+
+- `.mobile-menu` slide: `transform 400ms var(--ease-out)`.
+- `.mm-link` background/colour: 200ms `var(--ease-base)`.
+- `.mm-arr`: `transform 200ms var(--ease-base)`.
+- Reduced motion: all transitions set to `none`.
+
+### Where used
+
+Rendered by `Nav.tsx` alongside the `<header>`.
+
+---
+
+## FontToggle
+
+**File:** `src/components/FontToggle.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.font-toggle` and `.ft-label`.
+
+### Purpose
+
+Toggles the body font between PP Right Grotesk (default) and PP Neue Montreal. Preference survives page reload via `localStorage`.
+
+### Props
+
+None. Self-contained client island.
+
+### State
+
+| localStorage key | Values | `body.dataset.font` effect |
+|---|---|---|
+| `sarib-font-preference` | `'right'` (default) or `'montreal'` | Absence (or `'right'`) uses PP Right Grotesk. `'montreal'` activates the `body[data-font="montreal"]` CSS rule which overrides `--font-display` and `--font-base`. |
+
+### SSR hydration
+
+Server renders with `aria-pressed={false}` and label "Right Grotesk". `useEffect` reads `localStorage` on mount and corrects state and `body.dataset.font` if "montreal" is stored. One-frame label flash may occur for returning Montreal users; imperceptible for a below-fold footer element.
+
+### Class anatomy
+
+| Class | Role |
+|---|---|
+| `.font-toggle` | Pill-shaped `<button>`. Monospace 11px. `--color-light-005` background, `--color-border-faint` border. |
+| `.font-toggle:hover` | Background: `--color-light-010`. Border: `--color-border-subtle`. Text: primary. |
+| `.ft-label` | Inner span showing the current font name. `color: var(--color-text-primary); font-weight: 500`. |
+
+### Accessibility
+
+- `aria-pressed={true}` when Montreal is active; `aria-pressed={false}` for Right Grotesk.
+- `aria-label`: `"Switch typeface. Current: Neue Montreal"` (dynamically updated).
+- Screen readers announce: "Switch typeface. Current: Neue Montreal — toggle button pressed".
+- This is an improvement over v15, which had no `aria-pressed` attribute.
+
+### Where used
+
+Footer (`src/components/Footer.tsx`) and MobileMenu mm-info section (`src/components/MobileMenu.tsx`).
+
+---
+
+## LahoreClock
+
+**File:** `src/components/LahoreClock.tsx` (client component, `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.footer-clock`, `.clock-dot`.
+
+### Purpose
+
+Live Lahore time display in the footer. Updates every second.
+
+### Props
+
+None. Self-contained client island.
+
+### Time format
+
+`Intl.DateTimeFormat` with `timeZone: 'Asia/Karachi'` (Lahore is PKT, UTC+5). Output: `HH:mm:ss` 24-hour. No blinking colon. Format: "LAHORE · HH:mm:ss PKT".
+
+### SSR hydration
+
+Server renders `--:--:--` as the initial placeholder. `useEffect` replaces it on the first tick (within 1000ms). Avoids hydration mismatch because the placeholder is static on both server and client before mount.
+
+### Class anatomy
+
+| Class | Element | Role |
+|---|---|---|
+| `.footer-clock` | `<div>` | Pill container. Monospace 11px, `--color-light-005` bg, `--color-border-faint` border, `--radius-full`. |
+| `.clock-dot` | `<span>` | 5px teal circle. `box-shadow: 0 0 6px var(--color-accent)`. Pulses via `@keyframes pulse` at 2s ease-in-out infinite. |
+| `strong` | `<strong>` | Wraps the time value. `color: var(--color-text-primary); font-weight: 500`. |
+
+### Keyframes
+
+```css
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+```
+
+Defined outside `@layer`, after `@keyframes s-logo-spin`. Reduced motion: `.clock-dot { animation: none; }` in the `@layer base` reduced-motion block.
+
+### Accessibility
+
+`aria-label` on the wrapper div includes the live time: `"Current Lahore time: HH:mm:ss PKT"`. The `.clock-dot` is `aria-hidden="true"`.
+
+### Where used
+
+Footer (`src/components/Footer.tsx`) only.
 
 ---
 
 ## Footer
 
-- S-logo (links to home, same `.s-logo` singleton).
-- Font A/B toggle button. State persists in `localStorage` under `sarib-font-preference`.
-- Lahore PKT clock (UTC+5, live updated via `setInterval`).
-- RSS link, social links (GitHub, LinkedIn, YouTube), resume PDF download link.
+**File:** `src/components/Footer.tsx` (server component, no `'use client'`)
+**CSS:** `@layer components` in `src/app/globals.css`, `.footer`, `.footer-grid`, `.footer-col`, `.footer-bottom`.
+
+### Purpose
+
+Site footer. Present on every route via `layout.tsx`. Contains brand identity, navigation, social links, and utility controls (FontToggle, LahoreClock).
+
+### Props
+
+None. Self-contained server component with two client islands.
+
+### Layout
+
+Five-column grid (`grid-template-columns: repeat(5, 1fr)`):
+
+| Columns | Region | Content |
+|---|---|---|
+| 1-2 (`span 2`) | Brand | SLogo + tagline + LahoreClock |
+| 3 | Pages | Home, Work, About, Writings, Contact links |
+| 4 | Connect | GitHub, LinkedIn, YouTube, email |
+| 5 | Tools | FontToggle, RSS |
+
+Below the grid: a `footer-bottom` bar with copyright and location.
+
+### Class anatomy
+
+| Class | Element | Role |
+|---|---|---|
+| `.footer` | `<footer>` | `padding: 80px 32px 32px`. `border-top: 1px solid var(--color-border-faint)`. `margin-top: 64px`. `z-index: 2`. |
+| `.footer-grid` | `<div>` | Five-column grid. `max-width: var(--container-max)`. `gap: 48px`. `border-bottom: 1px solid var(--color-border-faint)`. |
+| `.footer-col` | `<div>` | One grid column. Column headings: `<h4>` — display font, 800, 13px, uppercase, `0.06em` tracking. Links: 13px, `--color-text-secondary`, hover to primary. |
+| `.footer-bottom` | `<div>` | `display: flex; justify-content: space-between; flex-wrap: wrap`. 12px, muted colour. |
+
+### Responsive
+
+- At `max-width: 900px`: grid collapses to 2 columns. Padding reduces to `64px 20px 32px`.
+- At `max-width: 600px`: grid collapses to 1 column. Footer bottom stacks vertically.
+
+### Client islands
+
+`FontToggle` and `LahoreClock` are imported as client islands. `Footer.tsx` has no `'use client'` — it is a Server Component. Only the two interactive subtrees enter the client bundle.
+
+### Social links
+
+- GitHub: `https://github.com/msarib305`
+- LinkedIn: `https://linkedin.com/in/msarib305`
+- YouTube: `https://youtube.com/@msarib305`
+- Email: `contact@msarib.dev`
+
+All external links: `target="_blank" rel="noopener noreferrer"`.
+
+### Where used
+
+`src/app/layout.tsx` only, after `<main id="main-content">`.
 
 ---
 

@@ -1,21 +1,25 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import { SkipToContent } from '@/components/SkipToContent'
+import { Nav }           from '@/components/Nav'
+import { Footer }        from '@/components/Footer'
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
+  subsets:  ['latin'],
+  display:  'swap',
   variable: '--font-jetbrains-mono',
-  preload: false,
-  weight: ['400', '500', '700'],
+  preload:  false,
+  weight:   ['400', '500', '700'],
 })
 
 export const metadata: Metadata = {
-  title: 'Sarib',
+  title:       'Sarib',
   description: 'Lead Unreal Engine 5 developer. msarib.dev',
-  other: {
-    'color-scheme': 'dark',
-  },
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'dark',
 }
 
 export default function RootLayout({
@@ -41,7 +45,14 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>
+        <SkipToContent />
+        <Nav />
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
+        <Footer />
+      </body>
     </html>
   )
 }

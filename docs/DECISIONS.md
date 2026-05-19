@@ -230,3 +230,78 @@ Each entry follows the ADR (Architectural Decision Record) pattern.
 **Alternatives considered:** Hardcoded `#1a1a1f` hex in `@layer components` (rejected: inconsistent with the rest of the system where every colour value is a `var()` reference; makes future palette changes require hunting for literals).
 
 Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on the `/design-system` page is intentional. The design-system page is internal-only (`robots: noindex`) and does not ship in any user-facing template. An arbitrary token-derived value here adds complexity with no design benefit; 80px vertical rhythm is correct for a wide-spaced component showcase.
+
+---
+
+## DEC-016: Client-island pattern for FontToggle and LahoreClock inside Server Component Footer
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** Footer is a Server Component to avoid sending an unnecessary client bundle for content-only markup. FontToggle requires `localStorage` and LahoreClock requires `setInterval` and `Intl.DateTimeFormat` — both are browser-only APIs that cannot run in a Server Component.
+
+**Decision:** `Footer.tsx` has no `'use client'` directive. `FontToggle.tsx` and `LahoreClock.tsx` each have `'use client'` and are imported as children. React treats them as client subtree boundaries inside an otherwise-server tree.
+
+**Consequences:** Only the two interactive subtrees enter the client bundle. The rest of Footer renders as static HTML with no client JavaScript. This is the standard Next.js App Router island pattern.
+
+**Alternatives considered:** Mark entire `Footer.tsx` as `'use client'` (rejected: unnecessarily inflates the client bundle for markup that has no interactivity).
+
+---
+
+## DEC-017: Hand-rolled focus trap for MobileMenu over focus-trap-react
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** MobileMenu requires a focus trap to comply with WAI-ARIA Modal Authoring Practices (keyboard users must not be able to Tab outside the open dialog).
+
+**Decision:** Manual `Tab`/`Shift+Tab` keydown handler in a `useEffect`. The handler queries `FOCUSABLE` elements inside the dialog ref and wraps focus at both ends. No external dependency.
+
+**Consequences:** Approximately 20 lines of implementation inside `MobileMenu.tsx`. No additional entry in `node_modules`. The logic is auditable inline without chasing a package.
+
+**Alternatives considered:** `focus-trap-react` (rejected: a single-use dependency for 20 lines; adds a transitive dependency chain that is not worth it for one component); `@radix-ui/react-focus-scope` (rejected: same reasoning, plus it pulls in the broader Radix ecosystem).
+
+---
+
+## DEC-018: FontToggle SSR hydration via live-correction on mount
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** FontToggle cannot read `localStorage` on the server (no `window`). Two approaches: (a) render the default "Right Grotesk" state server-side and correct on mount if `localStorage` differs; (b) render nothing until mounted, then insert the button.
+
+**Decision:** Approach (a). Server renders the button with `aria-pressed={false}` and label "Right Grotesk". `useEffect` reads `localStorage` on mount and corrects both the React state and `body.dataset.font` if "montreal" is stored.
+
+**Consequences:** A one-frame label flash may occur for returning Montreal users. FontToggle is a footer element, below the fold, and the flash is imperceptible in practice. CLS is zero because the button occupies its space from the first render.
+
+**Alternatives considered:** Approach (b) — render nothing until mounted. Rejected: introduces a CLS shift when the button appears, and a flash of missing content (FOMC) is worse than a flash of incorrect content for a below-fold element.
+
+---
+
+## DEC-019: aria-pressed added to FontToggle (improvement over v15)
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** The v15 font toggle button has no `aria-pressed` attribute. It announces only as "Switch typeface — button" to screen readers.
+
+**Decision:** Add `aria-pressed={pref === 'montreal'}` and a descriptive `aria-label` that names the current font: "Switch typeface. Current: Neue Montreal".
+
+**Consequences:** Screen readers announce the toggle as "Switch typeface. Current: Neue Montreal — toggle button pressed" when Montreal is active. No visual change. A strict improvement over v15.
+
+**Alternatives considered:** Match v15 exactly and omit `aria-pressed` (rejected: the v15 state is a known accessibility gap; Phase 4 is the correct time to fix it).
+
+---
+
+## DEC-020: generateViewport for color-scheme replaces metadata.other
+
+- **Date:** 2026-05-19
+- **Status:** Accepted
+
+**Context:** Phase 2 used `metadata.other = { 'color-scheme': 'dark' }` to emit the `<meta name="color-scheme" content="dark">` tag. This works but uses an undocumented side channel in the metadata API. Next.js 16 provides a typed `viewport` export via `export const viewport: Viewport`.
+
+**Decision:** Replace `metadata.other['color-scheme']` with `export const viewport: Viewport = { colorScheme: 'dark' }` in `layout.tsx`. Import `type Viewport from 'next'`.
+
+**Consequences:** The meta tag is still emitted. The `metadata` object is cleaner (no `other` field). The `Viewport` type provides compile-time safety for all viewport-related properties.
+
+**Alternatives considered:** Keep `metadata.other` (rejected: undocumented side channel; the `viewport` export is the explicit, typed, documented API in Next.js 16).

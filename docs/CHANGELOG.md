@@ -24,6 +24,32 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-19 PKT
+### feat(shell): nav, footer, mobile menu, skip link, Dark Reader safety meta
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push to main
+- Playwright: N/A this phase
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/app/globals.css`: added nav, footer, mobile-menu, skip-link, clock, font-toggle classes to @layer components; added @keyframes pulse; added .clock-dot animation: none to prefers-reduced-motion block; added main[tabindex="-1"]:focus { outline: none } to @layer base.
+- `src/app/layout.tsx`: added SkipToContent, Nav, Footer; wrapped children in `<main id="main-content" tabIndex={-1}>`; added viewport export; removed metadata.other; added suppressHydrationWarning on `<body>`.
+- `src/app/page.tsx`: changed outer `<main>` to React fragment; layout now provides the `<main>` landmark.
+- `src/components/SkipToContent.tsx`: new server component.
+- `src/components/Nav.tsx`: new client component. Fixed nav, three-column grid, five links, scroll threshold 30px, mobile menu state.
+- `src/components/MobileMenu.tsx`: new client component. Right-side drawer, focus trap, scroll lock, Escape closes, focus returns to burger.
+- `src/components/FontToggle.tsx`: new client island. localStorage toggle between PP Right Grotesk and PP Neue Montreal. aria-pressed.
+- `src/components/LahoreClock.tsx`: new client island. Asia/Karachi timezone, 1s interval, pulse dot.
+- `src/components/Footer.tsx`: new server component with two client islands. Five-column grid, three logical regions.
+- `docs/DESIGN_SYSTEM.md`: component specs for SkipToContent, Nav, MobileMenu, FontToggle, LahoreClock, Footer.
+- `docs/DECISIONS.md`: DEC-016 through DEC-020.
+- `docs/CHANGELOG.md`: Phase 4 entry.
+
+---
+
+## 2026-05-19 PKT
 ### feat(components): S-logo, pill button system, 3D pill badge, cursor system + /design-system showcase route; amend Phase 2 @theme with badge-fg token (DEC-015)
 
 - pnpm typecheck: pass
