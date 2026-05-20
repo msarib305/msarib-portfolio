@@ -1412,3 +1412,79 @@ Minimal placeholder used by `/about`, `/writings`, and `/contact` until their fu
 **CSS classes:** `.placeholder-page` (152px top padding, `--container-max`)
 
 **Props:** `title: string`, `description: string`
+
+---
+
+## Phase 9 components
+
+### AboutHero
+
+Two-column section (`.about-hero-grid`: 1.5fr 1fr). Left column: eyebrow "About", `h1.about-h1` "Lead UE5 developer from Lahore.", `.about-lede`, and `.about-stats` (flex row of three `.about-stat` blocks with `.num` in accent teal and `.lbl` in mono uppercase). Right column: `.about-portrait` (gradient placeholder, 3:4 aspect ratio, `.pwm` text overlay). No scroll animations; portrait image deferred until asset is available.
+
+**CSS classes:** `.about-hero`, `.about-hero-grid`, `.about-h1`, `.about-lede`, `.about-stats`, `.about-stat`, `.about-portrait`, `.about-portrait .pwm`, `.nm`, `.ro`
+
+**Props:** none (hardcoded constants)
+
+---
+
+### AboutNarrative
+
+Prose section (`.about-narrative`, max-width 800px). h2 "The short version." followed by four paragraphs with `<strong>` lead-ins on paragraphs 2 through 4. Copy is verbatim v15 (Sarib-approved). No data file.
+
+**CSS classes:** `.about-narrative`, `.about-narrative h2`, `.about-narrative p`, `.about-narrative p strong`
+
+**Props:** none
+
+---
+
+### AboutPillars
+
+Three-card engineering principles section (`.three-card`). Blob background reuses `wib-drift1` keyframe. `.three-card-head` with eyebrow "Engineering pillars" and h2 "How I think about the work.". `.three-grid` (3-column) with three `.t-card` articles. `.t1` card gets teal-tinted `.t-pill` chip; `.t2` and `.t3` get neutral chips. No detail bullet list (distinct from WhatIBringCard). Data is a module-level `PILLARS` constant.
+
+**CSS classes:** `.three-card`, `.three-card-bg`, `.blob3`, `.three-card-head`, `.three-grid`, `.t-card`, `.t-card.t1`, `.t-card.t2`, `.t-card.t3`, `.t-pill`, `.t-desc`
+
+**Props:** none
+
+---
+
+### Timeline
+
+Experience section (`.timeline`). Header with h2 "Experience." and a secondary PillButton "Download resume (PDF)" linking to `/resume.pdf`. Maps `experience[]` from `src/data/experience.ts` to `TimelineEntry` components.
+
+**CSS classes:** `.timeline`, `.timeline-head`
+
+**Data:** `src/data/experience.ts` — `ExperienceItem { slug, years, role, company, location, summary, bullets[], tags[], current }`
+
+**Props:** none
+
+---
+
+### TimelineEntry
+
+Single experience row (`.exp-row`). Three-column grid: 200px `.when` column, 1fr `.role` column, 280px `.tags` column. Current entry gets `.exp-row.current` teal radial gradient background and a `<PillBadge tone="grad-1">Current</PillBadge>` in `.now-wrap`. `.deets` uses `.deets-summary` paragraph + `<ul>` for bullets (valid HTML, no bare text nodes). At 1200px the tags column wraps to its own row; on the `.current` row the border-top is transparent to preserve the gradient.
+
+**CSS classes:** `.exp-row`, `.exp-row.current`, `.when`, `.now-wrap`, `.role`, `.role-title`, `.company`, `.deets`, `.deets-summary`, `.tags`, `.tag`
+
+**Props:** `item: ExperienceItem`
+
+---
+
+### SkillsGrid
+
+Skills section (`.skills-section`). Section heading h2 "Skills." followed by `.skills-grid` (4-column at desktop, 2-column at 1200px, 1-column at 600px). Maps `skills[]` from `src/data/skills.ts` to `SkillCategory` components.
+
+**CSS classes:** `.skills-section`, `.skills-section-head`, `.skills-grid`
+
+**Data:** `src/data/skills.ts` — `SkillCategoryItem { slug, label, items[] }`. Four categories: Engines & Languages, Systems & Frameworks, Platforms & Tools, Practice.
+
+**Props:** none
+
+---
+
+### SkillCategory
+
+Single skill category card (`.skill-cat`). `h4` category label in `color-accent` uppercase, followed by `<ul>` of `<li>` items. Background `color-light-005`, border `border-faint`, `radius-16`.
+
+**CSS classes:** `.skill-cat`, `.skill-cat h4`, `.skill-cat ul`, `.skill-cat li`
+
+**Props:** `category: SkillCategoryItem`

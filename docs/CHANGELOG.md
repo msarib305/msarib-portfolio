@@ -24,6 +24,56 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(about): hero, narrative, pillars, timeline, skills, CTA
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push
+- Playwright: N/A this phase
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/data/experience.ts`: new file. ExperienceItem interface (slug, years, role,
+  company, location, summary, bullets, tags, current). Six entries newest-first:
+  SwiftNine (current), Vmmersion, Exarta Senior, Ideofuzion, Exarta first, HashTech.
+  Dates confirmed against PROFESSIONAL_HISTORY.md by Sarib.
+- `src/data/skills.ts`: new file. SkillCategoryItem interface (slug, label, items).
+  Four categories verbatim from v15: Engines & Languages, Systems & Frameworks,
+  Platforms & Tools, Practice.
+- `src/components/AboutHero.tsx`: new. Server Component. Two-column hero with eyebrow,
+  h1 "Lead UE5 developer from Lahore.", lede, stats (07/10/06), CSS-only portrait
+  placeholder with .pwm text overlay.
+- `src/components/AboutNarrative.tsx`: new. Server Component. h2 "The short version."
+  plus four paragraphs verbatim from v15. Bold lead-ins on paragraphs 2 through 4.
+- `src/components/AboutPillars.tsx`: new. Server Component. Three engineering pillar
+  cards with module-level PILLARS constant. .three-card/.three-grid/.t-card layout
+  from v15. Blob reuses wib-drift1 keyframe. t1 card has teal .t-pill chip.
+- `src/components/Timeline.tsx`: new. Server Component. Timeline header with h2
+  "Experience." and secondary PillButton resume link. Maps experience[] to TimelineEntry.
+- `src/components/TimelineEntry.tsx`: new. Server Component. .exp-row 3-column grid
+  (200px / 1fr / 280px). Current entry gets teal radial gradient and PillBadge
+  tone="grad-1" "Current" label. .deets uses .deets-summary paragraph + ul structure.
+- `src/components/SkillsGrid.tsx`: new. Server Component. Skills section with h2
+  "Skills.", maps skills[] to SkillCategory.
+- `src/components/SkillCategory.tsx`: new. Server Component. .skill-cat card with
+  accent-colored h4 and list of items.
+- `src/app/about/page.tsx`: replaced PlaceholderPage with full About composition.
+  Imports: AboutHero, AboutNarrative, AboutPillars, Timeline, SkillsGrid, ContactCTA.
+  Updated metadata description.
+- `src/app/globals.css`: appended Phase 9 CSS inside @layer components. Classes:
+  about-hero, about-hero-grid, about-h1, about-lede, about-stats, about-stat (.num,
+  .lbl), about-portrait (.pwm, .nm, .ro), about-narrative, three-card, three-card-bg
+  (.blob3), three-card-head (.lede), three-grid, t-card (.t1/.t2/.t3), t-pill, t-desc,
+  timeline, timeline-head, exp-row, exp-row.current, now-wrap, role (.role-title,
+  .company, .deets, .deets-summary), tags (.tag), skills-section (.skills-section-head),
+  skills-grid, skill-cat. Responsive breakpoints at 1200px, 900px, 600px. 1200px block
+  includes .exp-row.current .tags { border-top-color: transparent } to prevent the
+  border cutting through the teal gradient. prefers-reduced-motion guard on blob3.
+- `docs/DECISIONS.md`: DEC-036 through DEC-039.
+- `docs/DESIGN_SYSTEM.md`: Phase 9 component entries.
+
+## 2026-05-20 PKT
 ### feat(routing): /work index, case study template, route placeholders
 
 - pnpm typecheck: pass

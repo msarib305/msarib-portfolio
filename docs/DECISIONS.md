@@ -534,3 +534,63 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** Three thin page files, one place to change if placeholder copy needs updating. When real content ships, each page simply stops using PlaceholderPage.
 
 **Alternatives considered:** Inline the placeholder structure in each page (rejected: three copies of the same boilerplate with no benefit).
+
+---
+
+## DEC-036: No scroll-triggered reveal animations in Phase 9
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** v15 uses JS IntersectionObserver adding `.in` to `.reveal` elements on scroll. Phase 9 builds the About page without an animation library install (anti-goal).
+
+**Decision:** No scroll animations ship in Phase 9. CSS `animation-timeline: view()` was considered but requires a client boundary or polyfill. The page content is fully readable without reveals.
+
+**Consequences:** About page loads fully visible. Scroll-triggered reveals can be added in Phase 13 as progressive enhancement without touching the component structure.
+
+**Alternatives considered:** Inline `useEffect` with IntersectionObserver (rejected: adds a client boundary to otherwise server-only components for a non-blocking visual effect).
+
+---
+
+## DEC-037: About portrait ships as CSS placeholder
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** v15 uses `background-image: var(--asset-cyberpunk)` on `.about-portrait`. No avatar asset exists yet.
+
+**Decision:** `.about-portrait` renders as a gradient placeholder (`linear-gradient(145deg, ...)`) with the `.pwm` text overlay (SARIB / Lead UE5 Developer). When an image asset is provided, add `background-image: url(...)` to override.
+
+**Consequences:** The two-column hero layout is preserved. The right column has visual weight even without a photo.
+
+**Alternatives considered:** Omit the portrait column (rejected: the `about-hero-grid` two-column layout collapses without a right column; the layout is structurally dependent on both columns having content).
+
+---
+
+## DEC-038: AboutPillars uses module-level constants, not a data file
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The three engineering pillar cards are fixed copy. Keystatic Phase 10 manages project data, not editorial prose.
+
+**Decision:** The three cards are defined as a `PILLARS` module-level constant in `AboutPillars.tsx`. No `src/data/engineering-pillars.ts`.
+
+**Consequences:** No indirection for three fixed entries. Adding a fourth pillar is a design decision, not a data entry — the hardcoded array reflects that constraint.
+
+**Alternatives considered:** Separate data file (rejected: indirection with no benefit at 3 entries; no CMS migration path for this copy).
+
+---
+
+## DEC-039: Timeline .now badge uses PillBadge component
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The "Current" label on the active timeline entry in v15 uses the same 3D gradient pill style as Phase 2 PillBadge.
+
+**Decision:** `TimelineEntry` uses `<PillBadge tone="grad-1">Current</PillBadge>` rather than a new `.now` CSS class. `tone="grad-1"` is the teal gradient, matching the v15 intent.
+
+**Consequences:** Visual consistency with Phase 7 WhatIBring cards. One fewer CSS class to maintain.
+
+**Alternatives considered:** CSS-only `.now` class (rejected: duplicates the 3D pill CSS already defined in @layer components).

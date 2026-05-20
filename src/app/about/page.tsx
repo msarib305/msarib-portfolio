@@ -1,16 +1,25 @@
-import type { Metadata }    from 'next'
-import { PlaceholderPage } from '@/components/PlaceholderPage'
+import type { Metadata }  from 'next'
+import { AboutHero }      from '@/components/AboutHero'
+import { AboutNarrative } from '@/components/AboutNarrative'
+import { AboutPillars }   from '@/components/AboutPillars'
+import { Timeline }       from '@/components/Timeline'
+import { SkillsGrid }     from '@/components/SkillsGrid'
+import { ContactCTA }     from '@/components/ContactCTA'
 
 export const metadata: Metadata = {
   title:       'About — Sarib',
-  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across six studios.',
+  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across six studios. Currently leading engineering at SwiftNine in Lahore.',
 }
 
 export default function AboutPage() {
   return (
-    <PlaceholderPage
-      title="About"
-      description="Full biography, timeline, and the tools I rely on. Shipping in a later phase."
-    />
+    <>
+      <AboutHero />
+      <AboutNarrative />
+      <AboutPillars />
+      <Timeline />
+      <SkillsGrid />
+      <ContactCTA />
+    </>
   )
 }
