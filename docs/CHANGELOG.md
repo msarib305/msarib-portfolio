@@ -24,6 +24,50 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(contact): Phase 12 — contact form, Resend email, Cloudflare Turnstile
+
+**New routes:** `/contact` (full contact page replacing Phase 8 placeholder)
+
+**New files:**
+- `src/app/contact/actions.ts` — Server Action: Zod validation, rate-limit check, Turnstile verify, Resend send, record on success
+- `src/lib/contact-schema.ts` — Zod v3 schema and `ContactFormState` type
+- `src/lib/email.ts` — Resend wrapper, dark-themed HTML email, `escapeHtml` helper
+- `src/lib/rate-limit.ts` — In-memory IP rate limiter. Soft signal: catches casual repeats; resets on cold start. Hard prevention from Turnstile + Resend dashboard monitoring.
+- `src/components/ContactForm.tsx` — Client Component, `useActionState`, field errors via `aria-describedby`, Turnstile reset on token failure
+- `src/components/ContactInfo.tsx` — Sidebar: LinkedIn, YouTube, Upwork, Fiverr (confirmed URLs)
+- `src/components/ContactSuccess.tsx` — Personalised success state with submitter's name
+- `src/components/TurnstileWidget.tsx` — Cloudflare Turnstile, dark theme, `refreshExpired: 'auto'`, `forwardRef` for reset
+
+**Modified files:**
+- `src/app/contact/page.tsx` — Rewritten from PlaceholderPage to Server Component with hero, form, sidebar
+- `src/app/globals.css` — Added `--color-error: #ff4545` token; appended contact CSS block
+- `.env.example` — Added 5 env var placeholders for Resend and Turnstile
+- `docs/DECISIONS.md` — DEC-049 through DEC-053
+
+**Packages added:** `resend@^6`, `zod@^3`, `@marsidev/react-turnstile@^1`
+
+**Key corrections applied during implementation:**
+1. FormData values coerced to strings before Zod parse (user-facing error messages fire correctly)
+2. Rate limit records only on successful email delivery (no lockout after service failures)
+3. Turnstile widget resets via ref after server-side token rejection
+4. Dark theme enforced on Turnstile widget
+5. PillButton already supported button mode — no extension needed
+6. Resend v6 confirmed: `replyTo` camelCase, `from` display-name format, `to` array, `error.message` path
+
+**Env vars required (add to Vercel dashboard):**
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_TO_EMAIL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass (/contact static)
+- Vercel preview: pending (requires env vars)
+- Playwright: N/A this phase
+- Manual visual check: pending
+
+---
+
+## 2026-05-20 PKT
 ### feat(writings): Phase 11 — writings collection, index, post template, RSS feed
 
 **New routes:** `/writings` (index, empty state), `/writings/[slug]` (per-post template), `/feed.xml` (RSS 2.0 route handler)

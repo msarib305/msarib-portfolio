@@ -717,3 +717,80 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Decision:** `generateStaticParams` only includes slugs where `status === 'published'`. `dynamicParams = false` means any other slug returns 404. `/writings` index only shows published posts. RSS feed only includes published posts.
 
 **Consequences:** Draft posts exist in `content/writings/` and are visible in the Keystatic admin UI but are not accessible via any public URL.
+
+---
+
+## DEC-049: Resend for email delivery
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Contact form needs to deliver submissions to msarib.contact@gmail.com.
+
+**Decision:** Use Resend (`resend` npm package, v6) as the email delivery provider. Domain `msarib.dev` verified via DKIM and SPF DNS records. Sender: `hello@msarib.dev`. `replyTo` set to submitter's email.
+
+**Alternatives rejected:** AWS SES — requires IAM key management and more complex domain verification; overkill for portfolio volume. Nodemailer with SMTP — credential exposure risk; deliverability inconsistent without a dedicated sending service.
+
+**Consequences:** Free tier (3000 emails/month) covers portfolio volume indefinitely. Email sending logic is isolated in `src/lib/email.ts` — swap to another provider by changing that file alone.
+
+---
+
+## DEC-050: Cloudflare Turnstile for bot protection
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Contact form is publicly accessible and needs protection from automated submissions.
+
+**Decision:** `@marsidev/react-turnstile` widget rendered in `ContactForm.tsx`. Token verified server-side in the Server Action via Cloudflare's siteverify endpoint. Widget uses `options={{ theme: 'dark', refreshExpired: 'auto' }}`. Ref-based `reset()` called on token verification failure so the widget refreshes without a page reload.
+
+**Alternatives rejected:** Google reCAPTCHA v3 — fingerprints users across domains, conflicts with privacy posture. hCaptcha — less widely trusted widget; similar privacy trade-offs.
+
+**Consequences:** No-JS submissions are blocked because Turnstile cannot render its widget without JavaScript. This is acceptable and documented. Turnstile is free with no monthly limit.
+
+---
+
+## DEC-051: Server Action over API route for contact form
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Contact form submission needs server-side validation, rate limiting, Turnstile verification, and email delivery.
+
+**Decision:** Form submission handled by a `'use server'` Server Action in `src/app/contact/actions.ts`. `useActionState` wires the action to the form in `ContactForm.tsx`.
+
+**Alternatives rejected:** API route handler — requires a client-side `fetch` in `ContactForm.tsx`, losing progressive enhancement and splitting error handling across client and server.
+
+**Consequences:** Progressive enhancement is native; the form submits as a standard HTML POST without client-side JavaScript (Turnstile blocks it, which is acceptable). No client-side fetch required.
+
+---
+
+## DEC-052: In-memory rate limiting — soft signal, not hard prevention
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Contact form needs protection from casual repeat submissions.
+
+**Decision:** `src/lib/rate-limit.ts` uses a `Map<string, number>` keyed by client IP. Checks before Turnstile verification. Records only on successful email delivery to avoid locking out users after service failures.
+
+**Honest framing:** This is a soft signal, not hard abuse prevention. Vercel's serverless infrastructure starts new function instances on cold starts, resetting the Map. A determined attacker can bypass it by triggering many cold starts. Hard prevention comes from Turnstile (blocks automated submissions) plus manual monitoring of Resend dashboard email volume.
+
+**Upgrade path:** Swap the body of `checkRateLimit` and `recordSubmission` to `@upstash/ratelimit` without changing call sites in the Server Action.
+
+**Consequences:** Catches casual repeat submissions from the same IP within a 5-minute window. Adds no external dependency or account requirement.
+
+---
+
+## DEC-053: Zod v3 for schema validation
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Contact form needs schema validation shared between the Server Action and the `ContactFormState` type.
+
+**Decision:** `zod@^3` (v3.25.76 installed). Schema in `src/lib/contact-schema.ts`. `safeParse()` + `error.flatten().fieldErrors` extracts per-field error arrays.
+
+**Alternatives rejected:** Zod v4 — different API (`z.flattenError()` vs `error.flatten().fieldErrors()`); ecosystem tooling not fully updated at time of implementation. Manual validation — boilerplate, error-prone, not reusable.
+
+**Consequences:** Pin to `^3` to stay on v3 minor/patch updates only. Migrate to v4 as a separate step when ecosystem catches up.
