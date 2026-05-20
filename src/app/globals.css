@@ -2111,6 +2111,43 @@ body[data-font="montreal"] {
     max-width: 780px;
   }
 
+  .case-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+
+  .case-body h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(28px, 3.5vw, 42px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    padding-top: 48px;
+  }
+
+  .case-body h2:first-child {
+    padding-top: 0;
+  }
+
+  .case-body h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    padding-top: 32px;
+  }
+
+  .case-body p {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+    max-width: 780px;
+  }
+
   /* Numbered list — CSS counter ordinals in teal, matching v15 */
   .case-list {
     list-style: none;
@@ -2293,6 +2330,10 @@ body[data-font="montreal"] {
     }
 
     .case-section {
+      padding: 48px 20px;
+    }
+
+    .case-body {
       padding: 48px 20px;
     }
 

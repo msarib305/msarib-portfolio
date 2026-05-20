@@ -1,7 +1,7 @@
 import type { Metadata }  from 'next'
 import { notFound }        from 'next/navigation'
 import Image               from 'next/image'
-import { projects, findProjectBySlug, getProjectNav } from '@/data/projects'
+import { getProjects, findProjectBySlug, getProjectNav } from '@/data/projects'
 import { CaseStudyHeader } from '@/components/CaseStudyHeader'
 import { CaseStudySpecs }  from '@/components/CaseStudySpecs'
 import { ProjectBody }     from '@/components/ProjectBody'
@@ -9,8 +9,9 @@ import { CaseStudyNav }    from '@/components/CaseStudyNav'
 
 export const dynamicParams = false
 
-export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }))
+export async function generateStaticParams() {
+  const all = await getProjects()
+  return all.map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({
@@ -19,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const project = findProjectBySlug(slug)
+  const project = await findProjectBySlug(slug)
   if (!project) return {}
   return {
     title:       `${project.title} — Sarib`,
@@ -33,10 +34,11 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const project = findProjectBySlug(slug)
+  const [project, nav] = await Promise.all([
+    findProjectBySlug(slug),
+    getProjectNav(slug),
+  ])
   if (!project) notFound()
-
-  const nav = getProjectNav(slug)
 
   return (
     <>
@@ -67,7 +69,7 @@ export default async function ProjectPage({
         </div>
       </div>
 
-      <ProjectBody blocks={project.body} />
+      <ProjectBody body={project.body} />
 
       <CaseStudyNav prev={nav.prev} next={nav.next} />
     </>

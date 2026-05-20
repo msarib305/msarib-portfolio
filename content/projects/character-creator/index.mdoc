@@ -1,0 +1,42 @@
+---
+title: Character Creator System
+summary: >-
+  Runtime character customization with no editor dependency. Modular skeletal
+  mesh, MID skin and hair, blendshapes, and a full save-and-load profile system.
+cover: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,g_auto,w_800/sample"
+coverAlt: "Character Creator System — runtime character customization in Unreal Engine"
+tags:
+  - UE5
+  - Blueprints
+  - Materials
+  - MID
+  - Animation
+client: Exarta
+year: "2023"
+status: shipped
+role: "UE Developer"
+engine: "UE5 · Blueprint"
+gallery: []
+video: HQ1BEmAtTb4
+featured: true
+tintClass: wc-3
+links:
+  - label: Showcase (Exarta)
+    href: "https://youtu.be/HQ1BEmAtTb4"
+  - label: Showcase (personal)
+    href: "https://youtube.com/watch?v=DgFPmKbyyos"
+---
+Runtime character customization with no editor dependency. The entire system runs at game runtime. That was the hard constraint from the start: no editor tooling passes, no build steps, no cook-time baking. Designers can customize characters in a shipped build.
+
+## Feature set.
+
+1. Modular skeletal mesh swapping — components swap at runtime without breaking the animation blueprint or losing attachment sockets.
+2. Groom-based hair — hair components driven by Groom assets for strand-level fidelity.
+3. Material Instance Dynamic — skin color, eye color, hair color all driven by MID parameters. No material variant proliferation.
+4. Blendshape morphology — arm length, lip shape, nose size controlled by morph target weights at runtime.
+5. Decal system — tattoos, scars, moles applied as runtime decal components, positioned and scaled per save profile.
+6. Save-and-load profile system — complete character state serialized to disk and restored exactly on load.
+
+## The hard part.
+
+Keeping the animation blueprint valid across mesh swaps. Every swap has to preserve attachment sockets, maintain the same skeleton hierarchy, and not trigger animation blueprint re-initialization. The solution was strict component-swap ordering with a pre-validation pass that rejected incompatible meshes before they reached the rendering pipeline. <!-- TODO: verify exact technical mechanism used for animation blueprint continuity -->

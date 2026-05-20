@@ -1,0 +1,39 @@
+---
+title: NVIDIA AI Assistant
+summary: >-
+  Real-time AI character driven by NVIDIA Omniverse Audio2Face for facial
+  animation and a self-hosted Llama LLM for contextual responses.
+cover: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,g_auto,w_800/sample"
+coverAlt: "NVIDIA AI Assistant — real-time AI character in Unreal Engine"
+tags:
+  - UE5
+  - NVIDIA
+  - AI
+  - Llama LLM
+  - Audio2Face
+client: Exarta
+year: "2024"
+status: archived
+role: "Senior UE Developer"
+engine: "UE5 · Blueprint"
+gallery: []
+video: gakXRloKGlw
+featured: true
+tintClass: wc-2
+links:
+  - label: Demo video
+    href: "https://youtu.be/gakXRloKGlw"
+---
+Real-time AI assistant character in Unreal driven by NVIDIA Omniverse Audio2Face for facial animation and lip sync, with a self-hosted Llama LLM backend generating contextual responses. Three systems that do not natively speak to each other, wired into one runtime loop.
+
+## The constraint.
+
+End-to-end latency had to stay below the threshold where conversational pacing breaks. Audio2Face needs audio to drive it, which means the TTS pipeline had to begin streaming before the full LLM response was available. Synchronous calls from the game thread were not an option. <!-- TODO: add specific latency target if Sarib has the number -->
+
+## Architecture.
+
+1. Llama backend — self-hosted on a dedicated server. Prompt formatted for the Llama family with narrative context at system-prompt level. No cloud API dependency.
+2. Audio2Face integration — driven by streamed audio from the TTS pipeline. Blend shapes from Audio2Face piped into the UE5 MetaHuman rig at runtime.
+3. Blueprint orchestration — async Blueprint nodes with explicit latency-budget guards. Game thread never stalls waiting on inference.
+
+Self-hosting the LLM rather than calling a cloud API was the right call for latency and data-privacy reasons. The tradeoff was setup complexity: model loading, GPU memory management, prompt formatting, and response streaming all had to be solved before the UE integration could begin. <!-- TODO: confirm whether this ran on Exarta server hardware or a cloud VM -->

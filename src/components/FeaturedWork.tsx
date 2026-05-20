@@ -1,8 +1,9 @@
-import { featuredProjects } from '@/data/projects'
+import { getFeaturedProjects } from '@/data/projects'
 import { WorkCard }     from '@/components/WorkCard'
 import { PillButton }   from '@/components/PillButton'
 
-export function FeaturedWork() {
+export async function FeaturedWork() {
+  const featured = await getFeaturedProjects()
   return (
     <section className="section" aria-labelledby="selected-work-heading">
       <div className="section-head">
@@ -12,7 +13,7 @@ export function FeaturedWork() {
         </PillButton>
       </div>
       <div className="work-grid">
-        {featuredProjects.map((project) => (
+        {featured.map((project) => (
           <WorkCard key={project.slug} project={project} />
         ))}
       </div>

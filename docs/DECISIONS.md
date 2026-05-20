@@ -594,3 +594,61 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** Visual consistency with Phase 7 WhatIBring cards. One fewer CSS class to maintain.
 
 **Alternatives considered:** CSS-only `.now` class (rejected: duplicates the 3D pill CSS already defined in @layer components).
+
+---
+
+## DEC-040: Keystatic storage mode is local-only
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Phase 10 migrates case study content from a hardcoded TypeScript array to Keystatic CMS. Two storage modes are available: local (content as git files, CMS UI only in dev) and GitHub (live editing on Vercel via OAuth).
+
+**Decision:** Use `storage: { kind: 'local' }`. CMS UI accessible only in dev. Content committed to git, deployed statically.
+
+**Consequences:** Editing requires a local dev environment. Vercel deployments use committed content files. No env vars required.
+
+**Alternatives considered:** GitHub mode (rejected: requires OAuth app registration, KEYSTATIC_GITHUB_CLIENT_ID/SECRET, session secret, and a production /keystatic route — overhead with no benefit for a solo developer).
+
+---
+
+## DEC-041: fields.slug for slugField title, not fields.text
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Keystatic collection requires a `slugField`. When `fields.text` is used as the slug field, the reader returns `null` for that field at read time (the value is in `e.slug`, not `e.entry.title`). `fields.slug` returns the display name correctly.
+
+**Decision:** Use `fields.slug({ name: { label: 'Title' } })` for the `title` field. At read time, `e.entry.title` returns the display name string ("Samurai Saga"). Content files store `title: Samurai Saga` — unchanged format from `fields.text`.
+
+**Consequences:** Keystatic CMS title field generates slug from the name input. Display title available via `e.entry.title` without any transformation.
+
+**Alternatives considered:** `fields.text` as slugField (rejected: returns `null` at read time, requires reading from `e.slug` which loses special characters like "TRESemmé").
+
+---
+
+## DEC-042: ProjectBody uses Markdoc rendering, not DocumentRenderer
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** `fields.markdoc` is Keystatic's current body field. `fields.document` (which works with `DocumentRenderer`) is deprecated and stores content in a non-readable format. `fields.markdoc` produces `.mdoc` files with readable YAML+Markdoc content.
+
+**Decision:** Use `fields.markdoc` and render body via `Markdoc.transform()` + `Markdoc.renderers.react()` from `@markdoc/markdoc`. Custom node renderers for `list` and `item` emit `.case-list` and `.case-list-item` class names. Figure block uses a custom `Figure` tag.
+
+**Consequences:** Body renders via the Markdoc AST pipeline. `ProjectBodyBlock` type and `groupBlocks` function are removed. CSS classes reused unchanged.
+
+**Alternatives considered:** DocumentRenderer (rejected: only works with deprecated `fields.document`).
+
+---
+
+## DEC-043: Data layer exports are async functions
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** `createReader` from `@keystatic/core/reader` is async. No synchronous reader API exists.
+
+**Decision:** Replace synchronous exports (`projects`, `featuredProjects`) with async functions (`getProjects`, `getFeaturedProjects`, `findProjectBySlug`, `getProjectNav`). Call sites become async Server Components.
+
+**Consequences:** FeaturedWork, WorkIndex, and the case study page are now async. This is idiomatic Next.js App Router and has no performance implication.

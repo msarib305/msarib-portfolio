@@ -1,5 +1,5 @@
 interface CaseStudyHeaderProps {
-  tags:  string[]
+  tags:  readonly string[]
   title: string
 }
 

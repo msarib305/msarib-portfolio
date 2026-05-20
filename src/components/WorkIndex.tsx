@@ -1,7 +1,8 @@
-import { projects } from '@/data/projects'
+import { getProjects } from '@/data/projects'
 import { WorkCard }  from '@/components/WorkCard'
 
-export function WorkIndex() {
+export async function WorkIndex() {
+  const allProjects = await getProjects()
   return (
     <>
       <div className="work-index-hero">
@@ -34,7 +35,7 @@ export function WorkIndex() {
 
       <div className="work-index-cards">
         <div className="work-grid">
-          {projects.map((project) => (
+          {allProjects.map((project) => (
             <WorkCard key={project.slug} project={project} />
           ))}
         </div>

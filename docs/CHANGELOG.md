@@ -24,6 +24,36 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(cms): Keystatic Phase 10 — projects migrated to MDX content files
+
+**Packages added:** `@keystatic/core@0.5.50`, `@keystatic/next@5.0.4`, `@markdoc/markdoc@0.5.7`
+
+**New files:**
+- `keystatic.config.ts` — collection schema with all ProjectItem fields; `fields.slug` for title, `fields.markdoc` for body, `block()` Figure component
+- `content/projects/samurai-saga/index.mdoc`
+- `content/projects/nvidia-ai-assistant/index.mdoc`
+- `content/projects/character-creator/index.mdoc`
+- `content/projects/tresemme-metaverse/index.mdoc`
+- `src/app/keystatic/keystatic.ts` — Keystatic admin page (Client Component)
+- `src/app/keystatic/layout.tsx` — admin layout
+- `src/app/keystatic/[[...params]]/page.tsx` — admin page slot
+- `src/app/api/keystatic/[...params]/route.ts` — API route handler
+- `.env.example` — documents local vs. GitHub mode vars
+
+**Modified files:**
+- `src/data/projects.ts` — rewritten to `createReader`; async exports (`getProjects`, `getFeaturedProjects`, `findProjectBySlug`, `getProjectNav`); `ProjectBodyBlock` type removed
+- `src/components/ProjectBody.tsx` — rewritten to Markdoc rendering; custom list/figure renderers; `.case-body` wrapper
+- `src/components/FeaturedWork.tsx` — async Server Component, awaits `getFeaturedProjects()`
+- `src/components/WorkIndex.tsx` — async Server Component, awaits `getProjects()`
+- `src/app/projects/[slug]/page.tsx` — async data with `Promise.all`, async `generateStaticParams`
+- `src/components/CaseStudyHeader.tsx` — tags prop widened to `readonly string[]`
+- `src/app/globals.css` — added `.case-body` layout and typography block
+
+**Rollback:** `git revert HEAD && git push origin main`
+
+---
+
+## 2026-05-20 PKT
 ### feat(about): hero, narrative, pillars, timeline, skills, CTA
 
 - pnpm typecheck: pass

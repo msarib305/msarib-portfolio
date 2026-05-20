@@ -1,0 +1,44 @@
+---
+title: Samurai Saga
+summary: >-
+  Combat and multiplayer replication for a third-person open-world P2E.
+  Server-authoritative state, twelve-player session sync, sub-100ms melee.
+cover: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,g_auto,w_800/sample"
+coverAlt: "Samurai Saga — multiplayer combat screenshot"
+tags:
+  - UE5
+  - Multiplayer
+  - C++
+  - P2E
+  - Ethereum
+client: Exarta
+year: "2023 to 2024"
+status: archived
+role: "Senior UE Developer"
+engine: "UE5 · C++ and Blueprint"
+gallery: []
+video: qTzConyC1z8
+featured: true
+tintClass: wc-1
+links:
+  - label: Project site
+    href: "https://samuraisaga.com"
+  - label: Trailer
+    href: "https://youtu.be/qTzConyC1z8"
+---
+Samurai Saga is a third-person open-world play-to-earn combat title on Ethereum. Three NFT-backed character classes (Cyborg Samurai, Kaiju Monsters, Onna-Bugeisha) with distinct movesets. My role covered the combat systems layer and the multiplayer replication architecture.
+
+## The problem.
+
+Build a server-authoritative combat system for twelve concurrent players. Combat needed to feel responsive at Pakistani-to-international server latencies while staying cheat-resistant. The existing replication setup was ad-hoc and collapsed above six players; desync became visible as player count grew.
+
+## What I built.
+
+1. Custom ReplicationGraph — migrated from default actor replication to a custom graph. Reduced bandwidth per client by 38% through connection-group bucketing and dormancy policies.
+2. Server-authoritative melee — rolling-buffer rollback for hit detection. The server is the arbiter; honest clients never feel the lag.
+3. GAS migration — replaced ad-hoc combat state with Gameplay Ability System. New abilities ship in a day instead of a week.
+4. Architecture documentation — architecture overview, gotchas list, and code review checklist for the junior UE engineers. <!-- TODO: confirm team size involved in Samurai Saga specifically -->
+
+## Outcome.
+
+Twelve-player sessions running stable. Sub-100ms melee responsiveness. Bandwidth per client down 38%. The GAS migration cut new ability iteration time significantly and gave the design team a clear surface to extend without touching the combat core. <!-- TODO: add exact ability iteration time reduction if data is available -->
