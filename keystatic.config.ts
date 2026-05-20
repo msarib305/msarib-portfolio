@@ -4,6 +4,41 @@ import { block } from '@keystatic/core/content-components'
 export default config({
   storage: { kind: 'local' },
   collections: {
+    writings: collection({
+      label: 'Writings',
+      slugField: 'title',
+      path: 'content/writings/*/',
+      format: { contentField: 'body' },
+      schema: {
+        title:     fields.slug({ name: { label: 'Title' } }),
+        summary:   fields.text({ label: 'Summary / deck', multiline: true }),
+        published: fields.date({ label: 'Published date' }),
+        updated:   fields.date({ label: 'Last updated (optional)' }),
+        status:    fields.select({
+          label: 'Status',
+          options: [
+            { label: 'Published', value: 'published' },
+            { label: 'Draft',     value: 'draft' },
+          ],
+          defaultValue: 'draft',
+        }),
+        tags:     fields.array(fields.text({ label: 'Tag' }), { label: 'Tags' }),
+        featured: fields.checkbox({ label: 'Featured post', defaultValue: false }),
+        body:     fields.markdoc({
+          label: 'Body',
+          components: {
+            Figure: block({
+              label: 'Figure',
+              schema: {
+                src:     fields.text({ label: 'Image URL (Cloudinary)' }),
+                alt:     fields.text({ label: 'Alt text' }),
+                caption: fields.text({ label: 'Caption' }),
+              },
+            }),
+          },
+        }),
+      },
+    }),
     projects: collection({
       label: 'Projects',
       slugField: 'title',

@@ -652,3 +652,68 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Decision:** Replace synchronous exports (`projects`, `featuredProjects`) with async functions (`getProjects`, `getFeaturedProjects`, `findProjectBySlug`, `getProjectNav`). Call sites become async Server Components.
 
 **Consequences:** FeaturedWork, WorkIndex, and the case study page are now async. This is idiomatic Next.js App Router and has no performance implication.
+
+---
+
+## DEC-044: Writings collection added to Keystatic alongside projects
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Phase 11 adds a Writings layer (blog/notes). Content needs to live in git alongside projects.
+
+**Decision:** Add a `writings` collection to `keystatic.config.ts` using `fields.markdoc` for the body and `fields.slug` for the slug title field. Storage path: `content/writings/*/`. Same conventions as the `projects` collection.
+
+**Consequences:** `content/writings/` directory created. `/keystatic` admin UI now shows both Projects and Writings.
+
+---
+
+## DEC-045: WritingBody.tsx is separate from ProjectBody.tsx
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Case studies (`.case-body`) and posts (`.post-body`) have different typographic requirements. Posts need code blocks and blockquotes as first-class elements; case studies use ordered list groups.
+
+**Decision:** Create `WritingBody.tsx` with its own Markdoc config that includes `fence` (code blocks) and `blockquote` node overrides. Wrapper class is `.post-body`. `ProjectBody.tsx` unchanged.
+
+**Consequences:** Two files instead of one. Each can evolve independently.
+
+---
+
+## DEC-046: Reading time computed inline in the data layer
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Writing cards and post headers need an estimated reading time. Options: (1) add a reading-time npm package, (2) compute inline.
+
+**Decision:** Walk the Markdoc AST recursively to extract `{ type: 'text', attributes: { content } }` leaf nodes and count words. Divide by 200 wpm, minimum 1 minute. No dependency added.
+
+**Consequences:** `countWords` function in `writings.ts` is ~15 lines. Reading time is computed at read time and stored on `WritingItem`.
+
+---
+
+## DEC-047: RSS feed is a Next.js App Router route handler at /feed.xml
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Footer links `/feed.xml`. Options: (1) static file in `/public`, (2) route handler that generates fresh XML on each request.
+
+**Decision:** Route handler at `src/app/feed.xml/route.ts`. Generates RSS 2.0 from published writings at request time. Returns `application/rss+xml; charset=utf-8`. Dots in directory names work in Next.js 16 with no special config.
+
+**Consequences:** `/feed.xml` is dynamic (ƒ in build output). Cache-Control header set to 1 hour with stale-while-revalidate. Vercel edge caches the response.
+
+---
+
+## DEC-048: Draft writings are not publicly routable
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Writers draft posts before publishing. Status field has `published` and `draft` values.
+
+**Decision:** `generateStaticParams` only includes slugs where `status === 'published'`. `dynamicParams = false` means any other slug returns 404. `/writings` index only shows published posts. RSS feed only includes published posts.
+
+**Consequences:** Draft posts exist in `content/writings/` and are visible in the Keystatic admin UI but are not accessible via any public URL.

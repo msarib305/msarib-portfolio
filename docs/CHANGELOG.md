@@ -24,6 +24,34 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(writings): Phase 11 — writings collection, index, post template, RSS feed
+
+**New routes:** `/writings` (index, empty state), `/writings/[slug]` (per-post template), `/feed.xml` (RSS 2.0 route handler)
+
+**New files:**
+- `keystatic.config.ts` — `writings` collection added alongside `projects`
+- `src/data/writings.ts` — `WritingItem` interface, async helpers, inline reading time (Markdoc AST walk)
+- `src/components/WritingCard.tsx` — index card, `.write-card` + `.is-featured` layouts
+- `src/components/WritingMeta.tsx` — date, read time, tags row in mono font
+- `src/components/WritingsEmpty.tsx` — empty state with RSS pill CTA
+- `src/components/WritingNav.tsx` — prev/next post navigation
+- `src/components/WritingBody.tsx` — Markdoc pipeline, `.post-body` wrapper, fence + blockquote overrides
+- `src/app/writings/page.tsx` — replaces Phase 8 PlaceholderPage
+- `src/app/writings/[slug]/page.tsx` — per-post route, `dynamicParams = false`
+- `src/app/feed.xml/route.ts` — RSS 2.0 with CDATA and XML escaping
+
+**Architecture:** Decision A (fields.markdoc, same as projects). Server Component rendering throughout (no `'use client'`). Only `status === 'published'` writings are publicly routable. DEC-044 through DEC-048 added.
+
+- pnpm typecheck: pass
+- pnpm lint: pending
+- pnpm build: pass
+- Vercel preview: pending
+- Playwright: N/A this phase
+- Manual visual check: pending
+
+---
+
+## 2026-05-20 PKT
 ### feat(cms): Keystatic Phase 10 — projects migrated to MDX content files
 
 **Packages added:** `@keystatic/core@0.5.50`, `@keystatic/next@5.0.4`, `@markdoc/markdoc@0.5.7`

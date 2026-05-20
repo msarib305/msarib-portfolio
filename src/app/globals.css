@@ -2855,6 +2855,393 @@ body[data-font="montreal"] {
     }
   }
 
+
+  /* ----------------------------------------------------------
+     WRITINGS — Phase 11
+     ---------------------------------------------------------- */
+
+  /* Index hero */
+  .writings-hero {
+    padding: 132px 32px 64px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  .writings-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+  }
+
+  .writings-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: right;
+  }
+
+  .writings-meta-row {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .writings-meta-row strong { color: var(--color-text-primary); }
+
+  .writings-meta-row a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Card grid */
+  .writings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 32px 96px;
+  }
+
+  .write-card {
+    padding: 32px;
+    background: var(--color-light-005);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-16);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      background 280ms var(--ease-base),
+      border-color 280ms var(--ease-base);
+  }
+
+  .write-card:hover {
+    background: var(--color-light-010);
+    border-color: var(--color-border-subtle);
+  }
+
+  .write-card-meta {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .write-card h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    transition: color 240ms var(--ease-base);
+  }
+
+  .write-card:hover h3 { color: var(--color-accent); }
+
+  .write-card p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+
+  .write-card.is-featured {
+    grid-column: 1 / -1;
+    padding: 56px;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(0, 217, 196, 0.1) 0%, transparent 50%),
+      var(--color-bg-high);
+  }
+
+  .write-card.is-featured h3 {
+    font-size: clamp(28px, 3vw, 40px);
+    max-width: 720px;
+  }
+
+  .write-card.is-featured p {
+    max-width: 560px;
+    font-size: 16px;
+  }
+
+  /* Empty state */
+  .writings-empty {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 64px 32px 96px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .writings-empty h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+  }
+
+  .writings-empty p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  /* Post hero */
+  .post-hero {
+    padding: 132px 32px 32px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .post-hero-meta {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .post-hero h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+  }
+
+  .post-byline {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .post-byline strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .post-deck {
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  /* Post body */
+  .post-body {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--color-text-secondary);
+  }
+
+  .post-body h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+    color: var(--color-text-primary);
+    margin: 48px 0 16px;
+  }
+
+  .post-body h2:first-child { margin-top: 0; }
+
+  .post-body h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--color-text-primary);
+    margin: 32px 0 12px;
+  }
+
+  .post-body p { margin-bottom: 20px; }
+
+  .post-body code {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--color-light-005);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--color-text-primary);
+  }
+
+  .post-body pre {
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-12);
+    padding: 20px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-text-primary);
+  }
+
+  .post-body pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .post-body a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .post-body blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding: 0 0 0 24px;
+    margin: 24px 0;
+    font-style: italic;
+    color: var(--color-text-primary);
+  }
+
+  .post-body ol,
+  .post-body ul {
+    padding-left: 24px;
+    margin-bottom: 20px;
+  }
+
+  .post-body ol { list-style: decimal outside; }
+  .post-body ul { list-style: disc outside; }
+  .post-body li { margin-bottom: 8px; }
+
+  .post-body figure { margin: 32px 0; }
+
+  .post-body figcaption {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* Post CTA */
+  .post-cta {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .post-cta h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+  }
+
+  .post-cta p {
+    color: var(--color-text-secondary);
+    font-size: 16px;
+  }
+
+  .post-cta-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Writing nav */
+  .writing-nav {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 32px 96px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .writing-nav-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px;
+    background: var(--color-light-005);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-12);
+    text-decoration: none;
+    color: inherit;
+    transition: background 240ms var(--ease-base);
+  }
+
+  .writing-nav-item:hover { background: var(--color-light-010); }
+
+  .writing-nav-item.is-next { text-align: right; }
+
+  .writing-nav-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .writing-nav-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* Responsive — Writings */
+  @media (max-width: 768px) {
+    .writings-hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .writings-meta {
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .writings-meta-row {
+      justify-content: flex-start;
+    }
+
+    .writings-grid {
+      grid-template-columns: 1fr;
+      padding: 0 20px 64px;
+    }
+
+    .write-card.is-featured { padding: 32px; }
+
+    .post-hero { padding: 100px 20px 24px; }
+
+    .post-body { padding: 24px 20px; }
+
+    .post-cta { padding: 32px 20px 64px; }
+
+    .writing-nav {
+      grid-template-columns: 1fr;
+      padding: 0 20px 64px;
+    }
+
+    .writing-nav-item.is-next { text-align: left; }
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */
