@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import type { FeaturedWorkItem } from '@/data/featured-work'
+import type { ProjectItem } from '@/data/projects'
 
 interface WorkCardProps {
-  project: FeaturedWorkItem
+  project: ProjectItem
 }
 
 export function WorkCard({ project }: WorkCardProps) {
   const { slug, title, summary, cover, coverAlt, tags, client, year, tintClass } = project
 
   return (
-    <Link href={`/projects/${slug}`} prefetch={false} className={`work-card ${tintClass}`}>
+    <Link href={`/projects/${slug}`} className={`work-card ${tintClass}`}>
       <div className="work-card-media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

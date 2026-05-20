@@ -1911,6 +1911,414 @@ body[data-font="montreal"] {
     }
   }
 
+
+  /* ----------------------------------------------------------
+     WORK INDEX — /work page
+     .work-index-hero: two-column page header (heading + meta stats)
+     .work-index-cards: cards wrapper below the hero
+     Re-uses existing .work-grid and .work-card for the card grid.
+     ---------------------------------------------------------- */
+  .work-index-hero {
+    padding: 152px 32px 64px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  .work-index-hero-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+
+  .work-index-hero h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(40px, 6vw, 84px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  .work-index-hero p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    max-width: 540px;
+  }
+
+  .work-index-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-end;
+    padding-bottom: 8px;
+  }
+
+  .work-index-meta-row {
+    display: flex;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.04em;
+  }
+
+  .work-index-meta-row strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    font-family: var(--font-mono);
+  }
+
+  .work-index-cards {
+    padding: 0 32px 96px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* ----------------------------------------------------------
+     CASE STUDY — /projects/[slug]
+     ---------------------------------------------------------- */
+
+  .case-hero {
+    padding: 132px 32px 0;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  .case-meta-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .case-chip {
+    font-family: var(--font-base);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 14px;
+    background: var(--color-light-010);
+    border-radius: var(--radius-full);
+    letter-spacing: 0.04em;
+  }
+
+  .case-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+    max-width: 1100px;
+  }
+
+  /* Two-column layout: summary text left, specs right */
+  .case-summary {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 48px;
+    padding-bottom: 64px;
+    border-bottom: 1px solid var(--color-border-faint);
+  }
+
+  .case-summary-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 620px;
+  }
+
+  /* Specs column — vertical flex with key/value rows */
+  .case-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .case-spec-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border-faint);
+  }
+
+  .case-spec-row:last-child {
+    border-bottom: none;
+  }
+
+  .case-spec-key {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .case-spec-val {
+    font-family: var(--font-base);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  /* Cover image */
+  .case-media {
+    margin: 64px auto;
+    max-width: var(--container-max);
+    padding: 0 32px;
+  }
+
+  .case-media-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-24);
+    overflow: hidden;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-low);
+  }
+
+  /* Body prose sections */
+  .case-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+
+  .case-section h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(28px, 3.5vw, 42px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+
+  .case-section h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .case-section p {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+    max-width: 780px;
+  }
+
+  /* Numbered list — CSS counter ordinals in teal, matching v15 */
+  .case-list {
+    list-style: none;
+    padding: 0;
+    margin: 32px 0 0;
+    counter-reset: case-item;
+  }
+
+  .case-list-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 32px;
+    padding: 24px 0;
+    border-top: 1px solid var(--color-border-faint);
+    counter-increment: case-item;
+  }
+
+  .case-list-item:first-child {
+    border-top: none;
+  }
+
+  .case-list-item::before {
+    content: counter(case-item, decimal-leading-zero);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 32px;
+    color: var(--color-accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    align-self: start;
+    padding-top: 4px;
+  }
+
+  .case-list-item p {
+    font-size: 15px;
+    margin-bottom: 0;
+  }
+
+  /* Figure block */
+  .case-figure {
+    margin: 32px 0;
+  }
+
+  .case-figure figcaption {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Prev/next nav */
+  .case-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: var(--container-max);
+    margin: 64px auto;
+    padding: 0 32px;
+  }
+
+  .case-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 32px;
+    background: var(--color-light-005);
+    border: 1px solid var(--color-border-faint);
+    border-radius: var(--radius-16);
+    transition:
+      background 240ms var(--ease-base),
+      border-color 240ms var(--ease-base);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .case-nav-link:hover {
+    background: var(--color-light-010);
+    border-color: var(--color-border-subtle);
+  }
+
+  .case-nav-empty {
+    /* holds the right grid column when next is null */
+  }
+
+  .case-nav-dir {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .case-nav-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .case-nav-link.is-next {
+    text-align: right;
+  }
+
+  /* Placeholder pages — /about, /writings, /contact */
+  .placeholder-page {
+    padding: 152px 32px 96px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  .placeholder-page h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(40px, 6vw, 84px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  .placeholder-page p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 480px;
+    margin-bottom: 32px;
+  }
+
+  /* RESPONSIVE — Phase 8 */
+
+  @media (max-width: 1200px) {
+    .work-index-hero-grid {
+      gap: 32px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .work-index-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .work-index-meta {
+      align-items: flex-start;
+    }
+
+    .case-summary {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .case-nav {
+      grid-template-columns: 1fr;
+    }
+
+    .case-nav-link.is-next {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .work-index-hero {
+      padding: 120px 20px 48px;
+    }
+
+    .work-index-cards {
+      padding: 0 20px 72px;
+    }
+
+    .case-hero {
+      padding: 120px 20px 0;
+    }
+
+    .case-title {
+      font-size: clamp(40px, 11vw, 64px);
+    }
+
+    .case-media {
+      padding: 0 20px;
+    }
+
+    .case-section {
+      padding: 48px 20px;
+    }
+
+    .case-list-item {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .case-list-item::before {
+      font-size: 24px;
+    }
+
+    .case-nav {
+      padding: 0 16px;
+      margin: 48px auto;
+    }
+
+    .case-nav-link {
+      padding: 24px;
+    }
+
+    .placeholder-page {
+      padding: 120px 20px 72px;
+    }
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */

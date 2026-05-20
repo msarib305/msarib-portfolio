@@ -1,4 +1,4 @@
-import { featuredWork } from '@/data/featured-work'
+import { featuredProjects } from '@/data/projects'
 import { WorkCard }     from '@/components/WorkCard'
 import { PillButton }   from '@/components/PillButton'
 
@@ -12,7 +12,7 @@ export function FeaturedWork() {
         </PillButton>
       </div>
       <div className="work-grid">
-        {featuredWork.map((project) => (
+        {featuredProjects.map((project) => (
           <WorkCard key={project.slug} project={project} />
         ))}
       </div>

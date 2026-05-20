@@ -24,6 +24,38 @@ Entries are written at commit time, not at phase start.
 ---
 
 ## 2026-05-20 PKT
+### feat(routing): /work index, case study template, route placeholders
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push
+- Playwright: N/A this phase
+- Manual visual check: pending Vercel preview URL
+
+Changes:
+- `src/data/projects.ts`: new file. Replaces `src/data/featured-work.ts`. Full `ProjectItem` interface and `ProjectBodyBlock` discriminated union. Four projects (Samurai Saga, NVIDIA AI Assistant, Character Creator System, TRESemmé Metaverse), all `featured: true`. Helper exports: `featuredProjects`, `findProjectBySlug`, `getProjectNav`. TRESemmé year corrected from '2025' to '2022 to 2023'. TRESemmé client corrected from 'TRESemmé · HCL' to 'TRESemmé · Unilever'.
+- `src/data/featured-work.ts`: deleted. Fully migrated to `projects.ts`.
+- `src/components/WorkCard.tsx`: import updated to `ProjectItem` from `projects.ts`. `prefetch={false}` removed from Link (default prefetch restored).
+- `src/components/FeaturedWork.tsx`: import updated to `featuredProjects` from `projects.ts`.
+- `src/app/work/page.tsx`: new. Server Component. Metadata + WorkIndex.
+- `src/components/WorkIndex.tsx`: new. Server Component. Work index hero and cards grid (all projects).
+- `src/app/projects/[slug]/page.tsx`: new. Server Component. `generateStaticParams`, `dynamicParams = false`, `generateMetadata`, `notFound()` guard, full case study layout with chips, title, summary+specs grid, cover image, body blocks, prev/next nav.
+- `src/components/CaseStudyHeader.tsx`: new. Chips row and h1.
+- `src/components/CaseStudySpecs.tsx`: new. `<dl>`/`<dt>`/`<dd>` spec block (Year, Client, Role, Engine, Status).
+- `src/components/ProjectBody.tsx`: new. `ProjectBodyBlock[]` renderer with c2 grouping reducer. Heading blocks start new `.case-section` groups.
+- `src/components/CaseStudyNav.tsx`: new. Prev/next nav. Null prev shows `/work` link.
+- `src/components/PlaceholderPage.tsx`: new. Shared placeholder layout used by three route pages.
+- `src/app/about/page.tsx`: new. Placeholder page.
+- `src/app/writings/page.tsx`: new. Placeholder page.
+- `src/app/contact/page.tsx`: new. Placeholder page.
+- `src/app/globals.css`: appended Phase 8 CSS inside `@layer components`. New classes: `.work-index-hero`, `.work-index-hero-grid`, `.work-index-meta`, `.work-index-meta-row`, `.work-index-cards`, `.case-hero`, `.case-meta-row`, `.case-chip`, `.case-title`, `.case-summary`, `.case-summary-text`, `.case-specs`, `.case-spec-row`, `.case-spec-key`, `.case-spec-val`, `.case-media`, `.case-media-frame`, `.case-section`, `.case-list`, `.case-list-item`, `.case-figure`, `.case-nav`, `.case-nav-link`, `.case-nav-dir`, `.case-nav-title`, `.case-nav-empty`, `.case-nav-link.is-next`, `.placeholder-page`. Responsive breakpoints at 1200px, 900px, 600px.
+- `docs/DECISIONS.md`: DEC-031 through DEC-035.
+- `docs/DESIGN_SYSTEM.md`: Phase 8 component entries (CaseStudyHeader, CaseStudySpecs, ProjectBody, CaseStudyNav, WorkIndex, PlaceholderPage).
+
+---
+
+## 2026-05-20 PKT
 ### feat(home-closing): what I bring cards with blob bg, contact CTA
 
 - pnpm typecheck: pass

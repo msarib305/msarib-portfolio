@@ -459,3 +459,78 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** Each card is semantically self-contained, matching the HTML spec definition of `<article>` (independently distributable or reusable content). Screen readers surface `<article>` in the document outline alongside `<section>` and `<nav>`, improving navigability for assistive technology users. The element carries no visual difference; CSS targets the `.wib-card` class, not the element type.
 
 **Alternatives considered:** `<div>` (rejected: loses semantic meaning with no benefit; `<article>` is more correct for self-contained content blocks). `<section>` (rejected: requires an accessible name; `<article>` does not).
+
+---
+
+## DEC-031: Discriminated-union ProjectBodyBlock for typed body content
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Case study body content needs to be authored in TypeScript for Phase 8 and migrated to Keystatic MDX in Phase 10.
+
+**Decision:** Body content is typed as `ProjectBodyBlock[]` using a discriminated union with `type` as the discriminant: `'paragraph'`, `'heading'`, `'list'`, `'figure'`.
+
+**Consequences:** `ProjectBody.tsx` exhaustively switches on `block.type`. Phase 10 Keystatic document field emits the same block structure; the renderer becomes a drop-in consumer with no schema migration. TypeScript exhaustiveness checking catches any new block type that lacks a renderer.
+
+**Alternatives considered:** Plain string MDX rendered at runtime (rejected: requires a runtime MDX renderer dependency, adds bundle weight, and does not lock the schema for Phase 10).
+
+---
+
+## DEC-032: generateStaticParams with dynamicParams = false for case studies
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The portfolio has a small, curated set of projects with no per-user variation.
+
+**Decision:** `/projects/[slug]/page.tsx` exports `generateStaticParams` to prebuild every slug at build time and `dynamicParams = false` to return 404 for any unrecognized slug.
+
+**Consequences:** Every case study pre-renders as a static HTML file at build time. Unknown slugs return a hard 404 with zero server-side work. Build output lists every slug under "Generating static pages."
+
+**Alternatives considered:** Dynamic SSR on demand (rejected: no per-user variation, no reason to defer rendering to request time for static editorial content).
+
+---
+
+## DEC-033: Null at nav boundaries instead of circular wrap
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** The case study prev/next nav can either wrap circularly (last.next points to first) or return null at boundaries.
+
+**Decision:** `getProjectNav` returns `null` at boundaries. CaseStudyNav handles null prev by showing a "All work" link to `/work`. Null next renders an empty grid cell.
+
+**Consequences:** v15 behavior matched: v15 shows "Back" to the work index at the first project, not a link to the last project. Navigation is linear, not circular.
+
+**Alternatives considered:** Circular wrap (rejected: deviates from the v15 visual source of truth; "All work" at the boundary is more useful than an unexpected jump to the last project).
+
+---
+
+## DEC-034: Single projects.ts source with featuredProjects derived via filter
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Phase 7 had a separate `featured-work.ts` for the four homepage cards. Phase 8 adds case study routes that need the full project data.
+
+**Decision:** `src/data/projects.ts` is the single source of truth. `featuredProjects` is derived as `projects.filter(p => p.featured).slice(0, 4)`. `featured-work.ts` is deleted.
+
+**Consequences:** One file to edit when adding or updating a project. The `featured` flag controls homepage visibility without data duplication. Schema is shared between the home page cards and the case study template.
+
+**Alternatives considered:** Keeping both files in parallel (rejected: two sources of truth with no clear ownership boundary; any schema change requires touching both files).
+
+---
+
+## DEC-035: PlaceholderPage shared component for route placeholders
+
+- **Date:** 2026-05-20
+- **Status:** Accepted
+
+**Context:** Three routes (/about, /writings, /contact) need pages that exist and do not 404, but whose real content ships in later phases.
+
+**Decision:** A `PlaceholderPage` server component provides the shared structure (h1, description, back link via PillButton) for all three.
+
+**Consequences:** Three thin page files, one place to change if placeholder copy needs updating. When real content ships, each page simply stops using PlaceholderPage.
+
+**Alternatives considered:** Inline the placeholder structure in each page (rejected: three copies of the same boilerplate with no benefit).

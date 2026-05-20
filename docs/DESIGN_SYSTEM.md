@@ -1336,3 +1336,79 @@ item: ExpertiseItem  // from src/data/expertise.ts
 **Accessibility:** Section has `aria-labelledby="cta-home-heading"` pointing to the `<h2>`. The eyebrow paragraph precedes the heading in DOM order for correct reading flow.
 
 **Where used:** `src/app/page.tsx`
+
+---
+
+## Phase 8 components
+
+### CaseStudyHeader
+
+**File:** `src/components/CaseStudyHeader.tsx`
+
+Renders the chips row and the case study h1. Used at the top of every `/projects/[slug]` page.
+
+**CSS classes:** `.case-meta-row` (flex row, 12px gap, wrapping) | `.case-chip` (11px, font-base 500 weight, `--color-light-010` background, `--radius-full`)| `.case-title` (`clamp(48px, 7vw, 96px)` display 900, letter-spacing -0.03em)
+
+**Props:** `tags: string[]`, `title: string`
+
+**Accessibility:** `aria-label="Project tags"` on the chips container.
+
+---
+
+### CaseStudySpecs
+
+**File:** `src/components/CaseStudySpecs.tsx`
+
+Vertical flex column of key/value spec rows. Uses `<dl>/<dt>/<dd>` semantics. Shown in the right column of the `.case-summary` two-column grid.
+
+**CSS classes:** `.case-specs` (flex column, 16px gap) | `.case-spec-row` (flex row, justify-content space-between, border-bottom faint) | `.case-spec-key` (mono, 12px, uppercase, 0.08em tracking) | `.case-spec-val` (base, 13px, 500 weight, text-align right)
+
+**Spec fields shown:** Year, Client (omitted when null), Role, Engine, Status.
+
+---
+
+### ProjectBody
+
+**File:** `src/components/ProjectBody.tsx`
+
+Renders `ProjectBodyBlock[]` using a grouping reducer (c2 pattern). Heading blocks start new `.case-section` groups; non-heading blocks accumulate under their preceding heading in the same section.
+
+**CSS classes:** `.case-section` (max-width 1100px, 64px padding) | `.case-list` / `.case-list-item` (CSS counter ordinals in `--color-accent`) | `.case-figure` / `figcaption` (mono 12px, muted color)
+
+**Block types:** `paragraph` → `<p>` | `heading` level 2/3 → `<h2>`/`<h3>` | `list` → `<ol className="case-list">` | `figure` → `<figure>` with `next/image`
+
+---
+
+### CaseStudyNav
+
+**File:** `src/components/CaseStudyNav.tsx`
+
+Prev/next navigation at the bottom of each case study. Two-column grid at desktop, one column at 900px.
+
+**CSS classes:** `.case-nav` (2-column grid, 64px auto margin) | `.case-nav-link` (flex column, 32px padding, `--color-light-005` background, `--radius-16`, hover lightens) | `.case-nav-link.is-next` (text-align right) | `.case-nav-dir` (mono 12px, uppercase) | `.case-nav-title` (display 800, 22px) | `.case-nav-empty` (empty cell)
+
+**Boundary behavior:** When `prev === null`, shows "All work / Back to projects" link pointing at `/work`. When `next === null`, renders an empty `<div>` holding the grid column.
+
+---
+
+### WorkIndex
+
+**File:** `src/components/WorkIndex.tsx`
+
+The `/work` page body. Two sections: a hero header with `.work-index-hero-grid` (1.5fr + 1fr, heading left, meta stats right), then a `.work-index-cards` wrapper containing the existing `.work-grid` and `WorkCard` components.
+
+**CSS classes:** `.work-index-hero` | `.work-index-hero-grid` | `.work-index-meta` | `.work-index-meta-row` | `.work-index-cards`
+
+**Data source:** `projects` array from `src/data/projects.ts` (all projects, not just featured).
+
+---
+
+### PlaceholderPage
+
+**File:** `src/components/PlaceholderPage.tsx`
+
+Minimal placeholder used by `/about`, `/writings`, and `/contact` until their full content phases ship. Section wrapper with `.placeholder-page` class, h1, description paragraph, and a secondary PillButton back to home.
+
+**CSS classes:** `.placeholder-page` (152px top padding, `--container-max`)
+
+**Props:** `title: string`, `description: string`
