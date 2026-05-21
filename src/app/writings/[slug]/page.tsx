@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation'
 import { getAllPublishedSlugs, findWritingBySlug, getWritingNav } from '@/data/writings'
 import { WritingMeta } from '@/components/WritingMeta'
 import { WritingBody } from '@/components/WritingBody'
-import { WritingNav } from '@/components/WritingNav'
-import { PillButton } from '@/components/PillButton'
+import { WritingNav }  from '@/components/WritingNav'
+import { PillButton }  from '@/components/PillButton'
+import { JsonLd }      from '@/components/JsonLd'
 
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs()
@@ -16,12 +17,27 @@ export const dynamicParams = false
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
-  const { slug } = await params
-  const writing = await findWritingBySlug(slug)
+  const { slug }  = await params
+  const writing   = await findWritingBySlug(slug)
   if (!writing || writing.status !== 'published') return {}
+
+  const ogUrl = `/og?title=${encodeURIComponent(writing.title)}&eyebrow=${encodeURIComponent(writing.tags[0] ?? 'UE5')}`
+
   return {
-    title: `${writing.title} — Sarib`,
+    title:       writing.title,
     description: writing.summary,
+    alternates:  { canonical: `https://msarib.dev/writings/${slug}` },
+    openGraph: {
+      type:          'article',
+      url:           `https://msarib.dev/writings/${slug}`,
+      title:         `${writing.title} · Sarib`,
+      description:   writing.summary,
+      publishedTime: writing.published,
+      modifiedTime:  writing.updated ?? writing.published,
+      authors:       ['https://msarib.dev/about'],
+      tags:          [...writing.tags],
+      images:        [{ url: ogUrl, width: 1200, height: 630, alt: writing.title }],
+    },
   }
 }
 
@@ -36,8 +52,32 @@ export default async function WritingPage(
 
   if (!writing || writing.status !== 'published') notFound()
 
+  const writingSchema = {
+    '@context':         'https://schema.org',
+    '@type':            'BlogPosting',
+    '@id':              `https://msarib.dev/writings/${writing.slug}#post`,
+    'headline':         writing.title,
+    'description':      writing.summary,
+    'url':              `https://msarib.dev/writings/${writing.slug}`,
+    'datePublished':    writing.published,
+    'dateModified':     writing.updated ?? writing.published,
+    'author': {
+      '@type': 'Person',
+      '@id':   'https://msarib.dev/#person',
+      'name':  'Muhammad Sarib',
+      'url':   'https://msarib.dev/about',
+    },
+    'publisher':         { '@id': 'https://msarib.dev/#person' },
+    'mainEntityOfPage':  { '@type': 'WebPage', '@id': `https://msarib.dev/writings/${writing.slug}` },
+    'keywords':          writing.tags.join(', '),
+    'timeRequired':      `PT${writing.readingTimeMinutes}M`,
+    'inLanguage':        'en-US',
+    'isPartOf':          { '@id': 'https://msarib.dev/writings#blog' },
+  }
+
   return (
     <main>
+      <JsonLd schema={writingSchema} />
       <article>
         <header className="post-hero">
           <WritingMeta

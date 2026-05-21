@@ -6,6 +6,7 @@ import { CaseStudyHeader } from '@/components/CaseStudyHeader'
 import { CaseStudySpecs }  from '@/components/CaseStudySpecs'
 import { ProjectBody }     from '@/components/ProjectBody'
 import { CaseStudyNav }    from '@/components/CaseStudyNav'
+import { JsonLd }          from '@/components/JsonLd'
 
 export const dynamicParams = false
 
@@ -19,12 +20,26 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const project = await findProjectBySlug(slug)
+  const { slug }  = await params
+  const project   = await findProjectBySlug(slug)
   if (!project) return {}
+
+  const coverIsAbsolute = project.cover.startsWith('http')
+  const ogImage = coverIsAbsolute
+    ? project.cover
+    : `/og?title=${encodeURIComponent(project.title)}&eyebrow=${encodeURIComponent(project.tags[0] ?? 'Project')}`
+
   return {
-    title:       `${project.title} — Sarib`,
+    title:       project.title,
     description: project.summary,
+    alternates:  { canonical: `https://msarib.dev/projects/${slug}` },
+    openGraph: {
+      type:        'article',
+      url:         `https://msarib.dev/projects/${slug}`,
+      title:       `${project.title} · Sarib`,
+      description: project.summary,
+      images:      [{ url: ogImage, width: 1200, height: 630, alt: project.coverAlt || project.title }],
+    },
   }
 }
 
@@ -40,8 +55,24 @@ export default async function ProjectPage({
   ])
   if (!project) notFound()
 
+  const projectSchema = {
+    '@context':    'https://schema.org',
+    '@type':       'CreativeWork',
+    '@id':         `https://msarib.dev/projects/${project.slug}#work`,
+    'name':        project.title,
+    'description': project.summary,
+    'url':         `https://msarib.dev/projects/${project.slug}`,
+    'image':       project.cover,
+    'dateCreated': project.year,
+    'author':      { '@id': 'https://msarib.dev/#person' },
+    'creator':     { '@id': 'https://msarib.dev/#person' },
+    'keywords':    project.tags.join(', '),
+    'isPartOf':    { '@id': 'https://msarib.dev/work#collection' },
+  }
+
   return (
     <>
+      <JsonLd schema={projectSchema} />
       <div className="case-hero">
         <CaseStudyHeader tags={project.tags} title={project.title} />
         <div className="case-summary">

@@ -1,11 +1,25 @@
 import type { Metadata } from 'next'
 import { getPublishedWritings } from '@/data/writings'
-import { WritingCard } from '@/components/WritingCard'
-import { WritingsEmpty } from '@/components/WritingsEmpty'
+import { WritingCard }    from '@/components/WritingCard'
+import { WritingsEmpty }  from '@/components/WritingsEmpty'
+import { JsonLd }         from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'Writings — Sarib',
+  title:       'Writings',
   description: "Technical notes on Unreal Engine 5: multiplayer replication, performance, editor tools, and the systems work that doesn't show up in a screenshot reel.",
+  alternates: {
+    canonical: 'https://msarib.dev/writings',
+    types: {
+      'application/rss+xml': 'https://msarib.dev/feed.xml',
+    },
+  },
+  openGraph: {
+    type:        'website',
+    url:         'https://msarib.dev/writings',
+    title:       'Writings · Sarib',
+    description: "Technical notes on UE5: multiplayer replication, performance, editor tools.",
+    images: [{ url: '/og?title=Writings&eyebrow=Engineering+Notes', width: 1200, height: 630, alt: 'Writings · Sarib' }],
+  },
 }
 
 export default async function WritingsPage() {
@@ -17,8 +31,27 @@ export default async function WritingsPage() {
   const featured = featuredWritings[0] ?? null
   const rest = writings.filter(w => w.slug !== featured?.slug)
 
+  const writingsSchema = {
+    '@context': 'https://schema.org',
+    '@type':    'Blog',
+    '@id':      'https://msarib.dev/writings#blog',
+    'name':     'Writings · Sarib',
+    'url':      'https://msarib.dev/writings',
+    'author':   { '@id': 'https://msarib.dev/#person' },
+    'blogPost': writings.map(w => ({
+      '@type':         'BlogPosting',
+      'headline':      w.title,
+      'description':   w.summary,
+      'url':           `https://msarib.dev/writings/${w.slug}`,
+      'datePublished': w.published,
+      'dateModified':  w.updated ?? w.published,
+      'author':        { '@id': 'https://msarib.dev/#person' },
+    })),
+  }
+
   return (
     <main>
+      <JsonLd schema={writingsSchema} />
       <section className="writings-hero">
         <div className="writings-hero-grid">
           <div>

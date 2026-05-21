@@ -14,8 +14,60 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title:       'Sarib',
-  description: 'Lead Unreal Engine 5 developer. msarib.dev',
+  metadataBase: new URL('https://msarib.dev'),
+
+  title: {
+    default:  'Sarib · Lead UE5 Developer',
+    template: '%s · Sarib',
+  },
+
+  description: 'Lead Unreal Engine 5 developer with seven years in engine and ten shipped titles. C++, GAS, multiplayer replication, mobile, VR.',
+
+  openGraph: {
+    type:        'website',
+    siteName:    'msarib.dev',
+    locale:      'en_US',
+    url:         'https://msarib.dev',
+    title:       'Sarib · Lead UE5 Developer',
+    description: 'Lead Unreal Engine 5 developer with seven years in engine and ten shipped titles. C++, GAS, multiplayer replication, mobile, VR.',
+    images: [
+      {
+        url:    '/og?title=Lead+UE5+Developer&eyebrow=msarib.dev',
+        width:  1200,
+        height: 630,
+        alt:    'Sarib · Lead Unreal Engine 5 Developer',
+      },
+    ],
+  },
+
+  icons: {
+    icon: [
+      { url: '/icons/favicon.ico' },
+      { url: '/icons/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/icons/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icons/icon-192.png',      type: 'image/png', sizes: '192x192' },
+      { url: '/icons/icon-512.png',      type: 'image/png', sizes: '512x512' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+  },
+
+  manifest: '/site.webmanifest',
+
+  verification: {
+    google: process.env.NEXT_GOOGLE_SITE_VERIFICATION || undefined,
+  },
+
+  robots: {
+    index:  true,
+    follow: true,
+    googleBot: {
+      index:               true,
+      follow:              true,
+      'max-image-preview': 'large',
+      'max-snippet':       -1,
+      'max-video-preview': -1,
+    },
+  },
 }
 
 export const viewport: Viewport = {
