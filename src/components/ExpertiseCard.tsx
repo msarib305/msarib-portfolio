@@ -13,12 +13,16 @@ export function ExpertiseCard({ item }: ExpertiseCardProps) {
   const cardRef  = useRef<HTMLDivElement>(null)
 
   // Defer the video's metadata fetch until the card is near the
-  // viewport. Avoids 8 simultaneous metadata requests on initial
-  // render (one per expertise card) that would block the main thread.
+  // viewport — and only on devices that can actually trigger the
+  // hover reveal. On touch devices the hover never fires, so fetching
+  // 8 video files would be pure waste (each is ~100 KB metadata).
   useEffect(() => {
     const card  = cardRef.current
     const video = videoRef.current
     if (!card || !video) return
+
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (!canHover) return
 
     let loaded = false
     const io = new IntersectionObserver(

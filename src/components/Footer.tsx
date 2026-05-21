@@ -42,9 +42,10 @@ export function Footer() {
           <LahoreClock />
         </div>
 
-        {/* Col 3: Pages */}
+        {/* Col 3: Pages — heading is h3 to stay sequential after the
+            page's h2 (page content sits semantically above the footer). */}
         <div className="footer-col">
-          <h4>Pages</h4>
+          <h3>Pages</h3>
           <ul>
             {PAGE_LINKS.map(({ label, href }) => (
               <li key={href}><Link href={href}>{label}</Link></li>
@@ -54,7 +55,7 @@ export function Footer() {
 
         {/* Col 4: Connect */}
         <div className="footer-col">
-          <h4>Connect</h4>
+          <h3>Connect</h3>
           <ul>
             {CONNECT_LINKS.map(({ label, href }) => (
               <li key={href}>
@@ -69,7 +70,7 @@ export function Footer() {
 
         {/* Col 5: Tools */}
         <div className="footer-col">
-          <h4>Tools</h4>
+          <h3>Tools</h3>
           <ul>
             <li><a href="/feed.xml">RSS</a></li>
             <li><a href="/resume.pdf">Resume (PDF)</a></li>

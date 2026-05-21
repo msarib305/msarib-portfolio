@@ -80,7 +80,7 @@ const homeSchema = {
 // Showreel poster — same URL as Hero/ShowreelGlow uses. Preloaded
 // here so it begins fetching alongside the HTML, not after the
 // video element is constructed. This is the LCP element on mobile.
-const SHOWREEL_POSTER = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_jpg,q_auto,so_0/portfolio-showreel'
+const SHOWREEL_POSTER = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_jpg,q_auto:eco,w_960,so_0/portfolio-showreel'
 
 export default function Home() {
   return (

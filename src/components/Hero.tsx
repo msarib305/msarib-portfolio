@@ -13,8 +13,12 @@ const SUBHEAD =
 
 const SUBHEAD_WORDS = SUBHEAD.split(/\s+/).filter(Boolean)
 
-const SHOWREEL_SRC    = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_auto,q_auto/portfolio-showreel'
-const SHOWREEL_POSTER = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_jpg,q_auto,so_0/portfolio-showreel'
+// Showreel: 960px wide cap with eco-quality transcoding. The element
+// renders at ~600px on desktop and ~375px on mobile, so 960 is comfortable
+// for 2x DPR retina. Drops payload from ~9 MB (default Cloudinary auto) to
+// ~4.5 MB. h264 ensures universal codec support.
+const SHOWREEL_SRC    = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_auto,q_auto:eco,w_960,vc_h264/portfolio-showreel'
+const SHOWREEL_POSTER = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_jpg,q_auto:eco,w_960,so_0/portfolio-showreel'
 
 export function Hero() {
   return (
