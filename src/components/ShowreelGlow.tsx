@@ -21,11 +21,13 @@ export function ShowreelGlow({
 }: ShowreelGlowProps) {
   const videoRef  = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const wrapRef   = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const video  = videoRef.current
     const canvas = canvasRef.current
-    if (!video || !canvas) return
+    const wrap   = wrapRef.current
+    if (!video || !canvas || !wrap) return
 
     const prefersReducedMotion =
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -41,7 +43,9 @@ export function ShowreelGlow({
     /* ~10fps; blur(80px) makes sub-10fps updates invisible */
     const INTERVAL_MS = 100
     let lastDraw = 0
-    let rafId: number
+    let rafId: number | null = null
+    let isVisible = true
+    let isTabVisible = document.visibilityState !== 'hidden'
 
     const draw = (now: number) => {
       if (
@@ -61,15 +65,49 @@ export function ShowreelGlow({
       rafId = requestAnimationFrame(draw)
     }
 
-    rafId = requestAnimationFrame(draw)
+    const start = () => {
+      if (rafId !== null) return
+      if (!isVisible || !isTabVisible) return
+      video.play().catch(() => {})
+      rafId = requestAnimationFrame(draw)
+    }
+    const stop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+        rafId = null
+      }
+      video.pause()
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          isVisible = entry.isIntersecting
+          if (isVisible) start()
+          else stop()
+        }
+      },
+      { threshold: 0.01 },
+    )
+    io.observe(wrap)
+
+    const onVisibility = () => {
+      isTabVisible = document.visibilityState !== 'hidden'
+      if (isTabVisible) start()
+      else stop()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      cancelAnimationFrame(rafId)
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVisibility)
+      stop()
     }
   }, [])
 
   return (
     <div
+      ref={wrapRef}
       className={`showreel${className ? ` ${className}` : ''}`}
       aria-label="Project showreel"
     >
@@ -88,7 +126,7 @@ export function ShowreelGlow({
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-label="Showreel — selected project highlights"
         />
         <div className="reel-label" aria-hidden="true">

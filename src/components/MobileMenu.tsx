@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { PillButton } from '@/components/PillButton'
-import { FontToggle }  from '@/components/FontToggle'
 
 interface MobileMenuProps {
   open:       boolean
@@ -79,6 +78,12 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
   }
 
   return (
+    <>
+    <div
+      className={`mobile-menu-backdrop${open ? ' mobile-menu-backdrop--open' : ''}`}
+      onClick={onClose}
+      aria-hidden="true"
+    />
     <div
       id="mobile-menu"
       ref={dialogRef}
@@ -86,6 +91,8 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
       aria-modal="true"
       aria-labelledby="mobile-menu-heading"
       className={`mobile-menu${open ? ' mobile-menu--open' : ''}`}
+      // @ts-expect-error inert is a valid HTML attribute; React 19 types lag.
+      inert={!open ? '' : undefined}
     >
       <h2 id="mobile-menu-heading" className="sr-only">Menu</h2>
 
@@ -127,8 +134,8 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
         <span><strong>Sarib</strong> · Lead UE5 Developer</span>
         <span>Lahore, Pakistan · PKT (UTC+5)</span>
         <span><strong>contact@msarib.dev</strong></span>
-        <FontToggle />
       </div>
     </div>
+    </>
   )
 }

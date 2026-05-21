@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# playwright-mcp scratch + lighthouse outputs
+.playwright-mcp/
+/lighthouse-reports/
+
+# Windows / WSL artifacts
+*:Zone.Identifier
+C:\\Users\\*
+
+# Local-only screenshots produced during verification runs
+/local-*.png
+/baseline-*.png
+/hero-phase*.png
+/phase*.png
+/design-system.png

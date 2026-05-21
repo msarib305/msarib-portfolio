@@ -14,6 +14,10 @@ export async function FeaturedWork() {
       </div>
       <div className="work-grid">
         {featured.map((project) => (
+          /* No priority hint: on the home page, work cards sit below
+             the hero and showreel, so they are below the fold on
+             mobile. Preloading them would steal bandwidth from the
+             showreel poster, which is the LCP element. */
           <WorkCard key={project.slug} project={project} />
         ))}
       </div>

@@ -9,9 +9,9 @@ export function Cursor() {
     const dot = dotRef.current
     if (!dot) return
 
-    const prefersNoHover       = !window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersNoHover || prefersReducedMotion) return
+    const hoverMQ  = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const motionMQ = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (!hoverMQ.matches || motionMQ.matches) return
 
     const hoverSelector = 'a, button, [role="button"]'
 
@@ -20,33 +20,39 @@ export function Cursor() {
     let dotX   = mouseX
     let dotY   = mouseY
     let rafId: number
+    // Coalesce documentElement.style writes into the rAF tick.
+    // Writing on every mousemove triggers a style recalc per event
+    // (poor INP on rapid moves); batching into one write per frame
+    // keeps the work to one recalc per repaint.
+    let pendingCssX = mouseX
+    let pendingCssY = mouseY
+    let cssX = -1
+    let cssY = -1
 
-    // Arrow functions (not hoisted) so TypeScript can narrow dot to HTMLDivElement
-    // across the closure boundary.
     const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX
       mouseY = e.clientY
-      document.documentElement.style.setProperty('--cursor-x', `${mouseX}px`)
-      document.documentElement.style.setProperty('--cursor-y', `${mouseY}px`)
+      pendingCssX = mouseX
+      pendingCssY = mouseY
       dot.classList.add('cursor-dot--visible')
     }
 
-    // Fires when the pointer exits the browser viewport (document boundary).
-    // Hides the dot so it does not float at the last known position.
     const onMouseLeave = () => {
       dot.classList.remove('cursor-dot--visible')
     }
 
     const onMouseOver = (e: MouseEvent) => {
-      if ((e.target as Element).closest(hoverSelector)) {
+      if (!(e.target instanceof Element)) return
+      if (e.target.closest(hoverSelector)) {
         dot.classList.add('cursor-dot--hover')
       }
     }
 
     const onMouseOut = (e: MouseEvent) => {
-      const related = e.relatedTarget as Element | null
+      if (!(e.target instanceof Element)) return
+      const related = e.relatedTarget instanceof Element ? e.relatedTarget : null
       if (
-        (e.target as Element).closest(hoverSelector) &&
+        e.target.closest(hoverSelector) &&
         !related?.closest(hoverSelector)
       ) {
         dot.classList.remove('cursor-dot--hover')
@@ -54,11 +60,24 @@ export function Cursor() {
     }
 
     const tick = () => {
+      if (pendingCssX !== cssX || pendingCssY !== cssY) {
+        cssX = pendingCssX
+        cssY = pendingCssY
+        document.documentElement.style.setProperty('--cursor-x', `${cssX}px`)
+        document.documentElement.style.setProperty('--cursor-y', `${cssY}px`)
+      }
       dotX += (mouseX - dotX) * 0.55
       dotY += (mouseY - dotY) * 0.55
       dot.style.transform = `translate3d(${dotX - 3}px, ${dotY - 3}px, 0)`
       rafId = requestAnimationFrame(tick)
     }
+
+    const onMotionChange = () => {
+      if (motionMQ.matches) {
+        cancelAnimationFrame(rafId)
+      }
+    }
+    motionMQ.addEventListener('change', onMotionChange)
 
     document.addEventListener('mousemove',  onMouseMove,  { passive: true })
     document.addEventListener('mouseleave', onMouseLeave)
@@ -71,6 +90,7 @@ export function Cursor() {
       document.removeEventListener('mouseleave', onMouseLeave)
       document.removeEventListener('mouseover',  onMouseOver)
       document.removeEventListener('mouseout',   onMouseOut)
+      motionMQ.removeEventListener('change', onMotionChange)
       cancelAnimationFrame(rafId)
       document.documentElement.style.removeProperty('--cursor-x')
       document.documentElement.style.removeProperty('--cursor-y')

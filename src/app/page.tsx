@@ -1,12 +1,20 @@
 import type { Metadata } from 'next'
+import dynamic            from 'next/dynamic'
 import { JsonLd }          from '@/components/JsonLd'
-import { Cursor }          from '@/components/Cursor'
 import { Hero }            from '@/components/Hero'
 import { FeaturedWork }    from '@/components/FeaturedWork'
 import { FeatureShowcase } from '@/components/FeatureShowcase'
 import { ExpertiseGrid }   from '@/components/ExpertiseGrid'
 import { WhatIBring }      from '@/components/WhatIBring'
 import { ContactCTA }      from '@/components/ContactCTA'
+
+// Cursor is pure decoration, desktop-only, mounted below all other
+// content. Code-splitting it into its own chunk keeps the initial
+// bundle leaner — its own checks (matchMedia, rAF) only kick in
+// after the chunk loads, which doesn't block FCP/LCP.
+const Cursor = dynamic(
+  () => import('@/components/Cursor').then(m => ({ default: m.Cursor })),
+)
 
 export const metadata: Metadata = {
   title: {
@@ -69,9 +77,20 @@ const homeSchema = {
   ],
 }
 
+// Showreel poster — same URL as Hero/ShowreelGlow uses. Preloaded
+// here so it begins fetching alongside the HTML, not after the
+// video element is constructed. This is the LCP element on mobile.
+const SHOWREEL_POSTER = 'https://res.cloudinary.com/ddgwzcrim/video/upload/f_jpg,q_auto,so_0/portfolio-showreel'
+
 export default function Home() {
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href={SHOWREEL_POSTER}
+        fetchPriority="high"
+      />
       <JsonLd schema={homeSchema} />
       <Cursor />
       <Hero />

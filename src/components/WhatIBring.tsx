@@ -4,6 +4,9 @@ import { WhatIBringCard }  from '@/components/WhatIBringCard'
 export function WhatIBring() {
   return (
     <section className="wib-section" aria-labelledby="wib-heading">
+      <div className="wib-bg" aria-hidden="true">
+        <div className="wib-blob3" />
+      </div>
       <div className="wib-head">
         <p className="eyebrow">Why hire me</p>
         <h2 id="wib-heading">What I bring to your team.</h2>
@@ -13,9 +16,6 @@ export function WhatIBring() {
         </p>
       </div>
       <div className="wib-grid">
-        <div className="wib-bg" aria-hidden="true">
-          <div className="wib-blob3" />
-        </div>
         {whatIBring.map((card) => (
           <WhatIBringCard key={card.slug} card={card} />
         ))}

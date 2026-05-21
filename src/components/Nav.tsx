@@ -40,6 +40,9 @@ export function Nav() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Close the mobile menu whenever the route changes. Deferred via
+  // setTimeout(0) to satisfy React 19's react-hooks/set-state-in-effect
+  // lint rule: setState inside a queued callback is non-cascading.
   useEffect(() => {
     const id = setTimeout(() => setMenuOpen(false), 0)
     return () => clearTimeout(id)

@@ -1,23 +1,27 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { ProjectItem } from '@/data/projects'
 
 interface WorkCardProps {
   project: ProjectItem
+  priority?: boolean
 }
 
-export function WorkCard({ project }: WorkCardProps) {
+export function WorkCard({ project, priority = false }: WorkCardProps) {
   const { slug, title, summary, cover, coverAlt, tags, client, year, tintClass } = project
 
   return (
     <Link href={`/projects/${slug}`} className={`work-card ${tintClass}`}>
       <div className="work-card-media">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={cover}
           alt={coverAlt}
           className="work-card-img"
-          loading="lazy"
-          decoding="async"
+          fill
+          sizes="(max-width: 600px) 100vw, (max-width: 900px) 90vw, 50vw"
+          priority={priority}
+          fetchPriority={priority ? 'high' : 'auto'}
+          quality={70}
         />
         <div className="work-card-overlay" aria-hidden="true" />
         <span className="work-card-tag-img">{tags[0]}</span>

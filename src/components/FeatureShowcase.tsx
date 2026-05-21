@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { PillButton } from '@/components/PillButton'
 
 // TODO: replace with real TGS 2024 photo once uploaded to Cloudinary (msarib/feature-showcase/tgs-2024)
@@ -26,24 +27,26 @@ export function FeatureShowcase() {
 
       <div className="feature-visual-wrap">
         {/* Blurred glow sits behind the frame at z-index 0.
-            Same src as the main image; one HTTP request total. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+            Same src as the main image; browser cache reuses one HTTP
+            request for both. */}
+        <Image
           src={SHOWCASE_IMG}
           alt=""
           className="feature-img-glow"
           aria-hidden="true"
-          loading="lazy"
-          decoding="async"
+          fill
+          sizes="(max-width: 900px) 100vw, 60vw"
+          quality={40}
         />
         <div className="feature-visual-frame">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={SHOWCASE_IMG}
             alt={SHOWCASE_ALT}
             className="feature-img"
+            fill
+            sizes="(max-width: 900px) 100vw, 60vw"
+            quality={75}
             loading="lazy"
-            decoding="async"
           />
           <span className="feature-credit" aria-hidden="true">
             {SHOWCASE_CREDIT}

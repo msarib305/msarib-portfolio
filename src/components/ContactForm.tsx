@@ -96,6 +96,9 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
           placeholder="Studio or company name"
           aria-describedby={state.errors?.company ? 'error-company' : undefined}
           className={state.errors?.company ? 'field-input is-error' : 'field-input'}
+          data-1p-ignore=""
+          data-lpignore="true"
+          data-form-type="other"
         />
         {state.errors?.company && (
           <p id="error-company" className="field-error" role="alert">
@@ -118,6 +121,11 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
           placeholder="What are you working on?"
           aria-describedby={state.errors?.message ? 'error-message' : undefined}
           className={state.errors?.message ? 'field-input field-textarea is-error' : 'field-input field-textarea'}
+          autoComplete="off"
+          data-1p-ignore=""
+          data-lpignore="true"
+          data-form-type="other"
+          suppressHydrationWarning
         />
         {state.errors?.message && (
           <p id="error-message" className="field-error" role="alert">

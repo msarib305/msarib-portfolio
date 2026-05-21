@@ -24,7 +24,7 @@ export function SLogo({
 }: SLogoProps) {
   const markRef = useRef<HTMLSpanElement>(null)
 
-  function handleMouseEnter() {
+  function handleMarkEnter() {
     const mark = markRef.current
     if (!mark || mark.classList.contains('spinning')) return
     mark.classList.add('spinning')
@@ -40,12 +40,12 @@ export function SLogo({
       className={`s-logo ${className}`}
       aria-label={showText ? undefined : ariaLabel}
       style={size !== undefined ? ({ '--s-logo-size': `${size}px` } as React.CSSProperties) : undefined}
-      onMouseEnter={handleMouseEnter}
     >
       <span
         ref={markRef}
         className="s-logo-mark"
         aria-hidden="true"
+        onMouseEnter={handleMarkEnter}
         onAnimationEnd={handleAnimationEnd}
       >
         S

@@ -5,7 +5,13 @@
    font-display: swap on every declaration
    ============================================================ */
 
-/* PP Right Grotesk — display family */
+/* PP Right Grotesk — display family.
+   font-display strategy:
+   – Preloaded weights (900 hero, 400 body) use swap: the file is
+     ready before paint, so no CLS, no fallback flash.
+   – Non-preloaded weights use optional: if the file arrives in
+     ~100ms it is used; otherwise the system fallback is used for
+     the page lifetime, avoiding swap-induced layout shifts. */
 @font-face {
   font-family: 'PP Right Grotesk';
   src: url('/fonts/PPRightGrotesk-WideBlack.woff2') format('woff2');
@@ -18,14 +24,14 @@
   src: url('/fonts/PPRightGrotesk-SpatialBlack.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: 'PP Right Grotesk';
   src: url('/fonts/PPRightGrotesk-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 /* PP Right Grotesk Text — body family */
@@ -41,39 +47,27 @@
   src: url('/fonts/PPRightGroteskText-CompactMedium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
-/* PP Neue Montreal — A/B alternative display */
+/* Metric-matched system fallback. Keeps layout stable while the
+   web font loads by sizing the system fallback to the same line
+   box dimensions Right Grotesk uses. */
 @font-face {
-  font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontreal-Extrabold.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
+  font-family: 'Right Grotesk Fallback';
+  src: local('Arial');
+  size-adjust: 105%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
 }
 @font-face {
-  font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontreal-Semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'PP Neue Montreal';
-  src: url('/fonts/PPNeueMontreal-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* PP Neue Montreal Text — A/B alternative body */
-@font-face {
-  font-family: 'PP Neue Montreal Text';
-  src: url('/fonts/PPNeueMontrealText-Book.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  font-family: 'Right Grotesk Text Fallback';
+  src: local('Arial');
+  size-adjust: 102%;
+  ascent-override: 92%;
+  descent-override: 23%;
+  line-gap-override: 0%;
 }
 
 /* ============================================================
@@ -134,8 +128,8 @@
   --color-grad-3-b:       #e166b6;
 
   /* === TYPOGRAPHY ========================================== */
-  --font-display:         'PP Right Grotesk', system-ui, -apple-system, sans-serif;
-  --font-base:            'PP Right Grotesk Text', system-ui, -apple-system, sans-serif;
+  --font-display:         'PP Right Grotesk', 'Right Grotesk Fallback', system-ui, -apple-system, sans-serif;
+  --font-base:            'PP Right Grotesk Text', 'Right Grotesk Text Fallback', system-ui, -apple-system, sans-serif;
   /* --font-mono defined in @theme inline below */
 
   /* Type scale additions (Tailwind defaults kept) */
@@ -213,8 +207,14 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    overflow-x: clip;
     overscroll-behavior-y: none;
     min-height: 100dvh;
+    /* Safe-area inset on the page flow. Fixed-positioned children
+       (nav, mobile menu) handle their own insets separately, since
+       fixed positioning uses the viewport, not the body's box. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   a {
@@ -301,13 +301,6 @@
   --my: 50%;
 }
 
-/* Font A/B toggle — JS sets body[data-font="montreal"] in Phase 4.
-   CSS mechanism wired now; Phase 4 only needs the JS toggle. */
-body[data-font="montreal"] {
-  --font-display: 'PP Neue Montreal', system-ui, -apple-system, sans-serif;
-  --font-base: 'PP Neue Montreal Text', 'PP Neue Montreal', system-ui, sans-serif;
-}
-
 /* ============================================================
    @layer components — design-system primitives (Phase 3)
    All values are var() references to @theme or :root tokens.
@@ -352,7 +345,7 @@ body[data-font="montreal"] {
     padding-bottom: 0.05em;
   }
 
-  .s-logo:hover .s-logo-mark {
+  .s-logo-mark:hover {
     background: var(--s-logo-bg-hover);
     color: var(--s-logo-fg-hover);
   }
@@ -578,7 +571,8 @@ body[data-font="montreal"] {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
-    padding: 14px 32px;
+    padding: 14px max(32px, env(safe-area-inset-right)) 14px max(32px, env(safe-area-inset-left));
+    padding-top: calc(14px + env(safe-area-inset-top));
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
@@ -591,7 +585,8 @@ body[data-font="montreal"] {
   }
 
   .nav.nav--scrolled {
-    padding: 10px 32px;
+    padding: 10px max(32px, env(safe-area-inset-right)) 10px max(32px, env(safe-area-inset-left));
+    padding-top: calc(10px + env(safe-area-inset-top));
     background: rgba(16, 16, 20, 0.85);
   }
 
@@ -666,12 +661,17 @@ body[data-font="montreal"] {
     width: 20px;
     height: 1.5px;
     background: var(--color-text-primary);
+    border-radius: 1px;
+    transform-origin: 50% 50%;
     transition: transform 320ms var(--ease-out), opacity 200ms var(--ease-base);
   }
 
-  .nav-burger--open span:nth-child(1) { transform: translateY(2.75px) rotate(45deg); }
-  .nav-burger--open span:nth-child(2) { opacity: 0; }
-  .nav-burger--open span:nth-child(3) { transform: translateY(-2.75px) rotate(-45deg); }
+  /* Stack is 3 spans × 1.5px + 2 gaps × 4px = 12.5px tall.
+     Distance from top-span centre to middle-span centre is 5.5px.
+     Top translates down 5.5px to meet middle; bottom translates up 5.5px. */
+  .nav-burger--open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+  .nav-burger--open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .nav-burger--open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
   @media (max-width: 1200px) {
     .nav-links { display: none; }
@@ -696,15 +696,50 @@ body[data-font="montreal"] {
      Right-side drawer. Slides in via translateX.
      Controlled by .mobile-menu--open (React state, not body class).
      z-index 90 sits behind nav (z-index 100).
+     Backdrop at z-index 85 sits between page content and drawer.
      ---------------------------------------------------------- */
+  .mobile-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    transition:
+      opacity 300ms var(--ease-out),
+      visibility 0s linear 300ms;
+    pointer-events: none;
+    cursor: pointer;
+  }
+
+  .mobile-menu-backdrop--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 300ms var(--ease-out),
+      visibility 0s linear 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu-backdrop { transition: none; }
+  }
+
   .mobile-menu {
     position: fixed;
     top: 0; right: 0;
     width: min(100%, 380px);
-    height: 100vh; height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     background: var(--color-bg);
     z-index: 90;
-    padding: 100px 32px 32px;
+    padding:
+      calc(100px + env(safe-area-inset-top))
+      max(32px, env(safe-area-inset-right))
+      calc(32px + env(safe-area-inset-bottom))
+      32px;
     transform: translateX(100%);
     transition: transform 400ms var(--ease-out);
     border-left: 1px solid var(--color-border-faint);
@@ -712,6 +747,7 @@ body[data-font="montreal"] {
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
+    overscroll-behavior: contain;
     visibility: hidden;
   }
 
@@ -866,6 +902,7 @@ body[data-font="montreal"] {
     font-size: 11px;
     letter-spacing: 0.02em;
     margin-top: 16px;
+    font-variant-numeric: tabular-nums;
   }
 
   .clock-dot {
@@ -878,38 +915,6 @@ body[data-font="montreal"] {
   }
 
   .footer-clock strong {
-    color: var(--color-text-primary);
-    font-weight: 500;
-  }
-
-  /* ----------------------------------------------------------
-     FONT TOGGLE
-     ---------------------------------------------------------- */
-  .font-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: var(--color-light-005);
-    border: 1px solid var(--color-border-faint);
-    border-radius: var(--radius-full);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    color: var(--color-text-secondary);
-    transition:
-      background 200ms var(--ease-base),
-      border-color 200ms var(--ease-base),
-      color 200ms var(--ease-base);
-  }
-
-  .font-toggle:hover {
-    background: var(--color-light-010);
-    border-color: var(--color-border-subtle);
-    color: var(--color-text-primary);
-  }
-
-  .font-toggle .ft-label {
     color: var(--color-text-primary);
     font-weight: 500;
   }
@@ -933,7 +938,7 @@ body[data-font="montreal"] {
     grid-template-columns: 0.85fr 1.4fr;
     gap: 64px;
     align-items: center;
-    min-height: 70vh;
+    min-height: 70dvh;
   }
 
   .hero-text {
@@ -1670,9 +1675,11 @@ body[data-font="montreal"] {
      .wib-grid keeps blob z-stacking within the grid.
      ---------------------------------------------------------- */
   .wib-section {
+    position: relative;
     padding: 96px 32px;
     max-width: var(--container-max);
     margin: 0 auto;
+    isolation: isolate;
   }
 
   .wib-head {
@@ -1696,53 +1703,53 @@ body[data-font="montreal"] {
     max-width: 640px;
   }
 
-  /* Blob wrapper + grid share the same relative container.
-     isolation: isolate ensures blobs do not bleed into the
-     page background via mix-blend-mode from neighbouring
-     sections. */
   .wib-grid {
     position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    isolation: isolate;
+    z-index: 1;
   }
 
   /* Animated blob background — three layers via ::before,
      ::after, and the .wib-blob3 child element.
-     Blobs animate ONLY transform (no background-position on
-     a CSS gradient) so they run on the GPU compositor thread
-     with zero repaint. */
+     Sits behind everything in .wib-section. No overflow clip,
+     no border-radius: blobs feather out via their own radial
+     fall-off and a soft vertical mask at the section edges so
+     the bloom never ends in a hard line. mix-blend-mode: screen
+     adds the bloom to the page background instead of overlaying.
+     Blobs animate ONLY transform (GPU compositor path, no repaint). */
   .wib-bg {
     position: absolute;
-    inset: -40px;
+    inset: -80px -8vw;
     z-index: 0;
-    overflow: hidden;
-    border-radius: var(--radius-32);
     pointer-events: none;
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
   }
 
   .wib-bg::before {
     content: '';
     position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(0, 217, 196, 0.18) 0%, transparent 70%);
+    width: 720px;
+    height: 720px;
+    background: radial-gradient(circle, rgba(0, 217, 196, 0.24) 0%, transparent 72%);
     border-radius: 50%;
-    top: -100px;
-    left: -100px;
+    top: -180px;
+    left: -120px;
     animation: wib-drift1 18s ease-in-out infinite;
   }
 
   .wib-bg::after {
     content: '';
     position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(187, 107, 240, 0.15) 0%, transparent 70%);
+    width: 620px;
+    height: 620px;
+    background: radial-gradient(circle, rgba(187, 107, 240, 0.22) 0%, transparent 72%);
     border-radius: 50%;
-    bottom: -80px;
-    right: -50px;
+    bottom: -160px;
+    right: -80px;
     animation: wib-drift2 22s ease-in-out infinite;
   }
 
@@ -1750,14 +1757,19 @@ body[data-font="montreal"] {
      and ::after on .wib-bg are already occupied. */
   .wib-blob3 {
     position: absolute;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(115, 113, 255, 0.12) 0%, transparent 70%);
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(115, 113, 255, 0.18) 0%, transparent 72%);
     border-radius: 50%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     animation: wib-drift3 25s ease-in-out infinite;
+  }
+
+  .wib-head {
+    position: relative;
+    z-index: 1;
   }
 
   /* z-index: 1 ensures cards sit above the blob layer (z-index: 0) */
@@ -2492,31 +2504,46 @@ body[data-font="montreal"] {
     padding: 96px 32px;
     max-width: var(--container-max);
     margin: 0 auto;
-    overflow: hidden;
+    isolation: isolate;
   }
 
+  /* Full-bleed bloom layer: no overflow clip, soft vertical mask,
+     mix-blend-mode: screen so the gradient blends additively with
+     the page background instead of stamping a soft rectangle on it. */
   .three-card-bg {
     position: absolute;
-    inset: 0;
+    inset: -80px -8vw;
+    z-index: 0;
     pointer-events: none;
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
   }
 
   .three-card-bg .blob3 {
     position: absolute;
-    width: 700px;
-    height: 700px;
+    width: min(700px, 90vw);
+    aspect-ratio: 1 / 1;
     top: -200px;
     left: 50%;
-    transform: translateX(-50%);
     border-radius: 40% 60% 55% 45% / 45% 55% 60% 40%;
     background: radial-gradient(
       ellipse at center,
-      color-mix(in srgb, var(--color-accent) 12%, transparent) 0%,
-      color-mix(in srgb, var(--color-accent) 4%, transparent) 50%,
+      color-mix(in srgb, var(--color-accent) 20%, transparent) 0%,
+      color-mix(in srgb, var(--color-accent) 8%, transparent) 50%,
       transparent 75%
     );
-    animation: wib-drift1 18s ease-in-out infinite;
+    /* Dedicated keyframe keeps the translateX(-50%) horizontal
+       centring intact through the drift. The shared wib-drift1
+       keyframes would have wiped it. */
+    animation: about-blob-drift 18s ease-in-out infinite;
     filter: blur(60px);
+  }
+
+  .three-card-head,
+  .three-grid {
+    position: relative;
+    z-index: 1;
   }
 
   .three-card-head {
@@ -2854,6 +2881,9 @@ body[data-font="montreal"] {
   @media (prefers-reduced-motion: reduce) {
     .three-card-bg .blob3 {
       animation: none;
+      /* Static fallback transform restores the centring that
+         the animation would otherwise hold. */
+      transform: translateX(-50%);
     }
   }
 
@@ -3530,6 +3560,131 @@ body[data-font="montreal"] {
     }
   }
 
+  /* ----------------------------------------------------------
+     GLOBAL ASPECT-RATIO TUNING
+     Handle the long-tail of device shapes:
+     – super-tall portrait phones (foldables, modern iPhones in portrait)
+     – landscape phones (foldables rotated, iPhone landscape)
+     – super-wide ultrawides and pillarboxed displays
+     ---------------------------------------------------------- */
+
+  /* Super-tall portrait (≤ 9:20 aspect ratio).
+     Reduce wasted padding-top on hero sections so meaningful content
+     sits above the fold. */
+  @media (max-aspect-ratio: 9 / 20) and (max-width: 700px) {
+    .hero { padding-top: 88px; }
+    .work-index-hero,
+    .case-hero,
+    .about-hero,
+    .contact-hero,
+    .writings-hero,
+    .post-hero,
+    .placeholder-page { padding-top: 100px; }
+    .nav { padding-top: calc(10px + env(safe-area-inset-top)); }
+  }
+
+  /* Landscape phones (very short height, wide).
+     The standard < 900px stack hides the showreel below text — on
+     a landscape phone that pushes the showreel completely off
+     screen until the user scrolls. Reduce vertical padding and let
+     the hero grid take less than 70dvh. */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .hero { padding: 84px 32px 48px; }
+    .hero-grid { gap: 28px; min-height: 0; }
+    .about-hero,
+    .work-index-hero,
+    .contact-hero,
+    .writings-hero { padding-top: 100px; padding-bottom: 32px; }
+    .footer { padding-top: 48px; }
+  }
+
+  /* Ultrawide displays: 21:9 and beyond. Open up the container
+     slightly so generous side margins do not feel like dead space,
+     but keep prose columns capped via existing per-element rules. */
+  @media (min-width: 2200px) {
+    :root { --container-max: 1760px; }
+  }
+  @media (min-width: 3000px) {
+    :root { --container-max: 1920px; }
+    .hero, .section, .feature-showcase, .expertise-section,
+    .wib-section, .work-index-hero, .work-index-cards,
+    .case-hero, .case-section, .case-body, .case-media, .case-nav,
+    .about-hero, .about-narrative, .three-card, .timeline,
+    .skills-section, .writings-hero, .writings-grid,
+    .contact-hero, .contact-grid, .footer-grid { padding-left: 64px; padding-right: 64px; }
+  }
+
+  /* Tiny browsers / WebView edge cases.
+     280px-class screens used to ship on old wear devices and budget
+     Androids. Hide the meta strip on the hero where it would wrap
+     ugly, and tighten the case-title clamp. */
+  @media (max-width: 360px) {
+    .hero { padding: 92px 14px 56px; }
+    .hero-meta { gap: 14px; }
+    .nav { padding-left: 12px; padding-right: 12px; }
+    .case-title { font-size: clamp(32px, 11vw, 56px); }
+  }
+
+  /* ----------------------------------------------------------
+     CROSS-BROWSER FALLBACKS
+     ---------------------------------------------------------- */
+
+  /* color-mix() shipped in Chrome 111, Safari 16.4, Firefox 113.
+     For older releases fall back to literal rgba values matching
+     the design intent. */
+  @supports not (background: color-mix(in srgb, red, blue)) {
+    .t-card.t1 .t-pill {
+      background: rgba(0, 217, 196, 0.12);
+      border-color: rgba(0, 217, 196, 0.30);
+      color: var(--color-accent);
+    }
+    .exp-row.current {
+      background: radial-gradient(
+        ellipse 70% 110% at center top,
+        rgba(0, 217, 196, 0.10) 0%,
+        rgba(0, 217, 196, 0.04) 40%,
+        transparent 80%
+      );
+    }
+    .three-card-bg .blob3 {
+      background: radial-gradient(
+        ellipse at center,
+        rgba(0, 217, 196, 0.20) 0%,
+        rgba(0, 217, 196, 0.08) 50%,
+        transparent 75%
+      );
+    }
+  }
+
+  /* mix-blend-mode: legacy fallback.
+     The blob blooms are intentional decoration. If blend isn't
+     supported (rare; gated only on very old WebViews) the blobs
+     still render — just without additive lift. Acceptable. */
+
+  /* ----------------------------------------------------------
+     PRINT STYLES
+     A clean, single-column black-on-white version. Useful for
+     people saving the resume page or about page as PDF, and for
+     search engines that still issue print-mode requests for
+     accessibility tooling. */
+  @media print {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      background: transparent !important;
+      color: #000 !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+    }
+    html, body { background: #fff !important; color: #000 !important; }
+    .nav, .footer, .mobile-menu, .mobile-menu-backdrop,
+    .cursor-gradient, .cursor-dot,
+    .wib-bg, .three-card-bg, .showreel-glow-canvas,
+    .reel-label, .reel-credits { display: none !important; }
+    main { padding-top: 0 !important; }
+    a { color: #000 !important; text-decoration: underline; }
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */
@@ -3569,4 +3724,12 @@ body[data-font="montreal"] {
 @keyframes wib-drift3 {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50%       { transform: translate(-50%, -50%) scale(1.3); }
+}
+
+/* About-page blob drift. Carries translateX(-50%) horizontal
+   centring through the animation so the blob stays centred. */
+@keyframes about-blob-drift {
+  0%, 100% { transform: translate(-50%, 0) scale(1); }
+  33%       { transform: translate(calc(-50% + 120px), 80px) scale(1.15); }
+  66%       { transform: translate(calc(-50% - 60px), 140px) scale(0.9); }
 }

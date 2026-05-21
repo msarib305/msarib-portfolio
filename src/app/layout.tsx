@@ -72,6 +72,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
+  themeColor: '#101014',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -80,8 +84,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={jetbrainsMono.variable}>
+    <html lang="en" className={jetbrainsMono.variable} style={{ colorScheme: 'dark' }}>
       <head>
+        {/* Opt out of Dark Reader: the site is already dark-mode native.
+            Letting DR re-style it produces inverted colours that break the
+            blob blends and mix-blend-mode: screen layers. */}
+        <meta name="darkreader-lock" />
+        <meta name="color-scheme" content="dark" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Preload the two above-the-fold font files. Without these the
+            text uses the metric-matched fallback for ~300ms longer on
+            slow networks, which measurably hurts FCP and CLS. React 19
+            may render a benign duplicate `<link>` in DevTools (a known
+            React resource-hint hoisting quirk); browsers dedupe by URL. */}
         <link
           rel="preload"
           href="/fonts/PPRightGrotesk-WideBlack.woff2"

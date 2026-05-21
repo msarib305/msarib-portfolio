@@ -1,7 +1,21 @@
 import Link from 'next/link'
+import dynamic        from 'next/dynamic'
 import { SLogo }       from '@/components/SLogo'
-import { FontToggle }  from '@/components/FontToggle'
-import { LahoreClock } from '@/components/LahoreClock'
+
+// Lazy-load the clock — it lives in the footer (below the fold),
+// runs setInterval, and contributes ~1KB of JS that would otherwise
+// land in the per-route critical bundle on every page.
+const LahoreClock = dynamic(
+  () => import('@/components/LahoreClock').then(m => ({ default: m.LahoreClock })),
+  {
+    loading: () => (
+      <div className="footer-clock" aria-label="Loading Lahore time">
+        <span className="clock-dot" aria-hidden="true" />
+        <span>LAHORE · <strong>--:--:--</strong> PKT</span>
+      </div>
+    ),
+  },
+)
 
 const PAGE_LINKS = [
   { label: 'Home',     href: '/' },
@@ -57,8 +71,8 @@ export function Footer() {
         <div className="footer-col">
           <h4>Tools</h4>
           <ul>
-            <li><FontToggle /></li>
             <li><a href="/feed.xml">RSS</a></li>
+            <li><a href="/resume.pdf">Resume (PDF)</a></li>
           </ul>
         </div>
 

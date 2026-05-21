@@ -35,8 +35,8 @@ export async function WorkIndex() {
 
       <div className="work-index-cards">
         <div className="work-grid">
-          {allProjects.map((project) => (
-            <WorkCard key={project.slug} project={project} />
+          {allProjects.map((project, i) => (
+            <WorkCard key={project.slug} project={project} priority={i < 2} />
           ))}
         </div>
       </div>
