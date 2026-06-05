@@ -3909,3 +3909,67 @@
   33%       { transform: translate(calc(-50% + 120px), 80px) scale(1.15); }
   66%       { transform: translate(calc(-50% - 60px), 140px) scale(0.9); }
 }
+
+/* Error pages (not-found, error, global-error) */
+.error-page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.error-page-inner {
+  max-width: 480px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.error-page-code {
+  display: block;
+  font-size: clamp(5rem, 20vw, 8rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-accent);
+  opacity: 0.25;
+}
+
+.error-page-heading {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.error-page-body {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.error-page-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Contact form warning banner (timeout, offline) */
+.form-warning-banner {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-12);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.form-warning-banner a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

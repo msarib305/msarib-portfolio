@@ -874,3 +874,83 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Alternatives rejected:** Zod v4 — different API (`z.flattenError()` vs `error.flatten().fieldErrors()`); ecosystem tooling not fully updated at time of implementation. Manual validation — boilerplate, error-prone, not reusable.
 
 **Consequences:** Pin to `^3` to stay on v3 minor/patch updates only. Migrate to v4 as a separate step when ecosystem catches up.
+
+---
+
+## DEC-060: Security headers via next.config.ts, CSP shipped in report-only mode
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Phase 16 production hardening. The site had no CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, or Permissions-Policy headers. Only Vercel's default HSTS was present.
+
+**Decision:** Security headers added via the `headers()` function in `next.config.ts` on the `source: '/(.*)'` matcher. CSP shipped with key `Content-Security-Policy-Report-Only` for the first week post-launch so violations are logged to the browser console without blocking resources. After one week of clean logs, the key flips to `Content-Security-Policy` (enforcing) in a follow-up commit.
+
+**Alternatives rejected:** CSP enforcing on day one — too much risk of blocking Turnstile, Cloudinary, or YouTube embeds before violations are audited. Middleware (`proxy.ts`) — headers() in next.config.ts is simpler and sufficient.
+
+**Consequences:** Browsers log CSP violations in the console during report-only week. After flip to enforcing, any unlisted source will be blocked client-side. Review violation logs before enforcing.
+
+---
+
+## DEC-061: Styled error pages replace Next.js defaults
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Visiting any non-existent URL served the Next.js default white 404 page, breaking the site's visual identity. No `error.tsx` or `global-error.tsx` existed.
+
+**Decision:** Three error pages created: `src/app/not-found.tsx` (Server Component, 404), `src/app/error.tsx` (Client Component, segment errors), `src/app/global-error.tsx` (Client Component, root layout crash — imports `globals.css` directly since it bypasses the root layout). All use existing `.error-page*` CSS classes and the `PillButton` component.
+
+**Consequences:** `global-error.tsx` must import `globals.css` itself. If the font or token CSS ever moves out of `globals.css`, `global-error.tsx` needs updating.
+
+---
+
+## DEC-062: Contact form 30-second timeout warning with fallback email CTA
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** The contact form Server Action has no client-side timeout. If the Resend API or Turnstile verification hangs, the user sees a spinning "Sending..." button indefinitely with no escape.
+
+**Decision:** `ContactForm.tsx` tracks a 30-second `setTimeout` that activates when `isPending` becomes true. If still pending after 30 seconds, a `.form-warning-banner` renders below the error area with a direct mailto link as fallback. Timer clears on every `isPending` state change.
+
+**Consequences:** The warning appears only under failure — not in the visual baseline. Offline detection and Turnstile-not-ready guards added as client-side submit interceptors using `navigator.onLine` and a `turnstileReady` state flag.
+
+---
+
+## DEC-063: Sitemap image:image entries for case study thumbnails
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** The sitemap omitted image data for project routes, reducing discoverability in Google Image Search.
+
+**Decision:** Project routes in `sitemap.ts` include an `images` array with the cover image URL (or thumbnail URL if the cover is a video). Project `date` fields are human-readable quarter strings ("Q4 2022") so all project `lastModified` values use a pinned site-launch date (`2025-04-01`) rather than attempting to parse the display date.
+
+**Consequences:** Sitemap image entries link to Cloudinary CDN URLs which are already listed in the CSP `img-src` directive.
+
+---
+
+## DEC-064: Bundle baseline committed as docs/BUNDLE_BASELINE.md
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** No baseline existed for bundle size regression detection. Next.js 16 + Turbopack does not output per-route "First Load JS" in the CLI build table (see DEC-057).
+
+**Decision:** `docs/BUNDLE_BASELINE.md` records total `.next/static/` sizes and the top 8 largest JS chunks as of Phase 16. Alert threshold set at 5 MB for `.next/static/chunks/`. Per-route interactive analysis available via `pnpm next experimental-analyze`.
+
+**Consequences:** Manual process — must be updated when bundle sizes shift materially.
+
+---
+
+## DEC-065: Pre-launch checklist as docs/PRE_LAUNCH_CHECKLIST.md
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Verification steps before public launch were informal and not written down. Multiple launch-critical checks (DNS, env vars, security headers, 404 page, contact form delivery) needed a repeatable format.
+
+**Decision:** `docs/PRE_LAUNCH_CHECKLIST.md` created with Markdown checkboxes, grouped into infrastructure, smoke tests, performance, CSP monitoring, and optional sections. Includes full env var reference table.
+
+**Consequences:** Needs manual updating if new env vars are added or launch criteria change.

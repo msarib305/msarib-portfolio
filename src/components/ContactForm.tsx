@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { sendContactMessage } from '@/app/contact/actions'
 import type { ContactFormState } from '@/lib/contact-schema'
@@ -17,24 +17,68 @@ interface ContactFormProps {
 export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
   const [state, formAction, isPending] = useActionState(sendContactMessage, initialState)
   const turnstileRef = useRef<TurnstileInstance | null>(null)
+  const [turnstileReady, setTurnstileReady] = useState(false)
+  const [clientError, setClientError] = useState<string | null>(null)
+  const [timeoutWarning, setTimeoutWarning] = useState(false)
 
   useEffect(() => {
-    if (state.errors?.turnstile_token) {
-      turnstileRef.current?.reset()
-    }
+    if (!state.errors?.turnstile_token) return
+    turnstileRef.current?.reset()
+    // Deferred to avoid synchronous setState in effect body.
+    // onExpire callback also fires when reset() is called, but this ensures
+    // the ready flag clears even if onExpire is delayed.
+    const id = setTimeout(() => setTurnstileReady(false), 0)
+    return () => clearTimeout(id)
   }, [state.errors?.turnstile_token])
+
+  // Show a fallback email CTA if the server action takes longer than 30 seconds.
+  useEffect(() => {
+    if (!isPending) {
+      const id = setTimeout(() => setTimeoutWarning(false), 0)
+      return () => clearTimeout(id)
+    }
+    const timer = setTimeout(() => setTimeoutWarning(true), 30_000)
+    return () => clearTimeout(timer)
+  }, [isPending])
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setClientError(null)
+
+    if (!navigator.onLine) {
+      e.preventDefault()
+      setClientError('You appear to be offline. Check your connection and try again.')
+      return
+    }
+
+    if (!turnstileReady) {
+      e.preventDefault()
+      setClientError('Security check not ready yet. Wait a moment and try again.')
+      return
+    }
+  }
 
   if (state.status === 'success' && state.submittedName) {
     return <ContactSuccess name={state.submittedName} />
   }
 
+  const formError = clientError ?? state.errors?._form?.[0] ?? null
+
   return (
-    <form action={formAction} className="contact-form" noValidate>
+    <form action={formAction} onSubmit={handleSubmit} className="contact-form" noValidate>
       <h2 className="contact-form-heading">Send a message</h2>
 
-      {state.errors?._form && (
+      {formError && (
         <div className="form-error-banner" role="alert">
-          {state.errors._form.map(e => <p key={e}>{e}</p>)}
+          <p>{formError}</p>
+        </div>
+      )}
+
+      {timeoutWarning && (
+        <div className="form-warning-banner" role="status">
+          <p>
+            This is taking longer than expected. If it keeps failing, email me directly at{' '}
+            <a href="mailto:contact@msarib.dev">contact@msarib.dev</a>.
+          </p>
         </div>
       )}
 
@@ -134,7 +178,13 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
         )}
       </div>
 
-      <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} />
+      <TurnstileWidget
+        ref={turnstileRef}
+        siteKey={turnstileSiteKey}
+        onSuccess={() => setTurnstileReady(true)}
+        onError={() => setTurnstileReady(false)}
+        onExpire={() => setTurnstileReady(false)}
+      />
       {state.errors?.turnstile_token && (
         <p className="field-error" role="alert">
           {state.errors.turnstile_token[0]}

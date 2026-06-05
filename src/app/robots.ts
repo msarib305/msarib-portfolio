@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow:     '/',
-        disallow:  ['/keystatic/', '/api/', '/design-system/'],
+        disallow:  ['/keystatic/', '/api/', '/design-system/', '/_next/', '/og'],
       },
     ],
     sitemap: 'https://msarib.dev/sitemap.xml',

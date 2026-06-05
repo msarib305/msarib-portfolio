@@ -36,6 +36,52 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Security headers applied to every route.
+        // CSP shipped in report-only mode for first week post-launch.
+        // Flip key to Content-Security-Policy to enforce after monitoring.
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: res.cloudinary.com img.youtube.com",
+              "script-src 'self' 'unsafe-inline' challenges.cloudflare.com",
+              "frame-src challenges.cloudflare.com www.youtube-nocookie.com",
+              "connect-src 'self'",
+              "media-src 'self' res.cloudinary.com",
+              "font-src 'self'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+              "upgrade-insecure-requests",
+            ].join('; '),
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
+        ],
+      },
     ]
   },
 }

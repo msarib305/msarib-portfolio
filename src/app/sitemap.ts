@@ -10,19 +10,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getPublishedWritings(),
   ])
 
+  const SITE_LAUNCH = new Date('2025-04-01')
+
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE,               lastModified: new Date(), changeFrequency: 'monthly', priority: 1.0 },
-    { url: `${BASE}/work`,     lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${BASE}/about`,    lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.8 },
-    { url: `${BASE}/writings`, lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
-    { url: `${BASE}/contact`,  lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.7 },
+    { url: BASE,               lastModified: SITE_LAUNCH, changeFrequency: 'monthly', priority: 1.0 },
+    { url: `${BASE}/work`,     lastModified: SITE_LAUNCH, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${BASE}/about`,    lastModified: SITE_LAUNCH, changeFrequency: 'yearly',  priority: 0.8 },
+    { url: `${BASE}/writings`, lastModified: SITE_LAUNCH, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/contact`,  lastModified: SITE_LAUNCH, changeFrequency: 'yearly',  priority: 0.7 },
   ]
 
   const projectRoutes: MetadataRoute.Sitemap = projects.map(p => ({
     url:             `${BASE}/projects/${p.slug}`,
-    lastModified:    new Date(),
+    lastModified:    SITE_LAUNCH,
     changeFrequency: 'yearly' as const,
     priority:        0.8,
+    images:          [p.cover.type === 'image' ? p.cover.src : p.thumbnail.src],
   }))
 
   const writingRoutes: MetadataRoute.Sitemap = writings.map(w => ({

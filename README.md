@@ -1,87 +1,103 @@
-# msarib-portfolio
+# msarib.dev
 
-Production source for [msarib.dev](https://msarib.dev). Lead Unreal Engine 5 developer portfolio targeting German and Japanese AAA studios.
+Production source for [msarib.dev](https://msarib.dev). Portfolio for Muhammad Sarib — Lead Unreal Engine 5 developer targeting AAA and mid-tier studios.
 
-## Tech stack
+## Stack
 
-- **Framework:** Next.js 16 (App Router, Turbopack, React Compiler)
-- **UI:** React 19
-- **Styling:** Tailwind v4 (CSS-first `@theme` in `globals.css`, no `tailwind.config.js`)
-- **Language:** TypeScript 5 (strict + `noUncheckedIndexedAccess`)
+- **Framework:** Next.js 16 App Router, React 19, TypeScript 5 (strict)
+- **Styling:** Tailwind v4 — CSS-first `@theme` in `globals.css`, no `tailwind.config.js`
+- **Animation:** Motion v12, Lenis smooth scroll
+- **CMS:** Keystatic (git-based, local mode, browser UI at `/keystatic`)
+- **Media:** Cloudinary (image CDN, video delivery)
+- **Email:** Resend
+- **Bot protection:** Cloudflare Turnstile
+- **Tests:** Playwright (5 browsers, visual regression, a11y)
+- **Hosting:** Vercel
+- **DNS:** Cloudflare, DNS-only (proxy OFF on all Vercel records)
 - **Package manager:** pnpm 10
-- **Animation:** Motion v12 (added Phase 3+)
-- **Smooth scroll:** Lenis (added Phase 4+)
-- **Content:** Keystatic (git-based MDX, browser UI, added Phase 10)
-- **Media CDN:** Cloudinary (added Phase 14)
-- **Hosting:** Vercel Hobby plan
-- **DNS:** Cloudflare (proxy OFF on all Vercel records)
 
-## Prerequisites
+## Local development
 
-- Node 22+ (see `.nvmrc`)
-- pnpm 10+
-
-Install pnpm if missing:
-
-```bash
-corepack enable
-corepack use pnpm@latest
-```
-
-## Quick start
+**Prerequisites:** Node 22+, pnpm 10+
 
 ```bash
 git clone git@github.com:msarib305/msarib-portfolio.git
 cd msarib-portfolio
 pnpm install
+```
+
+Copy the env example and fill in values:
+
+```bash
+cp .env.example .env.local
+```
+
+Required values for local dev are in `.env.example`. Test-mode keys for Turnstile are already provided there — they work without a real Cloudflare account.
+
+```bash
 pnpm dev
 ```
 
-Dev server runs at [http://localhost:3000](http://localhost:3000).
+Dev server runs at `http://localhost:3000`.
 
-## Available scripts
+## Content management
 
-| Script | Command | What it does |
-|---|---|---|
-| `dev` | `next dev` | Start dev server with Turbopack |
-| `build` | `next build` | Production build |
-| `start` | `next start` | Serve the production build locally |
-| `lint` | `eslint src` | Run ESLint against `src/` |
-| `lint:fix` | `eslint src --fix` | Auto-fix lint errors |
-| `typecheck` | `tsc --noEmit` | Run TypeScript compiler without emitting |
-| `format` | `prettier --write .` | Format all files |
-| `format:check` | `prettier --check .` | Check formatting without writing |
+Keystatic admin runs at `http://localhost:3000/keystatic` in dev mode. Content files live in:
 
-## Directory structure
+- `content/projects/*/index.mdoc` — case study pages
+- `content/writings/*/index.mdoc` — writing posts
 
-```
-msarib-portfolio/
-├── src/app/            App Router pages and layouts
-├── public/             Static assets served at /
-├── docs/               Engineering documentation
-│   ├── DESIGN_SYSTEM.md  Canonical visual spec (tokens, components, interactions)
-│   ├── DECISIONS.md      Architectural decision records
-│   └── CHANGELOG.md      Timestamped change log
-├── AGENTS.md           AI agent contract (writing rules, MCP protocol, content schema)
-├── CLAUDE.md           Claude Code CLI overrides and guard rails
-└── README.md           This file
+Edit via the browser UI or directly in the MDoc files. Changes are picked up on save with no restart needed.
+
+## Testing
+
+```bash
+# Full suite — all 5 browser projects (~6 minutes)
+pnpm test:e2e
+
+# Single browser (faster iteration)
+pnpm test:e2e --project=chromium-desktop
+
+# Accessibility tests only
+pnpm test:a11y
+
+# Regenerate visual baselines after intentional UI changes
+pnpm test:e2e:update
 ```
 
-Content collections (`content/projects/`) and the Keystatic admin route (`/keystatic`) are added in Phase 10.
+Tests require a running dev server. If one is already running on port 3000, Playwright reuses it. If not, it starts one automatically.
 
 ## Deployment
 
-Every push to `main` triggers a Vercel preview deployment automatically. There is no manual deploy step. The production domain (`msarib.dev`) is mapped in the Vercel dashboard.
+Push to `main` triggers a Vercel auto-deploy. Preview builds are generated for pull requests. No manual deploy step.
 
-Vercel environment variables required at Phase 1: none. Cloudinary keys are added in Phase 14 via `vercel env add`.
+Custom domain `msarib.dev` is configured via the Vercel dashboard. SSL is provisioned by Vercel — Cloudflare must stay in DNS-only mode (grey cloud) on all records pointed at Vercel.
 
-## Content schema
+Required environment variables in Vercel Production:
 
-Project case study schema (Keystatic MDX frontmatter) is documented in `AGENTS.md` under the "Content schema" section. Content lives in `content/projects/` as MDX files once Phase 10 is complete.
+| Variable | Notes |
+|---|---|
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Value: `ddgwzcrim` |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Real Cloudflare site key for `msarib.dev` |
+| `TURNSTILE_SECRET_KEY` | Real Cloudflare secret |
+| `RESEND_API_KEY` | Real Resend API key |
+| `RESEND_FROM_EMAIL` | `hello@msarib.dev` |
+| `RESEND_TO_EMAIL` | `msarib.contact@gmail.com` |
 
-## Contact
+`RESEND_MOCK` and `RATE_LIMIT_TEST_MODE` must NOT be set in Production.
 
-- Portfolio: [msarib.dev](https://msarib.dev)
-- Email: contact@msarib.dev
-- GitHub: [msarib305](https://github.com/msarib305)
-- LinkedIn: [msarib305](https://linkedin.com/in/msarib305)
+## Documentation
+
+| File | Contents |
+|---|---|
+| `docs/MASTER_CONTEXT.md` | Full architecture, phases, decisions narrative |
+| `docs/DECISIONS.md` | Architectural decision records (DEC-001 onward) |
+| `docs/CHANGELOG.md` | Timestamped change log by phase |
+| `docs/BUNDLE_BASELINE.md` | JS bundle size baseline (Phase 16) |
+| `docs/PRE_LAUNCH_CHECKLIST.md` | Pre-launch verification checklist |
+| `AGENTS.md` | AI agent contract, content schema, writing rules |
+| `CLAUDE.md` | Claude Code CLI guard rails and MCP protocol |
+
+## License
+
+All rights reserved. Source is public for reference; do not reuse for your own portfolio without permission.

@@ -23,6 +23,40 @@ Entries are written at commit time, not at phase start.
 
 ---
 
+## 2026-06-06 PKT
+### feat(prod): Phase 16 — production hardening before public launch
+
+**Summary:** Security headers, error pages, contact form failure modes, robots/sitemap fortification, bundle baseline, pre-launch checklist, README rewrite.
+
+**Changes:**
+
+- `next.config.ts`: Security headers added to all routes via `headers()`. Six headers: `Content-Security-Policy-Report-Only` (shipped report-only per DEC-060 — flip key to `Content-Security-Policy` after one week of clean violation logs), `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, microphone, geolocation, interest-cohort all disabled).
+- `src/app/not-found.tsx`: Custom 404 page with site fonts and palette. Title separator corrected to middle dot per Phase 13 brand convention.
+- `src/app/error.tsx`: Custom error boundary page (segment-level). Logs to console, offers Try again + Back to home.
+- `src/app/global-error.tsx`: Custom root-level error boundary. Imports `globals.css` directly (bypasses root layout). Logs to console, offers Reload.
+- `src/app/globals.css`: Added `.error-page*` CSS classes and `.form-warning-banner` style.
+- `src/components/ContactForm.tsx`: Added offline detection (`navigator.onLine`), Turnstile readiness guard, and 30-second timeout warning banner with `contact@msarib.dev` fallback mailto link.
+- `src/components/TurnstileWidget.tsx`: Extended to accept `onSuccess`, `onError`, `onExpire` callbacks.
+- `src/app/robots.ts`: Added `/_next/` and `/og` to disallow list.
+- `src/app/sitemap.ts`: Static route `lastModified` pinned to `2025-04-01` (was `new Date()` — regenerated stale on every build). Project routes include `images` array for Google Image indexing. Writings `changeFrequency` corrected from `weekly` to `monthly`.
+- `docs/BUNDLE_BASELINE.md`: Bundle size baseline committed. See file for details. Total `.next/static/chunks/`: 3.6 MB uncompressed; largest chunk 2.7 MB (shared React/Motion/Lenis).
+- `docs/PRE_LAUNCH_CHECKLIST.md`: 10-item checklist with Markdown checkboxes. Covers DNS, env vars, security headers, 404, contact form, sitemap, robots, OG image, Lighthouse, CSP monitoring.
+- `README.md`: Rewritten with full stack, dev setup, content management, testing commands, deployment, and docs table.
+- `docs/DECISIONS.md`: DEC-060 through DEC-065 appended.
+
+**Vercel env audit status:** Vercel CLI not linked locally (no `.vercel/project.json`). Audit must be done via Vercel dashboard or after running `vercel link`. See `docs/PRE_LAUNCH_CHECKLIST.md` env var table.
+
+**CSP scheduled enforcement:** After one week of monitoring violation reports on the live site, change `Content-Security-Policy-Report-Only` to `Content-Security-Policy` in `next.config.ts`.
+
+- pnpm typecheck: pass
+- pnpm lint: pass
+- pnpm build: pass
+- Vercel preview: pending push
+- Playwright: full suite pending (run before final commit approval)
+- Manual visual check: pending
+
+---
+
 ## 2026-06-05 PKT
 ### perf(images): Phase 14 — next-cloudinary, bundle audit, Lighthouse baseline, font cache headers
 
