@@ -1,0 +1,204 @@
+---
+title: Exarta UEFN Portfolio
+displayOrder: 5
+summary: Six concurrent titles built in UEFN as Lead UEFN Developer for Exarta. Enigmara,
+  the flagship Domination game, pulled around 100 DAU steady state and 200 at peak,
+  and ran a PKR 100,000 tournament in October 2023. Five additional titles followed
+  across a seasonal release cadence into early 2024.
+date: Q1 2023 to Q1 2024
+status: released
+role: Lead UEFN Developer
+engine: "Unreal Editor for Fortnite (UEFN) 5.1 to 5.3"
+tags:
+  - UEFN
+  - Verse
+  - Fortnite Creative
+  - Multiplayer
+  - Game Portfolio
+  - Tournament Infrastructure
+  - Team Leadership
+client: Exarta
+featured: false
+tintClass: wc-2
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_Thumbnail_zknast.png
+  alt: Thumbnail with the text Enigmara
+cover:
+  discriminant: video
+  value:
+    youtubeId: o8NW4gXP_Cc
+    title: "Enigmara trailer on Exarta's official YouTube channel"
+gallery: []
+links:
+  - label: Exarta on Fortnite (portfolio hub)
+    url: https://www.fortnite.com/@exarta
+spoilerLinks: []
+---
+
+## The brief
+
+Exarta needed a UEFN portfolio. Six concurrent titles across genres and seasonal themes, all live on `fortnite.com/@exarta`, with one flagship carrying the cinematic ambition (Enigmara) and the rest filling out a catalog of focused gameplay loops: parkour racing, class-based team combat, a COD-zombies-style survival mode, a Christmas variant of that mode, and a central hub that connected the rest. Most titles shipped in the second half of 2023. The seasonal ones hit their windows on time: Frightmare a week before Halloween 2023, CR-ICE-IS two weeks before Christmas 2023.
+
+UEFN itself had only launched in March 2023, and Verse was new. The portfolio was built on UEFN 5.1 through 5.3 over roughly a year of concurrent development.
+
+## My role
+
+Lead UEFN Developer. I owned the architecture and the Verse code across all six titles. Four named collaborators contributed to specific titles on environment art, animations, level design, and pre-tournament polish; their contributions are credited inline under each title's section below.
+
+## The hard part
+
+UEFN is not standalone Unreal Engine. It runs inside Fortnite's runtime under hard limits: textures capped at 2K, total memory budget around 2GB per island, asset size restrictions, no native plugins, no C++. Verse is the only custom scripting language. In 2023 Verse was new enough that documentation lagged, features you would expect to exist had to be hand-rolled, and a lot of architecture decisions came down to whether to use UEFN's built-in devices (the visual-scripting equivalents) or write Verse from scratch.
+
+My rule of thumb was to lean on devices wherever they covered the case, and write Verse where they hit their limit. The result was less Verse than I would have written in standalone UE, more reliance on devices than I would have used in Blueprint, and a faster iteration loop for the four straightforward titles. The flagship needed real Verse code: Enigmara's matchmaking and faction balancing across two factions and four capture points, with team-size enforcement and join-in-progress behavior, was the hardest single problem in the portfolio and the place where the devices were clearly not enough.
+
+## The titles
+
+### Enigmara
+
+A Domination game. Two factions, Ashen Glades (a mystical forest) and Shadowshire (a darker urban setting), fight for control of four capture points across a cinematic fantasy map. Eliminate enemy players to slow their progress, hold capture points to win. The flagship of the portfolio. Pulled approximately 100 daily active users in steady state with peaks around 200 DAU per Epic's creator dashboard.
+
+{% YouTubeEmbed id="o8NW4gXP_Cc" title="Enigmara trailer 1" /%}
+
+{% YouTubeEmbed id="Ej7zkA_3S6s" title="Enigmara trailer 2" /%}
+
+{% YouTubeEmbed id="dIKow0fpkDE" title="Enigmara trailer 3 (the official launch trailer)" /%}
+
+{% YouTubeEmbed id="morPA1-Bi3E" title="Enigmara behind the scenes" /%}
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_9_fetowl.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_8_kmiv4e.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_2_u9nec4.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_10_qoedgb.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_5_qs1ryl.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_7_wpkfha.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_4_g7ecya.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_3_dxmhhy.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_6_tq2uwd.png)
+
+![Screenshot of Enigmara](https://res.cloudinary.com/ddgwzcrim/image/upload/Enigmara_1_knv0xq.png)
+
+Island code: `7143-0267-4469`. [Play on Fortnite](https://www.fortnite.com/@exarta/7143-0267-4469).
+
+#### The tournament
+
+October 15, 2023. PKR 100,000 prize pool. Eight teams competing across multiple matches. The infrastructure was deliberately minimal: a Verse spectator mode I built, manual admin team-balancing at the start of each match, and Discord-driven live updates and leaderboard tracking.
+
+How it worked. Two of the eight teams competed per match. The other six teams plus any other players who joined were routed by in-game rules into a third spectator team, which joined the lobby with the spectator camera I built so they could watch the match in real time without participating in it. Live updates, the next match's code, and current leaderboard standings ran on Exarta's Discord server, updated by the admin team between matches. The minimum-viable shape made sense for a one-off event. It also created lessons I came back to in the lessons-learned section below.
+
+{% YouTubeEmbed id="It2NGQe0xh0" title="Enigmara tournament teaser" /%}
+
+#### Credits (Enigmara)
+
+- **Ammad Khan** (Head of Engineering). Collaborated on bug fixes and polishing in the lead-up to the tournament. [LinkedIn](https://www.linkedin.com/in/ammadkhan47/)
+- **Abdul Haadi** (3D Environment Artist). Helped with the environment design. [LinkedIn](https://www.linkedin.com/in/abdul-haadi-24563a3a9/)
+
+### Clumsy Champions
+
+A parkour race. Eight players cross 13 obstacles to reach the finish line: thin wires to walk across, electrified water to avoid, wrecking balls to dodge. First across wins. Fall Guys in spirit, Fortnite in execution.
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_5_ktigwk.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_2_tit8n9.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_3_mxbjov.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_1_hzqbuv.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_4_wmvi4g.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_6_jbgbr1.png)
+
+![Screenshot of Clumsy Champions](https://res.cloudinary.com/ddgwzcrim/image/upload/Clumsy_Champions_7_uzirtv.png)
+
+Island code: `0115-3555-5368`. [Play on Fortnite](https://www.fortnite.com/@exarta/0115-3555-5368).
+
+#### Credits (Clumsy Champions)
+
+- **Abdul Haadi** (3D Environment Artist). Helped with the obstacle course design. [LinkedIn](https://www.linkedin.com/in/abdul-haadi-24563a3a9/)
+
+### Exarta HQ
+
+The portfolio hub. Players land in a lounging area; portals connect to each of the other five titles. One island code to share with audiences, one entry point into the catalog.
+
+![Screenshot of Exarta HQ](https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Hub_1_e9tawe.png)
+
+![Screenshot of Exarta HQ](https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Hub_3_amkpbb.png)
+
+![Screenshot of Exarta HQ](https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Hub_2_rmfuri.png)
+
+![Screenshot of Exarta HQ](https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Hub_4_hiypy5.png)
+
+![Screenshot of Exarta HQ](https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Hub_5_wcfidg.png)
+
+Island code: `9003-6135-9458`. [Play on Fortnite](https://www.fortnite.com/@exarta/9003-6135-9458).
+
+### Sands of Glory
+
+Egypt-themed team deathmatch with classes. Five against five. Each player picks one of three classes: Support (in-area healing, lowest health), Damage (high-damage rifle, mid health), or Tank (shields, highest health). Health and shields tied to class so the trade-off is real. If Overwatch had a TDM mode set in ancient Egypt, it would look like this.
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_4_w1oota.png)
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_2_ozazkg.png)
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_3_v3wyod.png)
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_1_ha3gnm.png)
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_6_c3cf19.png)
+
+![Screenshot of Sands of Glory](https://res.cloudinary.com/ddgwzcrim/image/upload/Sands_Of_Glory_5_mxegop.png)
+
+Island code: `8301-7702-3608`. [Play on Fortnite](https://www.fortnite.com/@exarta/8301-7702-3608).
+
+### Frightmare
+
+Black Ops 1 Zombies, rebuilt in UEFN. Four players survive 50 waves of zombies with escalating difficulty, then defeat a boss to win. Released the week before Halloween 2023.
+
+![Thumbnail of Frightmare](https://res.cloudinary.com/ddgwzcrim/image/upload/Frightmare_Thumbnail_juofwo.jpg)
+
+Island code: `9111-3235-7912`. [Play on Fortnite](https://www.fortnite.com/@exarta/9111-3235-7912).
+
+### CR-ICE-IS
+
+A Christmas crisis arena. Santa lost his presents in an area infected with ice zombies; whoever collects all 100 presents in time saves Christmas. Players drop into the arena, find weapons in chests, fight other players and ice zombies simultaneously, and hunt for the presents hidden across the map within a time limit. The name is a play on "Crisis" with "ICE" embedded for the seasonal theming. Released two weeks before Christmas 2023.
+
+![Thumbnail of CR-ICE-IS](https://res.cloudinary.com/ddgwzcrim/image/upload/CRICEIS_Thumbnail_bqpawd.jpg)
+
+Island code: `5186-9834-3901`. [Play on Fortnite](https://www.fortnite.com/@exarta/5186-9834-3901).
+
+#### Credits (CR-ICE-IS)
+
+- **Muhammad Abdullah** (3D Generalist). Helped with the animations. [LinkedIn](https://www.linkedin.com/in/muhammad-abdullah-vplay/)
+- **Muhmmad Hasnain Khan** (3D Artist). Helped with the environment design. [LinkedIn](https://www.linkedin.com/in/muhmmad-hasnain-khan-b76385405/)
+
+## Results
+
+- Six concurrent UEFN titles shipped to `fortnite.com/@exarta`, all live and playable today
+- Enigmara at approximately 100 DAU steady state, peaks around 200 DAU per Epic's creator dashboard
+- Tournament on Enigmara, October 15, 2023, PKR 100,000 prize pool, 8 teams competing across multiple matches
+- Seasonal cadence hit on time: Frightmare a week before Halloween 2023, CR-ICE-IS two weeks before Christmas 2023
+- Verse architecture across all six titles, with strategic use of UEFN devices for the gameplay loops the devices could handle cleanly
+
+## Tech stack
+
+- Unreal Editor for Fortnite (UEFN) versions 5.1 to 5.3
+- Verse for custom scripting and rules
+- Fortnite Creative devices (visual scripting equivalents) for the gameplay loops the devices could handle cleanly
+- Epic's creator dashboard for DAU and engagement metrics
+- Discord for tournament leaderboard and live updates
+
+## Lessons learned
+
+The Enigmara tournament infrastructure was deliberately minimal: a Verse spectator mode, manual team balancing per match, Discord for the leaderboard. That made sense for a one-off event on a tight timeline. If I were running a tournament series instead of one match day, I would build differently.
+
+Manual admin overhead scales badly. Each match needed an admin to launch the lobby, route the two competing teams, push the leaderboard update to Discord, and announce the next match. With eight teams across multiple rounds, that was a lot of human attention that could not go anywhere else. The Verse cost of automating most of that (auto-team-assignment via a check-in registration phase, an in-game leaderboard that the spectator team sees on a UI device, automatic match progression on a timer) is not trivial but is bounded. The break-even is somewhere around three to four tournament matches. Below that, manual is faster. Above that, manual costs more than building the automation costs to build. A tournament series would have crossed that line on the first weekend.
+
+The honest lesson is not "I should have automated more." It is that the right level of automation depends on how many times the system runs. Build cheap when the answer is one. Build for scale when the answer is repeated. Knowing which one is which is the actual engineering judgment.

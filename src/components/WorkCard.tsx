@@ -8,14 +8,14 @@ interface WorkCardProps {
 }
 
 export function WorkCard({ project, priority = false }: WorkCardProps) {
-  const { slug, title, summary, cover, coverAlt, tags, client, year, tintClass } = project
+  const { slug, title, summary, thumbnail, tags, client, date, tintClass } = project
 
   return (
     <Link href={`/projects/${slug}`} className={`work-card ${tintClass}`}>
       <div className="work-card-media">
         <Image
-          src={cover}
-          alt={coverAlt}
+          src={thumbnail.src}
+          alt={thumbnail.alt}
           className="work-card-img"
           fill
           sizes="(max-width: 600px) 100vw, (max-width: 900px) 90vw, 50vw"
@@ -28,7 +28,7 @@ export function WorkCard({ project, priority = false }: WorkCardProps) {
       </div>
       <div className="work-card-body">
         <span className="work-card-meta">
-          {year}{client ? ` · ${client}` : ''}
+          {date}{client ? ` · ${client}` : ''}
         </span>
         <h3 className="work-card-title">{title}</h3>
         <p className="work-card-summary">{summary}</p>

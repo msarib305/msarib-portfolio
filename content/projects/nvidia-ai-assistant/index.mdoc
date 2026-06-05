@@ -1,39 +1,118 @@
 ---
 title: NVIDIA AI Assistant
-summary: >-
-  Real-time AI character driven by NVIDIA Omniverse Audio2Face for facial
-  animation and a self-hosted Llama LLM for contextual responses.
-cover: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,g_auto,w_800/sample"
-coverAlt: "NVIDIA AI Assistant — real-time AI character in Unreal Engine"
-tags:
-  - UE5
-  - NVIDIA
-  - AI
-  - Llama LLM
-  - Audio2Face
-client: Exarta
-year: "2024"
+displayOrder: 4
+summary: Real-time AI sales assistant in an AR retail tech demo on UE 5.3. Llama 2,
+  NVIDIA Riva, and NVIDIA Audio2Face streamed over WebSocket and Live Link. Under-2-second
+  conversational latency, built before NVIDIA's official ACE plugin shipped.
+date: Q1 2024
 status: archived
-role: "Senior UE Developer"
-engine: "UE5 · Blueprint"
-gallery: []
-video: gakXRloKGlw
+role: Senior Unreal Engine Developer
+engine: Unreal Engine 5.3
+tags:
+  - AI Integration
+  - NVIDIA Audio2Face
+  - Llama 2
+  - NVIDIA Riva
+  - Metahuman
+  - WebSocket
+  - Live Link
+  - C++ Plugin
+client: Exarta
 featured: true
-tintClass: wc-2
-links:
-  - label: Demo video
-    href: "https://youtu.be/gakXRloKGlw"
+tintClass: wc-4
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_Thumbnail_dgqza3.png
+  alt: Image showing the AI assistant standing in an AR shop.
+cover:
+  discriminant: video
+  value:
+    youtubeId: gakXRloKGlw
+    title: NVIDIA AI Assistant tech demo on the personal channel
+gallery:
+  - discriminant: instagram
+    value:
+      permalink: https://www.instagram.com/reel/C3tHZnFsSlt
+      title: Exarta official showcase of the AI assistant demo on Instagram
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_1_k8aziw.png
+      alt: Image showing the AI assistant standing and greeting the user.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_2_yorwna.png
+      alt: Image showing the AI assistant standing and telling the user about an AR headset.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_3_ep8pqo.png
+      alt: Image showing the user wearing the headset and using it to get the description on an object in the world.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_4_zwsvam.png
+      alt: Image showing the user wearing the headset and watching two people talk about AR.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_5_sscwqw.png
+      alt: Image showing the AI assistant standing and telling the user about the final price of the AR headset.
+links: []
+spoilerLinks: []
 ---
-Real-time AI assistant character in Unreal driven by NVIDIA Omniverse Audio2Face for facial animation and lip sync, with a self-hosted Llama LLM backend generating contextual responses. Three systems that do not natively speak to each other, wired into one runtime loop.
 
-## The constraint.
+## The brief
 
-End-to-end latency had to stay below the threshold where conversational pacing breaks. Audio2Face needs audio to drive it, which means the TTS pipeline had to begin streaming before the full LLM response was available. Synchronous calls from the game thread were not an option. <!-- TODO: add specific latency target if Sarib has the number -->
+A fixed-length tech demo built for Exarta. The player walks into an AR retail shop, talks to an AI sales assistant standing behind the counter, gets headset recommendations based on what they ask for, tries on a headset and sees its contextual overlays activate in the same scene, and either completes the purchase or hears the assistant suggest a cheaper alternative if the price is too high.
 
-## Architecture.
+The point was not the shop. The point was getting Llama 2, NVIDIA Riva, and NVIDIA Audio2Face running together with conversational latency low enough to feel real, on a stack that predated NVIDIA's official ACE plugin for Unreal Engine 5.
 
-1. Llama backend — self-hosted on a dedicated server. Prompt formatted for the Llama family with narrative context at system-prompt level. No cloud API dependency.
-2. Audio2Face integration — driven by streamed audio from the TTS pipeline. Blend shapes from Audio2Face piped into the UE5 MetaHuman rig at runtime.
-3. Blueprint orchestration — async Blueprint nodes with explicit latency-budget guards. Game thread never stalls waiting on inference.
+## My role
 
-Self-hosting the LLM rather than calling a cloud API was the right call for latency and data-privacy reasons. The tradeoff was setup complexity: model loading, GPU memory management, prompt formatting, and response streaming all had to be solved before the UE integration could begin. <!-- TODO: confirm whether this ran on Exarta server hardware or a cloud VM -->
+I handled the entire UE side end-to-end and helped set up the NVIDIA stack on the AI machine.
+
+What I owned: a custom C++ plugin for microphone capture from the player's mic, a custom C++ WebSocket plugin for the streaming connection between UE and the AI machine, the Animation Blueprint for the Metahuman receiving Audio2Face's blendshape stream via Live Link, the AR-overlay UI cards, and the demo scene scripting.
+
+What I did not own: Llama 2 hosting, Riva and Audio2Face server-side deployment, model selection, prompt design. Exarta's ML team owned the AI machine. Ammad Khan, Head of Engineering, coordinated across the two sides and reviewed my UE-side work.
+
+## The hard part
+
+Two problems, both on the data plane between the two machines.
+
+**The custom C++ WebSocket plugin.** The audio bytes from Riva's TTS and the control messages flowing in both directions all went over one WebSocket connection. Every message had to be framed by hand: binary audio chunks with their own length prefix, distinct control signals for turn start, turn end, and conversation state, and a deserializer on the UE side that could distinguish which kind of message had just arrived from the byte header alone. WebSocket gave me a transport. Everything on top of it was mine to design.
+
+**Audio buffering and sync.** The synthesized audio arrived from the AI machine over WebSocket with variable network jitter. The facial animation arrived separately over Live Link with its own pacing. The two had to stay aligned at the Metahuman's mouth: the audio playing in UE and the blendshape weights driving the lips had to line up, or the character looked dubbed. The buffering logic on the UE side held just enough audio to absorb jitter without adding so much that conversational latency stretched out.
+
+Both problems were bounded by one product constraint: conversational pacing. Anything over two seconds of round trip felt like waiting on a slow website. The target was under two seconds end to end from the player finishing a sentence to the character beginning to speak. We hit it. Testing under throttled 4G network conditions, the round trip ran 1 to 1.5 seconds and felt natural.
+
+## What I built
+
+1. **Custom C++ mic capture plugin.** Captured the player's microphone audio from inside the UE client, formatted for streaming over the WebSocket connection to the AI machine where Riva picked it up for speech to text.
+2. **Custom C++ WebSocket plugin.** Bidirectional streaming connection between UE and the AI machine. Carried player audio out, synthesized audio and control messages back in. Hand-rolled message framing for binary audio chunks and turn-state signals.
+3. **Animation Blueprint for the Metahuman.** Received Audio2Face's blendshape stream via Live Link and applied it to the Metahuman's facial rig in real time, held in timing alignment with the synthesized audio playing through the UE audio engine.
+4. **NVIDIA stack setup on the AI machine.** Helped install and configure Riva for speech to text and text to speech, Audio2Face for facial animation, and the Live Link bridge between the AI machine and the UE machine. Llama 2 was system-prompted with the full headset catalog and the assistant persona by the ML team, so it could give grounded recommendations on any headset the player asked about.
+5. **AR-overlay demo scenario.** Fixed-length scene where the player enters an AR retail shop, talks to the assistant, picks up a headset, sees contextual UI cards layer onto the scene when wearing it, and completes a purchase flow. Same scene throughout, UI cards turning on as the AR layer.
+
+## Results
+
+- End-to-end latency under 2 seconds, target met
+- 1 to 1.5 seconds round trip under throttled 4G network simulation, still felt natural
+- Two-machine streaming pipeline (UE client machine; AI machine running Llama 2, Riva, Audio2Face) with WebSocket plus Live Link as the transport
+- Built on UE 5.3 in Q1 2024, predating NVIDIA's official ACE plugin for Unreal Engine 5 announced at Unreal Fest 2024
+
+## Tech stack
+
+- Unreal Engine 5.3
+- C++ for the mic capture plugin and the WebSocket plugin
+- NVIDIA Omniverse Audio2Face (server-side, streamed to UE via Live Link)
+- NVIDIA Riva (speech to text on input, text to speech on output)
+- Llama 2 (server-side, system-prompted with the AR shop catalog)
+- Metahuman (UE-side character)
+- Animation Blueprint with custom Live Link facial animation pipeline
+
+## Lessons learned
+
+The audio bytes and control messages all went over a single custom C++ WebSocket plugin I wrote, with Live Link handling the facial animation on a separate channel. WebSocket worked, but I learned how much custom protocol work it forced me into. Every message type was hand-rolled: framing the binary audio chunks, distinguishing control signals from audio frames, deciding when a turn started and ended, parsing custom byte headers on both ends of the connection. Any change to the message shape meant updating the framing logic on both the UE plugin side and the server side, and any bug in the framing was a binary mess to debug.
+
+The lesson was that the protocol layer eats more time than the audio pipeline. If I built this again, gRPC with a bidirectional stream is the obvious shape: protobuf schemas for audio bytes, control signals, and animation metadata; HTTP/2 underneath for flow control and multiplexing; adding a new message type becomes one entry in a proto file. NVIDIA's later ACE plugin sits on gRPC, which validates the call in hindsight.
+
+## Credits
+
+- **Ammad Khan** (Head of Engineering). Reviewed the UE-side work and coordinated across the UE and ML teams. [LinkedIn](https://www.linkedin.com/in/ammadkhan47/)
+- **Exarta ML Team.** Llama 2 hosting, Riva and Audio2Face server-side setup, model deployment, and system-prompt engineering for the AR shop assistant persona.

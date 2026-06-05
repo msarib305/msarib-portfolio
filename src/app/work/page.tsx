@@ -5,13 +5,13 @@ import { JsonLd }         from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title:       'Work',
-  description: 'Ten shipped projects across six studios. C++, Blueprints, GAS, multiplayer, AI, geospatial, mobile, VR.',
+  description: 'Nine shipped projects across five studios. C++, Blueprints, GAS, multiplayer, AI, geospatial, mobile, VR.',
   alternates:  { canonical: 'https://msarib.dev/work' },
   openGraph: {
     type:        'website',
     url:         'https://msarib.dev/work',
     title:       'Work · Sarib',
-    description: 'Ten shipped projects across six studios. C++, Blueprints, GAS, multiplayer, AI, geospatial, mobile, VR.',
+    description: 'Nine shipped projects across five studios. C++, Blueprints, GAS, multiplayer, AI, geospatial, mobile, VR.',
     images: [{ url: '/og?title=Work&eyebrow=Selected+Projects', width: 1200, height: 630, alt: 'Work · Sarib' }],
   },
 }

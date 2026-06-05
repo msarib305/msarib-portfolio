@@ -1,0 +1,133 @@
+---
+title: Character Creator System
+displayOrder: 6
+summary: Runtime character configurator for the Exarta Metaverse. 18 customization
+  categories, 22 morph sliders driving 34 hand-authored blendshapes, three custom
+  shaders, and modular subsystems future Exarta titles could inherit.
+date: Q4 2021 to Q2 2022
+status: released
+role: Unreal Engine Developer
+engine: Unreal Engine 4.27
+tags:
+  - Character Customization
+  - Metahuman
+  - Modular Architecture
+  - Multiplayer Replication
+  - Shader Authoring
+client: Exarta
+featured: false
+tintClass: wc-1
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_Thumbnail_720p_bovw24.png
+  alt: A thumbnail of the final render of one of the premade male characters.
+cover:
+  discriminant: video
+  value:
+    youtubeId: HQ1BEmAtTb4
+    title: "Character Creator System trailer (Exarta YouTube channel)"
+gallery:
+  - discriminant: video
+    value:
+      youtubeId: DgFPmKbyyos
+      title: "Walkthrough showing live blendshape sliders, hair groom selection, and color shaders in motion"
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_1_dhl0kd.png
+      alt: A final render of one of the premade male characters.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_2_oxgpuj.png
+      alt: Male premade character grid showing pickable premade male characters as a starting point.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_3_hzqgva.png
+      alt: Customization panel showing nose selection grid with nine nose styles and a nose morph section at the top.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_4_axldd5.png
+      alt: Customization panel showing lip morph sliders mid-drag on a male premade.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_5_f2h0wr.png
+      alt: Customization panel showing torso selection grid with nine upper clothing styles and a color picker at the top.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_6_sqlbee.png
+      alt: Customization panel showing hair selection grid with nine head hair styles and a color picker at the top.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_7_rzbz20.png
+      alt: Customization panel showing footwear selection grid with nine footwear styles and a color picker at the top.
+links: []
+spoilerLinks: []
+---
+
+## The brief
+
+Exarta's metaverse needed a player avatar configurator. Players entering the metaverse would use the system to build their avatar, and the resulting config replicated across the network so every other player in the session saw the same character.
+
+Two constraints set the architecture early. The system runs in the shipped game build, not the UE editor: every customization happens at runtime in the packaged client. And the customization subsystems had to be modular so future Exarta titles could inherit individual pieces (just the hair logic, just the body morphs, just the save and load) without dragging the whole creator along.
+
+## My role
+
+Sole engineer. Built every system end-to-end. The base meshes were Epic's Metahuman skeletons. Everything sitting on top of those meshes was mine: the modular subsystem architecture, the 34 blendshapes authored in Maya, three custom shaders (skin, hair groom, eye color), the UI designed in Photoshop and assembled in UMG, the save and load layer, and the replicated config struct that assembled the final avatar across connected clients.
+
+Two collaborators are credited at the bottom. Arsalan Saleem helped with the UI design. Ammad Khan reviewed the system and the broader Exarta Metaverse integration.
+
+## The hard part
+
+Three problems that turned out to be one problem.
+
+**Modular subsystem inheritance.** The architecture had to be designed so future Exarta titles could lift individual subsystems out (just the hair logic, just the body morphs, just the save and load) and drop them into a different project without modification. That meant separation between the data layer (the customization values), the application layer (the code that pushed those values onto the character mesh), and the UI layer. Each customization area (hair, body morphs, accessories, materials, lighting) was its own Blueprint class implementing a shared interface.
+
+**Replicated avatar assembly across the metaverse.** Players walk into the social space already wearing whatever they configured, and any change inside the metaverse propagates to every connected client. The solution was a single replicated struct holding the entire config: slider values, preset selections, color values, accessory slots. Late joiners receive the full struct from the server on connect, and subsequent changes replicate as the struct mutates.
+
+**Live blendshape application during slider drag.** When the player drags the nose-length slider, the morph has to apply on the skeletal mesh in real time. Any hitch, GC spike, or full mesh re-evaluation per tick drops the frame rate the moment a slider moves. The fix was a managed morph pipeline that pushed only the deltas, batched updates per frame, and debounced weight changes so the renderer wasn't doing a full mesh refresh during a drag.
+
+The three problems fed each other. The modular architecture made the replication topology tractable, with each subsystem owning a defined slice of the config struct. The replication shape made the live morph pipeline necessary, since a non-host player dragging a slider had to apply locally and replicate authoritatively. And the live morph requirement made the modular architecture mandatory, because a monolithic state class would have rebuilt the entire character on every slider movement.
+
+## What I built
+
+1. **Modular subsystem architecture.** Five customization subsystems (hair, body morphs, accessories, materials, lighting), each its own Blueprint class implementing a shared interface. Independent of each other. Each subsystem could be lifted out of the project and dropped into another Exarta title without modification.
+2. **Replicated avatar assembly.** Single config struct carrying every customization value. Replicates from server to all clients on join, mutations replicate to the rest of the session, late joiners receive the complete config in their initial state sync.
+3. **Live blendshape pipeline.** 34 blendshapes authored in Maya across nose, ears, lips, jaw, arms, forearms, thighs, legs, and feet. 22 sliders drive them through a delta-only application path that keeps the configurator responsive while sliders drag.
+4. **Three custom shaders.** Skin shader for color and tone variation. Hair groom shader for color plus per-strand white-hair count. Eye shader for iris color selection. Dynamic Material Instances managed centrally so they could be reused without leaking instances across long sessions.
+5. **Save, load, and UI.** Local serialization of the full config to disk. UI designed in Photoshop and built in UMG, exposing every customization parameter through preset selectors plus advanced sliders for fine adjustment.
+
+## Results
+
+Scope numbers from the shipped build:
+
+- 18 customization categories
+- 22 morph sliders driving 34 blendshapes authored in Maya
+- 5 hair groom slots (head, beard, eyebrows, mustache, eyelash), each with style, color, and white-hair-count parameters
+- 16 premade characters (9 male, 7 female)
+- 10 options per clothing category (tops, bottoms, shoes), 10 tattoo options, 10 scar options
+- 5 lighting presets
+- 3 custom shaders (skin, hair groom, eye color)
+
+## Tech stack
+
+- Unreal Engine 4.27
+- Blueprint primary, light C++
+- Metahuman base meshes (Epic)
+- Maya for blendshape authoring
+- Photoshop for UI design, UMG for UI assembly
+- Custom shaders authored in Unreal's Material Editor
+- DataTables for tabular content libraries
+- Replicated struct for network sync of the full customization config
+
+## Lessons learned
+
+If I rebuilt this on UE 5.x, three things would change.
+
+The customization parameters were typed as enums, strings, and floats inside the replicated struct. Today I would use Gameplay Tags: a hierarchical taxonomy like `Customization.Hair.Head.Style.Mohawk` or `Customization.Body.Morph.Arm.Length`, with the struct holding tag-keyed maps. The designer-facing improvement is a tag picker instead of an enum dropdown. The engineering improvement is that adding a new parameter becomes adding a new tag, with no struct layout change, and old saves stay valid.
+
+The tabular content libraries lived in DataTables. That worked for the flat row data but got awkward as soon as a clothing option needed a mesh reference, multiple material overrides, an attach point, a physics flag, and a per-gender skeletal mapping. I would change the DataTable into an index that points at Data Assets, with each Data Asset carrying the rich content. Adding a new clothing option becomes creating a Data Asset and adding one row to the table.
+
+The replicated struct also carried more data than it needed to. Probably 80 to 120 floats and references per player on every change. Slider values were 32-bit floats where 8-bit quantization would be perceptually identical on a 0 to 1 morph. Preset references were FNames where a uint8 index into the preset array would have worked. And the entire struct replicated on every change instead of just the diff. Cutting per-player bandwidth meaningfully would not have been hard; I never measured how much.
+
+## Credits
+
+- **Arsalan Saleem** (UI Designer). Helped with the UI design of the experience. [LinkedIn](https://www.linkedin.com/in/designwitharslan/)
+- **Ammad Khan** (Head of Engineering). Reviewed the character creator and helped on the broader Exarta Metaverse. [LinkedIn](https://www.linkedin.com/in/ammadkhan47/)

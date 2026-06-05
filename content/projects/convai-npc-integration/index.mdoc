@@ -1,0 +1,86 @@
+---
+title: Convai NPC Integration
+displayOrder: 9
+summary: >-
+  Conversational AI NPC in Unreal driven by the Convai SDK. Built v1 in Dec 2022
+  (UE 5.1, greybox, generic actions, OVR Lipsync) and overhauled to v2 in Apr 2026
+  (UE 5.7, art-enthusiast persona, NeuroSync, Knowledge Base, one constrained action).
+  The lesson was that narrowing the domain made the NPC more believable, not less.
+date: Q4 2022 to Q2 2026
+status: archived
+role: Solo Developer (Personal Portfolio)
+engine: Unreal Engine 5.7
+tags:
+  - Conversational AI
+  - Convai SDK
+  - Metahuman
+  - NPC Behavior
+  - Personal Portfolio
+client: Personal Portfolio
+featured: false
+tintClass: wc-2
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Convai_NPC_Thumbnail_aveih8.png
+  alt: A placeholder thumbnail later to be updated.
+cover:
+  discriminant: video
+  value:
+    youtubeId: 4fMCKkrfyaA
+    title: "Convai SDK reference video (placeholder until original footage from the v2 build is captured)"
+gallery: []
+links:
+  - label: Convai
+    url: https://convai.com/
+  - label: Convai UE SDK on GitHub
+    url: https://github.com/Conv-AI/Convai-UnrealEngine-SDK
+spoilerLinks: []
+---
+
+## The brief
+
+An AI NPC is useful when it knows a small domain well and has a tight set of actions to take. It is less useful when it can talk about anything and do anything, because then it has no reason to do or say any particular thing. This personal project went from the second case to the first across two versions, and the change made the character more believable, not less capable.
+
+v1 shipped in December 2022 on UE 5.1, in a greybox test space, with a generic talking Metahuman that could be commanded to move to a location, pick up a specific object, or play a dance animation. v2 shipped in April 2026 on UE 5.7, in an art space, with the same Metahuman now constrained to behave as an art enthusiast who could look at specific paintings on command and discuss them in character. The SDK between the two versions changed significantly; the engineering lesson came from the design difference, not the platform.
+
+The cover above is Convai's own MetaHuman tutorial, used as a placeholder reference while my own footage from the v2 build is captured. The thumbnail is also a placeholder.
+
+## My role
+
+Sole developer on a personal portfolio project. Built both versions from scratch (v2 was closer to a rewrite than an upgrade), did the scene composition for both, and configured Convai's hosted character backend for both the generic v1 persona and the v2 art-enthusiast persona.
+
+## The hard part
+
+Three different kinds of difficulty across the project's lifetime.
+
+In v1, on UE 5.1 in late 2022, the difficulty was the SDK itself. Documentation lapses and early-version quirks meant working a lot from forum threads and trial and error. The platform was newer; the integration surface was smaller; what worked one week sometimes broke the next.
+
+In v2, on UE 5.7 in 2026, the difficulty was the LLM. Constraining a hosted conversational model to stay in character as an art enthusiast across a long conversation is harder than it sounds. The model would slip context if the player pushed it sideways, and the persona had to be tightened through the Knowledge Base and prompt configuration until the character actually held.
+
+Across versions, the difficulty was that returning to a three-and-a-half-year-old SDK integration is closer to a fresh build than a refresh. The Convai plugin had evolved enough that most of v1's Blueprint wiring needed to be redone. OVR Lipsync had been replaced by NeuroSync (Convai's in-house model that drives 250-plus Metahuman blend shapes from the audio stream). The action system had been rebuilt. The Knowledge Base feature did not exist in v1. The upgrade ate the time a from-scratch build would have eaten.
+
+## What I built
+
+1. **v2 art-enthusiast NPC in Unreal 5.7.** Metahuman avatar in an art space. The character is configured through Convai's hosted backend as an art enthusiast, with the Knowledge Base feature grounding the persona in art-history context. The character stays in role across a conversation and discusses the paintings in the space as a domain expert.
+2. **Constrained action vocabulary.** v2 has a single action wired through Convai's Advanced Actions feature: look at a specific painting. The NPC parses the player's request, picks the right painting, and turns to look at it while continuing to discuss it. v1 had a broader action set (move to location, pick up object, dance) that was useful for testing the SDK's range but did not contribute to a coherent character.
+3. **Input flexibility.** A settings switch toggles between keyboard text input, push-to-talk voice, and hands-free continuous listening. Same character backend, three input modalities, configurable at runtime.
+4. **NeuroSync facial animation pipeline.** v2 uses Convai's NeuroSync model for real-time lip sync and facial animation on the Metahuman face rig. v1 used the older OVR Lipsync path, which v2 replaced as part of the rebuild.
+5. **v1 sandbox scene.** Greybox environment with a generic Metahuman that the player could chat with by keyboard or mic, issuing free-form commands to trigger the v1 action set. The sandbox served its purpose as an SDK exploration and was retired when v2 replaced it.
+
+## Results
+
+Personal learning project that delivered what it was meant to deliver. v1 produced a working understanding of the Convai SDK on UE 5.1 in late 2022. v2 produced a working understanding of the modern SDK on UE 5.7 in 2026 and a more honest opinion about what AI NPCs actually need to be useful. Neither version was intended for public release; both lived in my private dev environment as portfolio R&D.
+
+## Tech stack
+
+- Unreal Engine 5.7 (current build); Unreal Engine 5.1 for the original v1 build
+- Convai UE plugin (v2 uses the current FAB release; v1 used the late-2022 plugin)
+- NeuroSync for v2 lip sync and facial animation; OVR Lipsync in v1
+- Metahuman avatar (both versions)
+- Convai Knowledge Base for v2 persona grounding (feature did not exist in v1)
+- Convai Advanced Actions for v2 action wiring (rebuilt action system relative to v1)
+
+## Lessons learned
+
+Grounded personas with tight action vocabularies outperform open sandboxes. v1 had generic actions (move, pick up, dance) and a free-form chat persona. The NPC could do anything and talk about anything, which meant it had no reason to do or say any particular thing. v2 narrowed the persona to an art enthusiast in an art space with a single domain action (look at a specific painting). The character became more believable, not less capable, because the constraints gave the LLM and the player something to hold onto. The Convai SDK did not change that; the design decision did.
+
+Returning to a three-and-a-half-year-old SDK integration is closer to a rewrite than a refresh. Convai's plugin evolved significantly between UE 5.1 in late 2022 and UE 5.7 in early 2026: OVR Lipsync gave way to NeuroSync driving 250-plus Metahuman blend shapes, the action system was rebuilt, and the Knowledge Base feature did not exist when v1 shipped. Most of v1's Blueprint wiring was incompatible. I should have expected this on any SDK with a fast release cadence and budgeted the upgrade as a fresh build, not an update.

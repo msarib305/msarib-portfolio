@@ -3687,6 +3687,196 @@
     a { color: #000 !important; text-decoration: underline; }
   }
 
+
+  /* ─── Case study: cover media ─── */
+  .case-media-frame {
+    width: 100%;
+    border-radius: var(--radius-16);
+    overflow: hidden;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .case-media-frame .youtube-embed,
+  .youtube-embed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+
+  .youtube-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+  }
+
+  .youtube-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .youtube-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+
+  .youtube-embed:hover .youtube-play {
+    background: var(--color-accent);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  /* ─── Instagram embed (link card) ─── */
+  .instagram-embed {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-12);
+    text-decoration: none;
+    color: var(--color-text-primary);
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+
+  .instagram-embed:hover {
+    border-color: var(--color-border-default);
+    background: var(--color-bg-high);
+  }
+
+  .instagram-embed-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    border-radius: var(--radius-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .instagram-embed-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+
+  /* ─── Case study: gallery grid ─── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .gallery-item {
+    border-radius: var(--radius-12);
+    overflow: hidden;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .gallery-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* ─── Case study: external links bar ─── */
+  .case-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block: 24px;
+  }
+
+  .case-link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+    white-space: nowrap;
+  }
+
+  .case-link-pill:hover {
+    border-color: var(--color-border-default);
+    color: var(--color-text-primary);
+    background: var(--color-bg-high);
+  }
+
+  /* ─── Case study: spoiler links ─── */
+  .case-spoiler-links {
+    margin-block: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .spoiler-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .spoiler-warning {
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .spoiler-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    filter: blur(4px);
+    transition: filter 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .spoiler-url:hover,
+  .spoiler-url.spoiler-revealed {
+    filter: none;
+    border-color: var(--color-border-default);
+    color: var(--color-text-primary);
+    background: var(--color-bg-high);
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */

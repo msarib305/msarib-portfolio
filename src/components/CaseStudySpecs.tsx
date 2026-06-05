@@ -1,23 +1,24 @@
 interface CaseStudySpecsProps {
-  year:   string
+  date:   string
   client: string | null
   role:   string
   engine: string
-  status: 'shipped' | 'in-development' | 'archived'
+  status: 'released' | 'wip' | 'archived' | 'cancelled'
 }
 
 const statusLabel: Record<CaseStudySpecsProps['status'], string> = {
-  shipped:          'Shipped',
-  'in-development': 'In development',
-  archived:         'Archived',
+  released:  'Released',
+  wip:       'In progress',
+  archived:  'Archived',
+  cancelled: 'Cancelled',
 }
 
-export function CaseStudySpecs({ year, client, role, engine, status }: CaseStudySpecsProps) {
+export function CaseStudySpecs({ date, client, role, engine, status }: CaseStudySpecsProps) {
   return (
     <dl className="case-specs">
       <div className="case-spec-row">
-        <dt className="case-spec-key">Year</dt>
-        <dd className="case-spec-val">{year}</dd>
+        <dt className="case-spec-key">Date</dt>
+        <dd className="case-spec-val">{date}</dd>
       </div>
       {client && (
         <div className="case-spec-row">

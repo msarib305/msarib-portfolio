@@ -6,10 +6,15 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   images: {
+    qualities: [70, 75],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
       },
     ],
   },

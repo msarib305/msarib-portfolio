@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 import Markdoc from '@markdoc/markdoc'
 import type { Node as MarkdocNode, Config } from '@markdoc/markdoc'
 import Image from 'next/image'
+import { YouTubeEmbed } from './YouTubeEmbed'
+import { InstagramEmbed } from './InstagramEmbed'
 
 const markdocConfig: Config = {
   nodes: {
@@ -23,6 +25,20 @@ const markdocConfig: Config = {
         src:     { type: String },
         alt:     { type: String },
         caption: { type: String },
+      },
+    },
+    YouTubeEmbed: {
+      render: 'YouTubeEmbed',
+      attributes: {
+        id:    { type: String },
+        title: { type: String },
+      },
+    },
+    InstagramEmbed: {
+      render: 'InstagramEmbed',
+      attributes: {
+        permalink: { type: String },
+        title:     { type: String },
       },
     },
   },
@@ -53,7 +69,25 @@ function FigureBlock({ src, alt, caption }: { src: string; alt: string; caption?
   )
 }
 
-const components = { List, ListItem, Figure: FigureBlock }
+function YouTubeEmbedBlock({ id, title }: { id: string; title: string }) {
+  return (
+    <div className="case-media-frame" style={{ marginBlock: '24px' }}>
+      <YouTubeEmbed youtubeId={id} title={title} />
+    </div>
+  )
+}
+
+function InstagramEmbedBlock({ permalink, title }: { permalink: string; title: string }) {
+  return <InstagramEmbed permalink={permalink} title={title} />
+}
+
+const components = {
+  List,
+  ListItem,
+  Figure: FigureBlock,
+  YouTubeEmbed: YouTubeEmbedBlock,
+  InstagramEmbed: InstagramEmbedBlock,
+}
 
 interface ProjectBodyProps {
   body: { node: MarkdocNode }

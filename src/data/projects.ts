@@ -4,47 +4,79 @@ import keystaticConfig from '../../keystatic.config'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 
+export type ProjectCover =
+  | { type: 'image'; src: string; alt: string }
+  | { type: 'video'; youtubeId: string; title: string }
+
+export type ProjectGalleryItem =
+  | { type: 'image'; src: string; alt: string }
+  | { type: 'video'; youtubeId: string; title: string }
+  | { type: 'instagram'; permalink: string; title: string }
+
 export interface ProjectItem {
-  slug:      string
-  title:     string
-  summary:   string
-  body:      { node: MarkdocNode }
-  cover:     string
-  coverAlt:  string
-  tags:      readonly string[]
-  client:    string | null
-  year:      string
-  status:    'shipped' | 'in-development' | 'archived'
-  role:      string
-  engine:    string
-  gallery:   readonly string[]
-  video:     string | null
-  featured:  boolean
-  tintClass: 'wc-1' | 'wc-2' | 'wc-3' | 'wc-4'
-  links:     readonly { label: string; href: string }[]
+  slug:         string
+  title:        string
+  displayOrder: number
+  summary:      string
+  date:         string
+  status:       'released' | 'wip' | 'archived' | 'cancelled'
+  role:         string
+  engine:       string
+  tags:         readonly string[]
+  client:       string | null
+  featured:     boolean
+  thumbnail:    { src: string; alt: string }
+  cover:        ProjectCover
+  gallery:      readonly ProjectGalleryItem[]
+  links:        readonly { label: string; url: string }[]
+  spoilerLinks: readonly { label: string; url: string; warning: string }[]
+  tintClass:    'wc-1' | 'wc-2' | 'wc-3' | 'wc-4'
+  body:         { node: MarkdocNode }
+}
+
+type RawConditional = { discriminant: string; value: Record<string, string | undefined> }
+
+function normalizeCover(raw: RawConditional): ProjectCover {
+  if (raw.discriminant === 'image') {
+    return { type: 'image', src: raw.value.src ?? '', alt: raw.value.alt ?? '' }
+  }
+  return { type: 'video', youtubeId: raw.value.youtubeId ?? '', title: raw.value.title ?? '' }
+}
+
+function normalizeGalleryItem(raw: RawConditional): ProjectGalleryItem {
+  if (raw.discriminant === 'image') {
+    return { type: 'image', src: raw.value.src ?? '', alt: raw.value.alt ?? '' }
+  }
+  if (raw.discriminant === 'instagram') {
+    return { type: 'instagram', permalink: raw.value.permalink ?? '', title: raw.value.title ?? '' }
+  }
+  return { type: 'video', youtubeId: raw.value.youtubeId ?? '', title: raw.value.title ?? '' }
 }
 
 async function readAll(): Promise<ProjectItem[]> {
   const entries = await reader.collections.projects.all({ resolveLinkedFiles: true })
-  return entries.map(e => ({
-    slug:      e.slug,
-    title:     e.entry.title as string,
-    summary:   e.entry.summary,
-    body:      e.entry.body as unknown as { node: MarkdocNode },
-    cover:     e.entry.cover,
-    coverAlt:  e.entry.coverAlt,
-    tags:      e.entry.tags,
-    client:    e.entry.client || null,
-    year:      e.entry.year,
-    status:    e.entry.status as ProjectItem['status'],
-    role:      e.entry.role,
-    engine:    e.entry.engine,
-    gallery:   e.entry.gallery,
-    video:     e.entry.video || null,
-    featured:  e.entry.featured,
-    tintClass: e.entry.tintClass as ProjectItem['tintClass'],
-    links:     e.entry.links,
-  }))
+  return entries
+    .map(e => ({
+      slug:         e.slug,
+      title:        e.entry.title as string,
+      displayOrder: e.entry.displayOrder ?? 99,
+      summary:      e.entry.summary,
+      date:         e.entry.date,
+      status:       e.entry.status as ProjectItem['status'],
+      role:         e.entry.role,
+      engine:       e.entry.engine,
+      tags:         e.entry.tags,
+      client:       e.entry.client || null,
+      featured:     e.entry.featured,
+      thumbnail:    e.entry.thumbnail as { src: string; alt: string },
+      cover:        normalizeCover(e.entry.cover as RawConditional),
+      gallery:      (e.entry.gallery as unknown as RawConditional[]).map(normalizeGalleryItem),
+      links:        e.entry.links as readonly { label: string; url: string }[],
+      spoilerLinks: e.entry.spoilerLinks as readonly { label: string; url: string; warning: string }[],
+      tintClass:    e.entry.tintClass as ProjectItem['tintClass'],
+      body:         e.entry.body as unknown as { node: MarkdocNode },
+    }))
+    .sort((a, b) => a.displayOrder - b.displayOrder)
 }
 
 export async function getProjects(): Promise<ProjectItem[]> {
@@ -53,7 +85,7 @@ export async function getProjects(): Promise<ProjectItem[]> {
 
 export async function getFeaturedProjects(): Promise<ProjectItem[]> {
   const all = await readAll()
-  return all.filter(p => p.featured).slice(0, 4)
+  return all.filter(p => p.featured)
 }
 
 export async function findProjectBySlug(slug: string): Promise<ProjectItem | null> {

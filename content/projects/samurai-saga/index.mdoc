@@ -1,44 +1,96 @@
 ---
 title: Samurai Saga
-summary: >-
-  Combat and multiplayer replication for a third-person open-world P2E.
-  Server-authoritative state, twelve-player session sync, sub-100ms melee.
-cover: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,g_auto,w_800/sample"
-coverAlt: "Samurai Saga — multiplayer combat screenshot"
+displayOrder: 7
+summary: Contract multiplayer combat work on Samurai Saga (UE 5.3), an Ethereum NFT
+  play-to-earn title with Cyborg Samurai, Kaiju Monsters, and Onna-Bugeisha character
+  classes. Public multiplayer trailer shipped October 2023; engineering details remain
+  under NDA.
+date: Q4 2023 to Q2 2024
+status: wip
+role: "Multiplayer Combat Developer (Contract)"
+engine: Unreal Engine 5.3
 tags:
-  - UE5
-  - Multiplayer
-  - C++
-  - P2E
+  - Multiplayer Combat
+  - Unreal Engine 5
+  - Freelance
   - Ethereum
-client: Exarta
-year: "2023 to 2024"
-status: archived
-role: "Senior UE Developer"
-engine: "UE5 · C++ and Blueprint"
-gallery: []
-video: qTzConyC1z8
-featured: true
-tintClass: wc-1
+  - NFT Gaming
+client: Samurai Saga
+featured: false
+tintClass: wc-4
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Samurai_Saga_Thumbnail_t6be3h.png
+  alt: "A thumbnail image showing a samurai on the left, an onna-bugeisha on the right and a cyborg samurai in the middle with the logo at the bottom."
+cover:
+  discriminant: video
+  value:
+    youtubeId: qTzConyC1z8
+    title: "Samurai Saga Multiplayer Trailer Part 1 (October 2023)"
+gallery:
+  - discriminant: video
+    value:
+      youtubeId: dKGSrNaXhgE
+      title: "Samurai Saga NFT Play-to-Earn cinematic trailer (March 2022, project context)"
+  - discriminant: video
+    value:
+      youtubeId: raNa_jPEgtw
+      title: Samurai Saga trailer on the official YouTube channel
+  - discriminant: video
+    value:
+      youtubeId: QwQ4MW_16Rs
+      title: "First Samurai Saga NFT game trailer (December 2021, project context)"
+  - discriminant: instagram
+    value:
+      permalink: https://www.instagram.com/reel/C7gy0bKOQoQ
+      title: Samurai Saga reel on the official Instagram channel
+  - discriminant: instagram
+    value:
+      permalink: https://www.instagram.com/reel/C6tQKTQuKUt
+      title: Samurai Saga reel on the official Instagram channel
+  - discriminant: instagram
+    value:
+      permalink: https://www.instagram.com/reel/C1ExxTirzYl
+      title: Samurai Saga reel on the official Instagram channel
 links:
-  - label: Project site
-    href: "https://samuraisaga.com"
-  - label: Trailer
-    href: "https://youtu.be/qTzConyC1z8"
+  - label: Website
+    url: https://samuraisaga.com/
+  - label: YouTube
+    url: https://www.youtube.com/@samuraisaga
+  - label: Instagram
+    url: https://www.instagram.com/thesamuraisaga
+  - label: X / Twitter
+    url: https://x.com/thesamuraisaga
+  - label: OpenSea collection
+    url: https://opensea.io/collection/samuraisaga
+spoilerLinks: []
 ---
-Samurai Saga is a third-person open-world play-to-earn combat title on Ethereum. Three NFT-backed character classes (Cyborg Samurai, Kaiju Monsters, Onna-Bugeisha) with distinct movesets. My role covered the combat systems layer and the multiplayer replication architecture.
 
-## The problem.
+## The brief
 
-Build a server-authoritative combat system for twelve concurrent players. Combat needed to feel responsive at Pakistani-to-international server latencies while staying cheat-resistant. The existing replication setup was ad-hoc and collapsed above six players; desync became visible as player count grew.
+Samurai Saga is a third-person multiplayer combat game on Ethereum, built in Unreal Engine. Players choose one of three NFT-backed character classes (Cyborg Samurai, Kaiju Monsters, Onna-Bugeisha), each with their own movesets, and fight across an open-world setting. The project is co-founded by Jian Tam, with NFT artwork from Dino Tomic.
 
-## What I built.
+The cover above (Multiplayer Trailer Part 1) shipped publicly in October 2023 and is the trailer that demonstrates the multiplayer combat work I contributed. The other gallery items are earlier project trailers and reels providing visual context for the larger world the game sits in.
 
-1. Custom ReplicationGraph — migrated from default actor replication to a custom graph. Reduced bandwidth per client by 38% through connection-group bucketing and dormancy policies.
-2. Server-authoritative melee — rolling-buffer rollback for hit detection. The server is the arbiter; honest clients never feel the lag.
-3. GAS migration — replaced ad-hoc combat state with Gameplay Ability System. New abilities ship in a day instead of a week.
-4. Architecture documentation — architecture overview, gotchas list, and code review checklist for the junior UE engineers. <!-- TODO: confirm team size involved in Samurai Saga specifically -->
+## My role
 
-## Outcome.
+Contract Multiplayer Combat Developer on the Unreal Engine team. The client engaged me directly through Upwork, parallel to my Exarta Senior return engagement.
 
-Twelve-player sessions running stable. Sub-100ms melee responsiveness. Bandwidth per client down 38%. The GAS migration cut new ability iteration time significantly and gave the design team a clear surface to extend without touching the combat core. <!-- TODO: add exact ability iteration time reduction if data is available -->
+The work is governed by an active NDA that runs until the game publicly releases. Engineering specifics including system architecture, frameworks, frame-level implementation, and internal numbers cannot be discussed publicly until that point. This case study sits here as proof of work and as a placeholder for fuller documentation post-release.
+
+## Results
+
+Public artifacts:
+
+- The cover above is the October 2023 Multiplayer Trailer Part 1, the public demonstration of the multiplayer combat work.
+- The official YouTube and Instagram channels (linked in the bar at the top of this page) host the rest of the project's public-facing content.
+- The game itself is still pre-release; live players cannot yet experience the build directly.
+
+## Tech stack
+
+- Unreal Engine 5.3
+
+(Other tools, plugins, and frameworks fall under the NDA and will be added here once the game publicly releases.)
+
+## Lessons learned
+
+I took on Samurai Saga as freelance work alongside the Exarta Senior return job, with the two running in parallel for most of the contract window. Doing contract work next to a full-time role costs more focus than just adding hours suggests. The day job had its own deadlines, team coordination, and review cycles; the contract had different deliverables and a different communication cadence. Switching between two codebases and two production rhythms ate into evenings and weekends in ways I didn't plan for. Next time I take parallel contract work, I would scope it with an explicit weekly time budget agreed up front, instead of letting it expand into whatever hours happened to be available.

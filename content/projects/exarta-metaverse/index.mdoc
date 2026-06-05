@@ -1,0 +1,130 @@
+---
+title: Exarta Metaverse (Valayt)
+displayOrder: 3
+summary: Built the multiplayer replication foundations for Valayt, Exarta's metaverse
+  city, during the first engagement. Came back at Senior level to scale concurrent
+  player capacity from 10 to 40 by fixing replication topology, switching to
+  server-authoritative validation against an AWS GameLift dedicated server fleet,
+  and tightening scene density to hold 60fps.
+date: Q4 2021 to Q1 2023
+status: wip
+role: "Unreal Engine Developer (First Engagement) → Senior Unreal Engine Developer (Senior Return)"
+engine: "Unreal Engine 4.27 (First Engagement), Unreal Engine 5.2 to 5.3 (Senior Return)"
+tags:
+  - Multiplayer Replication
+  - Server Authority
+  - AWS GameLift
+  - Performance Optimization
+  - Scene Density
+  - Blueprint Architecture
+  - Code Review
+client: Exarta
+featured: true
+tintClass: wc-1
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/Exarta_Metaverse_Thumbnail_s5buck.png
+  alt: Thumbnail with the text Exarta
+cover:
+  discriminant: video
+  value:
+    youtubeId: rx054s4OXPM
+    title: Exarta Metaverse intro
+gallery:
+  - discriminant: video
+    value:
+      youtubeId: YPrls_9t3bM
+      title: Exarta Metaverse showcase 1
+  - discriminant: video
+    value:
+      youtubeId: xOS-baDWQ-c
+      title: Exarta Metaverse showcase 2
+  - discriminant: video
+    value:
+      youtubeId: vSo8TlZ1I5s
+      title: Exarta Metaverse showcase 3
+  - discriminant: video
+    value:
+      youtubeId: dvzLRbhpThA
+      title: Exarta Metaverse showcase 4
+  - discriminant: video
+    value:
+      youtubeId: 6mi85iw4d0c
+      title: Exarta Metaverse showcase 5
+  - discriminant: video
+    value:
+      youtubeId: -r0T5lvrP2o
+      title: Exarta Metaverse showcase 6
+  - discriminant: video
+    value:
+      youtubeId: BJFUPaxVB6g
+      title: Exarta Metaverse showcase 7
+links:
+  - label: Exarta
+    url: https://exarta.com/
+spoilerLinks: []
+---
+
+## The brief
+
+Valayt is Exarta's metaverse city, a multiplayer virtual environment built in Unreal Engine. The name is Urdu and Punjabi for "foreign country"; the design takes London as the starting point and pushes it into a futuristic timeline. The product was internal-facing, on Exarta's roadmap, and used as the platform for the company's broader metaverse ambitions.
+
+I worked on Valayt across two engagements at Exarta with a six-month gap in between. The first engagement built the multiplayer replication foundations and the city's first systems. The Senior return engagement scaled the concurrent player capacity from 10 to 40 by tightening the replication topology, switching to server-authoritative validation, and optimizing scene density to hold frame rate as the world grew.
+
+## My role
+
+Across both engagements I owned the multiplayer architecture and the replication topology. Ammad Khan reviewed my work during the first engagement when I was a UE Developer; during Senior return he was Head of Engineering and a collaborator. Lucian Shaw was the Lead Developer at Exarta during my second engagement.
+
+In parallel during the first engagement, I built the Character Creator System that became Valayt's avatar configurator; its full case study is documented separately.
+
+## First engagement: foundations
+
+December 2021 to May 2022. I joined Exarta as a UE Developer, working primarily in Blueprints on UE 4.27. The work on Valayt was building the multiplayer-ready virtual environment from the ground up: the city itself, the player replication layer (replicated variables, multicast RPCs, session management, session lifecycle), and the multiplayer foundations that the metaverse product would later run on. This was my first time working on real multiplayer-replicated systems in Unreal, and the patterns I picked up here were the patterns I came back to fix at Senior level.
+
+The first engagement also built the Character Creator System, which integrated into Valayt as the avatar configurator and ran inside the city's lobby flow.
+
+## Senior return: scaling
+
+November 2022 to early 2023. I came back at Senior level on UE 5.2 to 5.3. Valayt had accumulated multiplayer issues that needed fixing before the world could host more than a handful of players, and the production was scaling toward dense player counts. Work on Valayt concluded when the studio's focus shifted to UEFN in early 2023.
+
+The headline outcome was lifting concurrent player capacity from 10 to 40. At 10 players, lag and desync made the world unplayable. At 40, the experience was stable with around 100ms latency measured under throttled 4G network simulation via Unreal's Editor Preferences. The work to get there fell into three threads.
+
+**Replication topology.** Too much state was replicating, too often, to too many clients. Animation state machine variables were updating per-tick and replicating to every player who could see the character, when most of those updates didn't change state. Player transforms were over-replicating: full Transform when only location and yaw mattered. Chat and social state was broadcasting to every connected client even when no one in range was listening. The fix was differential replication where applicable, OwnerOnly and relevancy filtering where the data only needed a subset of clients, and dirty-flag patterns so variables only re-replicated on actual change. Reclaimed bandwidth per client was the mechanism that scaled the player count.
+
+**Server-authoritative validation.** Code that should have been server-only was running on clients. Ad-hoc client logic was modifying gameplay state directly without server validation. Client-side prediction in some places wasn't reconciling against server state. The fix was rebuilding those flows as proper RPCs with server-side validation, and configuring authority and ownership correctly on every actor that carried gameplay state. The defense was replication correctness first and anti-cheat second, with Unreal's replication model doing most of the work once the topology was right. Dedicated servers ran on AWS GameLift, so the server-authoritative shift had real operational backing.
+
+**Scene density.** The world was dense by design, and dense Unreal scenes lose frame rate fast without enforced LOD distances, instanced static mesh batching for repeated geometry, and material complexity caps. I tightened all three. Target was 60fps on an i7-10700K with an RTX 3060; we hit it in the Entertainment District near Animal Kingdom, which was one of the busier areas.
+
+In parallel I ran Blueprint code reviews for three junior UE developers reporting into me. The patterns we kept seeing were Tick-based polling where an event or a timer would have done the same work for less cost. Two concrete conversions came up repeatedly: an NPC interaction detector running on Tick became a collision box with a separate collision channel and a dot product check on the overlap event; sprint stamina drain on Tick became a timer that fired at a fixed rate. Tick is the default that mid-level UE developers reach for first because it works; understanding when it's wrong is one of the load-bearing skills that separates mid from senior.
+
+## What I built
+
+1. **Multiplayer replication foundations (First engagement).** Built the replication layer in Blueprints on UE 4.27: replicated variables, multicast and reliable RPCs, session lifecycle, the multiplayer-ready virtual environment that the rest of the product ran on.
+2. **Replication topology tightening (Senior return).** Fixed animation state machine variables replicating on Tick, player transform over-replication, and chat and social state broadcasting to every client regardless of relevancy. Applied differential replication, OwnerOnly scoping, and dirty-flag patterns. Net effect was the bandwidth reclamation that scaled concurrent player capacity from 10 to 40.
+3. **Server-authoritative validation pass (Senior return).** Migrated ad-hoc client logic and bad client-side prediction onto proper RPCs with server-side validation. Fixed authority and ownership misconfigurations on actors carrying gameplay state. Defense in depth for replication correctness and anti-cheat, against an AWS GameLift dedicated server fleet.
+4. **Scene density optimization (Senior return).** Enforced LOD distances, instanced static mesh batching for repeated geometry, material complexity caps. Held 60fps target on i7-10700K + RTX 3060 in the densest areas of the city.
+5. **Code reviews for three junior UE developers (Senior return).** Blueprint review focused on tick-cost awareness and converting Tick-based polling to timer-driven and event-driven patterns. Two recurring conversion patterns I taught: Tick-polled interaction detectors to collision-event + dot-product flows, and Tick-polled stamina drain to fixed-rate timers.
+
+## Results
+
+- Concurrent player capacity lifted from 10 (unplayable due to lag and desync) to 40 (stable with around 100ms latency under throttled 4G simulation), measured via internal load tests
+- 60fps target hit on i7-10700K + RTX 3060 in the Entertainment District near Animal Kingdom, one of the city's denser areas
+- Dedicated server topology against AWS GameLift, server-authoritative validation across the gameplay layer
+- Three junior UE developers' Blueprint work reviewed during Senior return, focused on the Tick-anti-pattern conversions documented above
+
+## Tech stack
+
+- Unreal Engine 4.27 (First Engagement), Unreal Engine 5.2 to 5.3 (Senior Return)
+- Blueprint primary, light C++
+- AWS GameLift for dedicated server hosting
+- Unreal's built-in replication model (variable replication, multicast and reliable RPCs, OwnerOnly scoping, relevancy filtering)
+
+## Lessons learned
+
+Replication topology decisions compound. Every gameplay system added to a multiplayer build makes replication harder, and the wrong early choices become exponentially expensive to unfix as the project grows. Coming back to the Valayt codebase in Senior return and tightening what First engagement had let through was a lesson about how much earlier architectural decisions matter. The replication policies for animation state, the over-replication of player transforms, and the chat and social state broadcasting to every client even when no one was listening were all decisions that were cheap to get wrong in month two and painful to fix in month thirteen. If I built Valayt again, I would start with relevancy filtering, conditional replication, and OwnerOnly scoping as defaults from day one rather than retrofit them after the project was already shipping to test players.
+
+Server-authoritative validation is the default for any project that might go public. First engagement code worked because nobody could cheat against themselves. Senior return work had to assume someone would try to cheat once the project went public, which meant ad-hoc client logic became RPCs with server-side validation, client-side prediction had to reconcile against server state, and authority and ownership had to be configured correctly on every actor that carried gameplay state. The defense was correctness first and anti-cheat second, with Unreal's replication model doing most of the work once the topology was right. The lesson was that retrofitting server-authoritative validation onto a client-trusting codebase is harder than writing it server-authoritative from the start, and the cost of the second pass scales with how much gameplay logic was written before.
+
+## Credits
+
+- **Ammad Khan** (Head of Engineering). Reviewed my work as a UE Developer during the first engagement, and collaborated as Head of Engineering during the Senior return. [LinkedIn](https://www.linkedin.com/in/ammadkhan47/)
+- **Lucian Shaw** (Lead Developer at Exarta). Worked alongside me during the Senior return engagement. [LinkedIn](https://www.linkedin.com/in/lucian-shaw-669445213/)

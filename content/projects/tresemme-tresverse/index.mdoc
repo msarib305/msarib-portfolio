@@ -1,0 +1,156 @@
+---
+title: TRESemmé TRESverse
+displayOrder: 2
+summary: Co-engineered the TRESemmé TRESverse, the first beauty-industry metaverse
+  experience in Pakistan, on UE 5.0. Browser-based pixel streaming via Eagle 3D
+  Streaming on AWS. Launched November 10, 2022 to coverage in BeautyMatter, IGN
+  Pakistan, Happi, Retail Tech Innovation Hub, and parlayme.
+date: Q4 2022
+status: released
+role: Senior Unreal Engine Developer
+engine: Unreal Engine 5.0
+tags:
+  - Pixel Streaming
+  - Eagle 3D Streaming
+  - AWS
+  - Unilever Client
+  - Avatar Customization
+  - Browser-Based UE
+  - Multiplayer
+client: Unilever (via Exarta)
+featured: true
+tintClass: wc-2
+thumbnail:
+  src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_Thumbnail_rusm7v.png
+  alt: Thumbnail with the text TRESemmé x Exarta
+cover:
+  discriminant: video
+  value:
+    youtubeId: 95yZXewMez0
+    title: "TRESemmé TRESverse intro on Exarta's official YouTube channel"
+gallery:
+  - discriminant: video
+    value:
+      youtubeId: Nu2MZCxaI3I
+      title: TRESverse walkthrough
+  - discriminant: video
+    value:
+      youtubeId: jE3WTZwzkdw
+      title: TRESverse feature on the TRESemmé official YouTube channel
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_1_wxbfyt.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_2_osusqt.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_3_f8daho.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_4_mkxmd5.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_5_orqiha.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_6_kh3kbk.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_7_ebqb8d.png
+      alt: Screenshot of TRESemmé TRESverse.
+  - discriminant: image
+    value:
+      src: https://res.cloudinary.com/ddgwzcrim/image/upload/TRESverse_8_ghdsud.png
+      alt: Screenshot of TRESemmé TRESverse.
+links:
+  - label: BeautyMatter coverage
+    url: https://beautymatter.com/articles/tre-semme-debuts-pakistans-first-beauty-entry-into-the-metaverse
+  - label: IGN Pakistan coverage
+    url: https://pk.ign.com/pc/194264/metaverse-in-pakistan-unilever-breaks-new-ground-for-customer-experience
+  - label: Happi coverage
+    url: https://www.happi.com/breaking-news/tresemme-enters-the-metaverse/
+  - label: Retail Tech Innovation Hub coverage
+    url: https://retailtechinnovationhub.com/home/2022/11/8/unilever-teams-with-exarta-as-it-steps-into-the-metaverse
+  - label: parlayme coverage
+    url: https://www.parlayme.com/post/tresemme-enters-the-metaverse-with-the-help-of-exarta
+spoilerLinks: []
+---
+
+## The brief
+
+The TRESemmé TRESverse was Unilever Pakistan's launch into the metaverse, a browser-based virtual styling experience built on Unreal Engine 5.0. Users created their TRESsetter avatar, walked into a branded salon, picked a TRESemmé treatment, watched their avatar's hair change accordingly, and showed off the result on a runway alongside other TRESsetters in the same session.
+
+The product launched publicly on November 10, 2022 with coverage in five publications (BeautyMatter, IGN Pakistan, Happi, Retail Tech Innovation Hub, parlayme), positioned as the first beauty-industry metaverse experience in Pakistan.
+
+## My role
+
+Senior Unreal Engine Developer on a co-engineered build. Three of us worked on the UE5 side concurrently: Ammad Khan anchored the architecture and review layer, Lucian Shaw and I both worked on gameplay systems in parallel picking up whichever was next on the backlog. Hussain Rizvi led the web client side. Arslan Saleem led UX/UI. All four collaborators are credited at the bottom with their roles and LinkedIns.
+
+## The hard part
+
+Two problems came from the same architectural decision: the experience ran on pixel streaming, not as a downloadable client.
+
+**Input lag tuning.** Pixel streaming has inherent latency. The user clicks a button in their browser, the click travels to AWS, the UE5 instance processes it, the resulting frame renders, gets encoded, streamed back, decoded, and displayed in the browser. Round-trip latency was the load-bearing constraint for whether the experience felt responsive or sluggish. For UI clicks on hair styles and treatments, latency at around 100ms is fine. For any movement or selection that needs to feel snappy, getting there required tuning the input pipeline, the encoder settings, and the WebRTC connection parameters together. The goal was for clicks to feel like clicks, not like delayed clicks.
+
+**UMG optimization for streamed connection.** Pixel-streamed UMG costs encoder bitrate. Every UI element rendered server-side has to be encoded into the video stream, which means complex UI (lots of animated elements, particle effects on buttons, gradient fills, custom shaders) inflates the bitstream and degrades video quality for end users on real-world bandwidth. The customization-heavy experience meant the UI was always on screen, always being interacted with, and always costing encoder budget. Designing the UMG to be visually rich but bitrate-cheap was its own discipline: static elements where possible, animation budgets per panel, careful use of opacity transitions (which look great but encode badly) versus instant state changes (which encode cheaply).
+
+## What I built
+
+1. **Avatar starting points with a layered outfit and jewelry system.** 5 starting avatars. 2 outfit choices (sleeveless frock, or sleeveless shirt with pants), with independent color slots per component: 5 frock colors, 5 shirt colors, 3 pants colors, 5 belt colors, 5 shoes colors. 3 wearable and removable jewelry types: earrings, necklace, and wrist cuff.
+2. **Treatment-driven hair appearance mechanic.** Multiple pre-authored Metahuman groom assets paired with Dynamic Material Instances. Selecting a TRESemmé treatment swapped the groom and updated the MID parameters (color, smoothness, frizz reduction) in a single operation.
+3. **The salon and runway scenes.** Two-environment experience: branded salon where the customization happened, runway where the resulting look got displayed. Players progressed from one to the other after completing their styling.
+4. **10-per-session multiplayer presence.** Up to 10 TRESsetters in the same session could see each other in the salon and on the runway, watching others change hairstyles and equip looks. No direct interaction or chat; presence was watch-only by design, which kept the experience focused on the styling demonstration rather than open-ended social play.
+5. **Pixel streaming integration via Eagle 3D Streaming on AWS.** Browser-based delivery. No install required. The UE5 application ran on AWS GPU instances, with rendered frames streamed to users' browsers and inputs sent back via WebRTC. Eagle 3D Streaming handled the signaling layer; the UE5 side required configuration of the Pixel Streaming plugin, encoder settings, and the WebRTC signaling parameters.
+6. **720p adaptive resolution and mouse and touch input mapping.** Streaming targeted 720p with adaptive scaling based on the user's bandwidth, balancing visual quality against the reach of users on weaker connections. Browser mouse and touch events mapped onto UE5's input bindings so the customization UI worked correctly across desktop and mobile browsers.
+
+## Results
+
+- Public launch on November 10, 2022 via a virtual launch event
+- Coverage in five publications: BeautyMatter, IGN Pakistan, Happi, Retail Tech Innovation Hub, parlayme
+- Positioned externally as the first beauty-industry metaverse experience in Pakistan
+- 10 concurrent TRESsetters per session with no install required from end users
+
+> "We are excited to launch this avatar-based premium styling experience. It will enable women to own their style and engage with a community of TRESsetters in real-time with just a few clicks."
+>
+> *Humza Mahfooz and Zoha Akhtar, TRESemmé Brand Team at Unilever Pakistan, via Retail Tech Innovation Hub*
+
+### Press coverage
+
+![Press release showing article by BeautyMatter](https://res.cloudinary.com/ddgwzcrim/image/upload/BeautyMatter_Press_Release_eb9sjz.png)
+
+![Press release showing article by happi](https://res.cloudinary.com/ddgwzcrim/image/upload/happi_Press_Release_cwmp8d.png)
+
+![Press release showing article by ParlayMe](https://res.cloudinary.com/ddgwzcrim/image/upload/ParlayMe_Press_Release_ufepyf.png)
+
+![Press release showing article by IGN Pakistan](https://res.cloudinary.com/ddgwzcrim/image/upload/IGN_Pakistan_Press_Release_vxf1d4.png)
+
+## Tech stack
+
+- Unreal Engine 5.0
+- Blueprint primary, with C++ where needed
+- Eagle 3D Streaming (pixel streaming managed service)
+- AWS for GPU instance hosting
+- UE5 Pixel Streaming plugin with WebRTC signaling and encoder configuration
+- Dynamic Material Instances for treatment-driven hair shader changes
+- Multiple pre-authored Metahuman groom assets for hair style swapping
+- UMG for the customization UI
+
+## Lessons learned
+
+Three engineers on one tight-deadline marketing project means lane discipline more than raw output. Ammad, Lucian, and I were all on the UE5 side concurrently, plus Hussain on the web client and Arslan on UX/UI. Five people on a single experience with a hard launch date can either ship cleanly or burn coordination cost on every integration. What made it work was Ammad anchoring the architecture and review layer while Lucian and I both worked on gameplay systems in parallel, picking up whichever was next on the backlog. The lesson was that the gain from adding a third UE5 engineer to a tight-deadline project only materializes if someone owns the architecture-and-review function explicitly; otherwise the third engineer becomes friction, not throughput.
+
+Browser-based pixel streaming is the right shape for UE5 brand marketing experiences. Eagle 3D Streaming on AWS meant no install, no platform-specific builds, no friction between the user clicking a link and being inside a UE5 experience. The cost scales with concurrent users via cloud GPU instances rather than with user device capability, which is the right cost shape for a marketing campaign that wants reach. For a brand that wants the cinematic visual quality only UE5 can deliver but also wants to be one click away from any potential customer, this is the architecture. The lesson generalizes beyond TRESverse: any UE5 brand experience aiming for reach over installed-base depth should default to browser pixel streaming.
+
+## Credits
+
+- **Ammad Khan** (Head of Engineering). Anchored the architecture and review layer; reviewed the gameplay-side work Lucian and I shipped. [LinkedIn](https://www.linkedin.com/in/ammadkhan47/)
+- **Lucian Shaw** (Lead Developer). Co-engineered the UE5 gameplay systems alongside me, picking up whichever was next on the backlog. [LinkedIn](https://www.linkedin.com/in/lucian-shaw-669445213/)
+- **Hussain Rizvi** (Lead Software Engineer). Led the web client side, including the browser integration with Eagle 3D Streaming. [LinkedIn](https://www.linkedin.com/in/smhussainrizvi/)
+- **Arslan Saleem** (Lead UX/UI Designer). Led the UX and UI design for the customization flow, salon, and runway. [LinkedIn](https://www.linkedin.com/in/designwitharslan/)
