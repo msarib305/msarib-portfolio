@@ -137,3 +137,19 @@ Run in this order after every meaningful change. All steps must pass before the 
 Log all results in `docs/CHANGELOG.md` using the format defined there.
 
 Console errors are a hard fail. No change ships with red text in DevTools. Hydration warnings count as console errors.
+
+---
+
+## Future work
+
+This section is a queue of intentionally deferred items. Each item is scoped work that Sarib decides when (or whether) to pick up.
+
+**Performance**
+
+- Optimize home page showreel video for bandwidth. The showreel video (`portfolio-showreel`) downloads 3.2 MB on page load because Chrome ignores `preload="metadata"` when `autoPlay` is set. Options: Cloudinary video `f_auto` (WebM/AV1 smaller derivatives), poster-first-then-video-on-idle pattern, reduced source video bitrate. Target: home page mobile Lighthouse Performance 90+.
+- Lighthouse CI integration via `lighthouserc.js` + GitHub Actions. Runs on every PR, catches performance regressions before merge. Deferred from Phase 14 (DEC-059).
+- Vercel Analytics integration. Real-user performance data from production visitors. Sarib decides if/when to add (paid feature).
+
+**Content**
+
+- Upload real ExpertiseCard videos. All 8 expertise items in `src/data/expertise.ts` currently use `res.cloudinary.com/demo/...` placeholder sea turtle videos. Sarib is producing 8 short clips (one per expertise card). Upload to `res.cloudinary.com/ddgwzcrim` and update public IDs in `expertise.ts`. Re-run Lighthouse against production after upload to confirm home page mobile Performance 90+.

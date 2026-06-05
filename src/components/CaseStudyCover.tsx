@@ -1,4 +1,5 @@
-import Image from 'next/image'
+import { CldImage } from '@/components/CldImageClient'
+import { cloudinaryPublicId } from '@/lib/cloudinary'
 import type { ProjectCover } from '@/data/projects'
 import { YouTubeEmbed } from './YouTubeEmbed'
 
@@ -13,8 +14,10 @@ export function CaseStudyCover({ cover }: CaseStudyCoverProps) {
         <YouTubeEmbed youtubeId={cover.youtubeId} title={cover.title} priority />
       ) : (
         <div style={{ position: 'relative', aspectRatio: '16/9' }}>
-          <Image
-            src={cover.src}
+          {/* CldImage adds f_auto + q_auto by default.
+              Override per-instance via deliveryType or rawTransformations. */}
+          <CldImage
+            src={cloudinaryPublicId(cover.src)}
             alt={cover.alt}
             fill
             sizes="(max-width: 900px) 100vw, 1600px"

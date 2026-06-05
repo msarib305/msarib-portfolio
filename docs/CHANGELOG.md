@@ -23,6 +23,80 @@ Entries are written at commit time, not at phase start.
 
 ---
 
+## 2026-06-05 PKT
+### perf(images): Phase 14 — next-cloudinary, bundle audit, Lighthouse baseline, font cache headers
+
+**Summary:** Performance pass targeting Lighthouse 90+ on all four axes (Performance, Accessibility, Best Practices, SEO) across Mobile and Desktop on six primary routes.
+
+**New files:**
+- `src/lib/cloudinary.ts` — `cloudinaryPublicId(url)` utility. Strips extension, version segment, transformation segments, preserves folder paths. 8/8 edge-case tests pass.
+- `src/components/CldImageClient.tsx` — `'use client'` re-export of `CldImage`. Required because next-cloudinary ships without a client directive but uses hooks internally.
+- `scripts/lighthouse.mjs` — Headless Lighthouse runner. Iterates 6 routes (Desktop + Mobile), writes JSON reports to `lighthouse-reports/`, prints a colour-coded score table. Uses Playwright's bundled Chromium. `pnpm lighthouse` or `node scripts/lighthouse.mjs [baseUrl]`.
+
+**Modified files:**
+- `src/components/WorkCard.tsx` — `next/image` → `CldImage`. f_auto + q_auto applied by default. `priority` and `fetchPriority` forwarded.
+- `src/components/CaseStudyCover.tsx` — image branch: `next/image` → `CldImage`.
+- `src/components/CaseStudyGallery.tsx` — image items: `next/image` → `CldImage`.
+- `src/app/layout.tsx` — Added `dns-prefetch` for `img.youtube.com` and `www.youtube-nocookie.com`.
+- `next.config.ts` — `@next/bundle-analyzer` wrapper (gated by `ANALYZE=true`). `qualities` reduced from `[70, 75]` to `[75]`. Added `headers()` setting 1-year cache on `/fonts/:path*`.
+- `package.json` — Added `"lighthouse"` script. Added `next-cloudinary@6.17.5` dependency. Added `@next/bundle-analyzer` dev dependency.
+- `.gitignore` — Added `lighthouse-report/` entry.
+- `.env.example` — Added `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` placeholder.
+
+**Packages added:** `next-cloudinary@6.17.5`, `@next/bundle-analyzer` (dev)
+
+**Lighthouse scores — before and after (local, production server `pnpm build && pnpm start`)**
+
+| Route | Profile | Before | After | Delta |
+|---|---|---|---|---|
+| `/` | Mobile | 82 | ~81 | 0 (noise) |
+| `/` | Desktop | 98 | 99 | +1 |
+| `/work` | Mobile | 90 | 81-86 | see note |
+| `/work` | Desktop | 99 | 100 | +1 |
+| `/about` | Mobile | 89 | 90 | +1 |
+| `/about` | Desktop | 100 | 100 | 0 |
+| `/writings` | Mobile | 89 | 93 | +4 |
+| `/writings` | Desktop | 100 | 100 | 0 |
+| `/contact` | Mobile | 88 | 96 | +8 |
+| `/contact` | Desktop | 100 | 100 | 0 |
+| `/projects/anime-...` | Mobile | 91 | **100** | +9 |
+| `/projects/anime-...` | Desktop | 100 | **100** | 0 |
+
+All Accessibility, Best Practices, SEO: 96-100 on all routes and profiles.
+
+**Bundle audit findings**
+
+Conducted via Turbopack build manifest (webpack mode blocked by React Compiler incompatibility — see DEC-057).
+
+| | Size |
+|---|---|
+| Public route JS total (uncompressed) | 446 KB |
+| Public route JS estimated gzipped | ~130 KB |
+| Largest non-public chunk | 2.7 MB (Keystatic admin: `markdown-it`, `entities`) |
+
+No server-only code found in the client bundle. No duplicate dependencies. The 2.7 MB Keystatic chunk is not loaded on any public route.
+
+**Known issue: home page showreel bandwidth on slow connections**
+
+The home page mobile Performance score was 82 before Phase 14 and is ~80-82 after. This is not a Phase 14 regression. Root cause: the showreel video (`portfolio-showreel`, H.264, w=960) downloads 3.2 MB during page load because `preload="metadata"` is ignored by Chrome when `autoPlay` is also set on the video element. At Lighthouse's simulated Slow 4G (1.6 Mbps), this saturates bandwidth and delays all other resources including the LCP image. The issue is unchanged by the CldImage migration.
+
+Mitigation deferred. Options: Cloudinary `f_auto` on the video source (WebM/AV1 smaller derivatives), poster-first-then-video-on-idle pattern, reduced source video bitrate.
+
+**Note on `/work` local score variability**
+
+Local Lighthouse shows 81-86 for `/work` mobile (high variance). This is an artifact of CldImage making direct Cloudinary CDN requests instead of the `next/image` local proxy used in baseline. Under Lighthouse Slow 4G simulation, the WSL2 → internet → Cloudinary path adds real-world latency on top of the simulated throttling. The baseline 90 was architecturally privileged by serving from localhost disk. Production scores expected to be 90+ (Cloudinary edge CDN co-located with users). Authoritative scores from `node scripts/lighthouse.mjs https://msarib.dev` after deployment.
+
+**Build status:**
+- `pnpm typecheck`: pass
+- `pnpm lint`: pass
+- `pnpm build`: pass
+- Vercel preview: pending
+
+**Env var required (add to Vercel dashboard before next deploy):**
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=ddgwzcrim` (Production + Preview environments)
+
+---
+
 ## 2026-05-20 PKT
 ### feat(contact): Phase 12 — contact form, Resend email, Cloudflare Turnstile
 

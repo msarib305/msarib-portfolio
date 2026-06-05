@@ -32,12 +32,11 @@ const CHROME_BIN = process.env.CHROME_PATH ??
 
 const DEFAULT_ROUTES = [
   '/',
-  '/about',
   '/work',
+  '/about',
   '/writings',
   '/contact',
-  '/projects/samurai-saga',
-  '/projects/nvidia-ai-assistant',
+  '/projects/anime-stylized-action-tgs2024',
 ]
 
 const requested = process.argv.slice(2)

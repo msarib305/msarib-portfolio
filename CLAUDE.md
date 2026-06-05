@@ -83,3 +83,14 @@ Controlled via CSS variables:
 - `--logo-spin-duration`: 700ms.
 
 Hover behavior: JS adds `.spinning` on `mouseenter`, removes on `animationend`. The spin always completes even if the cursor leaves mid-rotation. The wrapping `<a>` navigates to `/`.
+
+---
+
+## Future work
+
+Intentionally deferred items. Full details in AGENTS.md under the same heading.
+
+- **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.
+- **Lighthouse CI**: `lighthouserc.js` + GitHub Actions. Catches performance regressions on PRs. Deferred from Phase 14.
+- **Vercel Analytics**: Real-user performance data. Sarib decides if/when.
+- **Real ExpertiseCard videos**: 8 clips to replace demo sea_turtle placeholders. Upload to `ddgwzcrim` Cloudinary account, update `src/data/expertise.ts` public IDs.

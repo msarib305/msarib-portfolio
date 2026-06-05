@@ -782,6 +782,86 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 
 ---
 
+## DEC-054: next-cloudinary CldImage for Cloudinary-hosted images
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** Phase 14 performance pass. All project thumbnails, covers, and gallery images are hosted on Cloudinary (`res.cloudinary.com/ddgwzcrim`). Using raw URLs with `next/image` serves images through the Next.js optimization proxy without f_auto or q_auto, delivering full-size PNG/JPG regardless of browser capabilities.
+
+**Decision:** `next-cloudinary@6.17.5` installed. CldImage wrapper (`src/components/CldImageClient.tsx`) adds the `'use client'` boundary that next-cloudinary's package omits from its ESM bundle. All three image-rendering components migrated: `WorkCard.tsx` (thumbnails), `CaseStudyCover.tsx` (cover image branch), `CaseStudyGallery.tsx` (gallery image items). Public ID extracted via `cloudinaryPublicId()` in `src/lib/cloudinary.ts`.
+
+**Alternatives rejected:** `getCldImageUrl` + `next/image` loader prop — functional but more verbose; loses CldImage's error-recovery hooks. Raw `next/image` with transformation segments in URL — fragile; transformations baked into stored URLs rather than applied at render time.
+
+**Consequences:** f_auto delivers WebP/AVIF to supporting browsers. q_auto sizes quality to the rendered dimensions. `/projects/anime-stylized-action-tgs2024` LCP improved from 3.3s to 1.6s in local Lighthouse, reaching 100 mobile score. Production scores expected to be equal or better due to Cloudinary edge CDN co-location.
+
+---
+
+## DEC-055: CldImage requires 'use client' wrapper in Next.js App Router
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** `next-cloudinary`'s ESM bundle uses `useState` internally but does not include a `'use client'` directive. Next.js App Router treats it as a Server Component, causing `TypeError: useState is not a function` during SSG prerendering.
+
+**Decision:** `src/components/CldImageClient.tsx` re-exports `CldImage` from a file that has `'use client'` at the top. All components that render CldImage import from this wrapper. The pattern is: Server Component renders the wrapper's exported component, which establishes the client boundary, and CldImage hydrates normally.
+
+**Consequences:** CldImage is a client component boundary. WorkCard, CaseStudyCover, and CaseStudyGallery remain Server Components but render CldImage as a client subtree. No performance impact beyond the client JS chunk for CldImage itself (~27 KB, included once in the shared bundle).
+
+---
+
+## DEC-056: Font Cache-Control headers added for /fonts/*
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** Production curl revealed `cache-control: public, max-age=0, must-revalidate` on `/fonts/PPRightGrotesk-WideBlack.woff2` and `/fonts/PPRightGroteskText-Regular.woff2`. Vercel sets long-lived cache only on `/_next/static/` paths; files in `/public/` get `max-age=0` by default.
+
+**Decision:** Added `headers()` function to `next.config.ts` setting `public, max-age=31536000` for `/fonts/:path*`. Omits `immutable` because font filenames are not content-hashed (they are manually uploaded to `/public/fonts/`). A year-long cache is appropriate for font files that change only during design-system overhauls.
+
+**Consequences:** Browsers cache fonts for 1 year on first visit. Repeat visits load fonts instantly from disk. CLS from font-swap eliminated on repeat visits. If fonts are replaced, the URL must change (e.g., append version suffix) to bust the cache.
+
+---
+
+## DEC-057: @next/bundle-analyzer webpack mode incompatible with Next.js 16 + React Compiler
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** Bundle audit planned for Phase 14. `@next/bundle-analyzer` requires webpack mode (`ANALYZE=true TURBOPACK=0 pnpm build`). Next.js 16.2.6 has React Compiler on by default via Turbopack; webpack mode does not apply the same compiler pipeline, causing `TypeError: useState is not a function` during SSG with React Compiler's output.
+
+**Decision:** `@next/bundle-analyzer` installed as a dev dependency and wired into `next.config.ts` (dormant unless `ANALYZE=true`). Webpack mode bundle generation is blocked by the React Compiler incompatibility. Bundle audit conducted via Turbopack build manifest inspection instead: public route JS is 446 KB uncompressed (~130 KB gzipped, estimated). Large 2.7 MB chunk (`markdown-it`, `entities`) is Keystatic admin only, not loaded on any public route.
+
+**Consequences:** The ANALYZE=true build will fail until Next.js or @next/bundle-analyzer resolves webpack-mode React Compiler compatibility. The config wrapper is harmless in all normal builds and Vercel deployments.
+
+---
+
+## DEC-058: Lighthouse local scores are unrepresentative for CldImage CDN-served images
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** Post-CldImage Lighthouse runs against `localhost:3000` showed `/work` mobile at 81-86 (variable), down from baseline 90. Investigation revealed that CldImage URLs go directly to Cloudinary CDN (external internet request) while the prior `next/image` proxy served images from local disk. Under Lighthouse's Slow 4G simulation, the WSL2 → internet → Cloudinary path adds real-world latency on top of the simulated throttling. The baseline 90 score was architecturally privileged by the local proxy.
+
+**Decision:** Accepted the local score discrepancy as a testing artifact. Authoritative scores come from running Lighthouse against the production Vercel URL (`node scripts/lighthouse.mjs https://msarib.dev`). The `/projects/anime-stylized-action-tgs2024` route reaching 100 mobile in local Lighthouse confirms CldImage performs correctly under production-realistic conditions (no prior next/image cache for those gallery images).
+
+**Consequences:** Production Lighthouse runs required after each deploy to verify real-world scores. Local Lighthouse remains useful for regression detection on non-CDN metrics (TBT, CLS, accessibility, SEO) but should not be used as the sole gate for CDN-served image performance.
+
+---
+
+## DEC-059: Lighthouse local script + post-deploy production runs; CI integration deferred
+
+- **Date:** 2026-06-05
+- **Status:** Accepted
+
+**Context:** Phase 14 adds `scripts/lighthouse.mjs` for measuring performance. Two options: local script only, or wire into CI (GitHub Actions + `lighthouserc.js`) to run on every PR.
+
+**Decision:** Local script for Phase 14. CI integration deferred to a post-build-phases roadmap item. The local script covers the primary use case (pre-deploy verification and post-deploy production measurement). CI integration adds complexity without clear ROI at the current project stage.
+
+**Consequences:** Lighthouse must be run manually before and after deploys. See "Future work" in AGENTS.md.
+
+---
+
 ## DEC-053: Zod v3 for schema validation
 
 - **Date:** 2026-05-20

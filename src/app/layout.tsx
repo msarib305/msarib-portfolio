@@ -93,6 +93,8 @@ export default function RootLayout({
         <meta name="color-scheme" content="dark" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="//img.youtube.com" />
+        <link rel="dns-prefetch" href="//www.youtube-nocookie.com" />
         {/* Preload the two above-the-fold font files. Without these the
             text uses the metric-matched fallback for ~300ms longer on
             slow networks, which measurably hurts FCP and CLS. React 19

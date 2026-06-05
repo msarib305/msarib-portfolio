@@ -1,4 +1,5 @@
-import Image from 'next/image'
+import { CldImage } from '@/components/CldImageClient'
+import { cloudinaryPublicId } from '@/lib/cloudinary'
 import type { ProjectGalleryItem } from '@/data/projects'
 import { YouTubeEmbed } from './YouTubeEmbed'
 import { InstagramEmbed } from './InstagramEmbed'
@@ -29,8 +30,10 @@ export function CaseStudyGallery({ items }: CaseStudyGalleryProps) {
         }
         return (
           <div key={i} className="gallery-item">
-            <Image
-              src={item.src}
+            {/* CldImage adds f_auto + q_auto by default.
+                Override per-instance via deliveryType or rawTransformations. */}
+            <CldImage
+              src={cloudinaryPublicId(item.src)}
               alt={item.alt}
               width={800}
               height={450}

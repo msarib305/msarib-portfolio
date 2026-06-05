@@ -43,6 +43,7 @@ next-env.d.ts
 # playwright-mcp scratch + lighthouse outputs
 .playwright-mcp/
 /lighthouse-reports/
+/lighthouse-report/
 
 # Windows / WSL artifacts
 *:Zone.Identifier

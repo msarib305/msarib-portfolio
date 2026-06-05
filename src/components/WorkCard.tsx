@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import { CldImage } from '@/components/CldImageClient'
+import { cloudinaryPublicId } from '@/lib/cloudinary'
 import type { ProjectItem } from '@/data/projects'
 
 interface WorkCardProps {
@@ -13,15 +14,16 @@ export function WorkCard({ project, priority = false }: WorkCardProps) {
   return (
     <Link href={`/projects/${slug}`} className={`work-card ${tintClass}`}>
       <div className="work-card-media">
-        <Image
-          src={thumbnail.src}
+        {/* CldImage adds f_auto + q_auto by default.
+            Override per-instance via deliveryType or rawTransformations. */}
+        <CldImage
+          src={cloudinaryPublicId(thumbnail.src)}
           alt={thumbnail.alt}
           className="work-card-img"
           fill
           sizes="(max-width: 600px) 100vw, (max-width: 900px) 90vw, 50vw"
           priority={priority}
           fetchPriority={priority ? 'high' : 'auto'}
-          quality={70}
         />
         <div className="work-card-overlay" aria-hidden="true" />
         <span className="work-card-tag-img">{tags[0]}</span>
