@@ -10,6 +10,8 @@ export interface ContactEmailPayload {
 }
 
 export async function sendContactEmail(payload: ContactEmailPayload): Promise<void> {
+  if (process.env.RESEND_MOCK === 'true') return
+
   const { name, email, company, message } = payload
 
   const companyRow = company

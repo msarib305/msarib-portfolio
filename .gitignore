@@ -45,6 +45,10 @@ next-env.d.ts
 /lighthouse-reports/
 /lighthouse-report/
 
+# Playwright test artefacts (reports and traces; NOT snapshots — baselines are committed)
+/test-results/
+/playwright-report/
+
 # Windows / WSL artifacts
 *:Zone.Identifier
 C:\\Users\\*

@@ -9,7 +9,7 @@ import { JsonLd }         from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title:       'About',
-  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across six studios. Currently leading engineering at SwiftNine in Lahore.',
+  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across five studios. Currently leading engineering at SwiftNine in Lahore.',
   alternates:  { canonical: 'https://msarib.dev/about' },
   openGraph: {
     type:        'website',

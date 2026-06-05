@@ -1,3 +1,10 @@
+import { CldImage }          from '@/components/CldImageClient'
+import { cloudinaryPublicId } from '@/lib/cloudinary'
+
+const PORTRAIT_ID = cloudinaryPublicId(
+  'https://res.cloudinary.com/ddgwzcrim/image/upload/v1780686320/Self_Portrait_bpeyny.jpg'
+)
+
 export function AboutHero() {
   return (
     <section className="about-hero">
@@ -6,7 +13,7 @@ export function AboutHero() {
           <p className="eyebrow">About</p>
           <h1 className="about-h1">Lead UE5 developer from Lahore.</h1>
           <p className="about-lede">
-            Seven years in engine. Six studios. Ten shipped titles. Currently leading engineering at SwiftNine.
+            Seven years in engine. Five studios. Ten shipped titles. Currently leading engineering at SwiftNine.
           </p>
           <div className="about-stats">
             <div className="about-stat">
@@ -18,16 +25,20 @@ export function AboutHero() {
               <div className="lbl">Shipped titles</div>
             </div>
             <div className="about-stat">
-              <div className="num">06</div>
+              <div className="num">05</div>
               <div className="lbl">Studios</div>
             </div>
           </div>
         </div>
-        <div className="about-portrait" aria-hidden="true">
-          <div className="pwm">
-            <div className="nm">SARIB</div>
-            <div className="ro">Lead UE5 Developer</div>
-          </div>
+        <div className="about-portrait">
+          <CldImage
+            src={PORTRAIT_ID}
+            alt="Portrait of Sarib, Lead Unreal Engine 5 Developer based in Lahore"
+            fill
+            sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 600px"
+            priority
+            className="object-cover"
+          />
         </div>
       </div>
     </section>

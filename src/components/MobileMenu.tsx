@@ -91,8 +91,7 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
       aria-modal="true"
       aria-labelledby="mobile-menu-heading"
       className={`mobile-menu${open ? ' mobile-menu--open' : ''}`}
-      // @ts-expect-error inert is a valid HTML attribute; React 19 types lag.
-      inert={!open ? '' : undefined}
+      inert={!open ? true : undefined}
     >
       <h2 id="mobile-menu-heading" className="sr-only">Menu</h2>
 

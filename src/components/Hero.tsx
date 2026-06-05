@@ -90,7 +90,7 @@ export function Hero() {
             </div>
             <div className="hero-meta-item">
               <span className="hero-meta-label">Shipped projects</span>
-              <span className="hero-meta-value">10 · Six studios</span>
+              <span className="hero-meta-value">10 · Five studios</span>
             </div>
             <div className="hero-meta-item">
               <span className="hero-meta-label">Currently</span>

@@ -26,7 +26,6 @@ const PAGE_LINKS = [
 ]
 
 const CONNECT_LINKS = [
-  { label: 'GitHub',   href: 'https://github.com/msarib305' },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/msarib305' },
   { label: 'YouTube',  href: 'https://youtube.com/@msarib305' },
 ]
