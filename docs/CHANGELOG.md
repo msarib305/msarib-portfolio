@@ -23,6 +23,40 @@ Entries are written at commit time, not at phase start.
 
 ---
 
+## 2026-06-06 15:55 PKT
+### chore(dns): Phase 17 - DNSSEC, CAA, email routing, SPF/DKIM/DMARC, DNS documentation
+
+**Summary:** DNS infrastructure locked down before public launch. All work is configuration and documentation; no production code changes.
+
+- pnpm typecheck: N/A this phase
+- pnpm lint: N/A this phase
+- pnpm build: N/A this phase
+- Vercel preview: N/A this phase
+- Playwright: N/A this phase
+- Manual visual check: N/A this phase
+
+**Changes:**
+
+DNS records (all changes in Cloudflare dashboard):
+- DNSSEC: DS record (Key Tag 2371, Algorithm 13 ECDSA/SHA-256) submitted to Namecheap. Full chain verified root → .dev TLD → msarib.dev via Verisign DNSSEC Debugger. Cloudflare signing was already active; only the DS record at Namecheap was missing.
+- CAA records: 3 manual entries added (issue letsencrypt.org, issuewild blocked, iodef contact@msarib.dev). Cloudflare free plan auto-injects 9 additional CAA entries for 5 Tier-1 CAs. Accepted as-is (ACM add-on required to restrict further).
+- MX records: Cloudflare Email Routing enabled. 3 MX entries auto-added (route1/2/3.mx.cloudflare.net). Inbound routing rules forward hello@, contact@, and catch-all @msarib.dev to msarib.contact@gmail.com. Both test emails confirmed delivered.
+- SPF (root): v=spf1 include:_spf.mx.cloudflare.net ~all auto-added by Cloudflare Email Routing. No merge required with Resend's SPF (which is scoped to send.msarib.dev, not root).
+- DMARC: existing bare record (v=DMARC1; p=none;) edited to add rua=mailto:contact@msarib.dev; aspf=r; adkim=r. Aggregate reports now route to Gmail.
+
+Vercel domain configuration:
+- msarib.dev: confirmed Production primary (main branch), SSL active.
+- www.msarib.dev: changed from co-primary to 308 redirect to apex. Canonical is now msarib.dev, aligning with Phase 13 JSON-LD, sitemap, and OG metadata.
+
+Recipient-side:
+- Gmail filter on msarib.contact@gmail.com whitelists *@msarib.dev forwarded mail to bypass spam heuristics.
+
+Documentation committed:
+- docs/DNS_CONFIGURATION.md: new file, full DNS state, verification commands, change procedure.
+- docs/DECISIONS.md: DEC-066 (DNSSEC), DEC-067 (CAA), DEC-068 (Email Routing), DEC-069 (DMARC p=none), DEC-070 (DNS_CONFIGURATION.md as source of truth).
+
+---
+
 ## 2026-06-06 PKT
 ### feat(prod): Phase 16 — production hardening before public launch
 

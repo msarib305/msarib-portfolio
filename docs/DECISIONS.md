@@ -954,3 +954,76 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Decision:** `docs/PRE_LAUNCH_CHECKLIST.md` created with Markdown checkboxes, grouped into infrastructure, smoke tests, performance, CSP monitoring, and optional sections. Includes full env var reference table.
 
 **Consequences:** Needs manual updating if new env vars are added or launch criteria change.
+
+---
+
+## DEC-066: DNSSEC enabled on msarib.dev
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** msarib.dev had no DNSSEC. Without it, an attacker with access to the DNS path can return forged A records and redirect visitors to a malicious server. The .dev TLD (Google Registry) supports DNSSEC. Cloudflare had already enabled signing on their side (DNSKEY records were present) but the DS record had never been submitted to the registrar, leaving the chain incomplete.
+
+**Decision:** Submit the DS record (Key Tag 2371, Algorithm 13, Digest Type 2) to Namecheap → Advanced DNS → DNSSEC. Full chain now verified: root → .dev TLD (DS=60074) → msarib.dev (DS=2371).
+
+**Consequences:** If DNSSEC ever gets into a broken state (Cloudflare signing disabled but DS record still at Namecheap, or vice versa), the domain returns SERVFAIL for all resolvers doing DNSSEC validation. Rollback: remove DS record at Namecheap first, then disable at Cloudflare. See DNS_CONFIGURATION.md for the full rollback procedure.
+
+**Alternatives considered:** Leave incomplete (rejected: half-enabled DNSSEC is worse than no DNSSEC because it fails validation but provides no security benefit).
+
+---
+
+## DEC-067: CAA records added with Cloudflare auto-injection accepted
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** No CAA records existed on msarib.dev, meaning any CA could issue a certificate for the domain. Three manual CAA records were added: `issue "letsencrypt.org"`, `issuewild ";"`, and `iodef "mailto:contact@msarib.dev"`. However, Cloudflare's free plan automatically injects additional CAA entries for DigiCert, Google Trust Services, SSL.com, and Comodo. These cannot be disabled without the Cloudflare Advanced Certificate Manager add-on (~$10/month).
+
+**Decision:** Accept Cloudflare's auto-injected CAA entries. All 6 authorized CAs (Let's Encrypt, DigiCert, Google Trust Services, SSL.com, Comodo/Sectigo) are Tier-1, operate CT log compliance, and follow proper validation procedures. The `iodef` record routes unauthorized issuance reports to `contact@msarib.dev` regardless of which CA is involved.
+
+**Consequences:** The manual `issuewild ";"` entry is superseded by Cloudflare's auto-injected wildcard entries. Restricting to Let's Encrypt only requires Cloudflare ACM (~$10/month). Documented as a future consideration in AGENTS.md.
+
+**Alternatives considered:** Cloudflare ACM (deferred: $10/month is not justified for a personal portfolio at this stage).
+
+---
+
+## DEC-068: Cloudflare Email Routing for inbound mail on msarib.dev
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Inbound mail to `hello@msarib.dev` and `contact@msarib.dev` bounced — no MX records existed. Any recruiter replying to outbound email from Resend received a bounce. Cloudflare Email Routing provides free forwarding from custom domain addresses to a real inbox.
+
+**Decision:** Enable Cloudflare Email Routing. Three rules forward `hello@`, `contact@`, and catch-all `@msarib.dev` to `msarib.contact@gmail.com`. Cloudflare auto-adds MX records and an SPF TXT record at the root domain. A Gmail filter on the destination inbox whitelists forwarded mail to bypass spam heuristics.
+
+**Consequences:** The root domain SPF (`v=spf1 include:_spf.mx.cloudflare.net ~all`) is separate from Resend's SPF on `send.msarib.dev` (`v=spf1 include:amazonses.com ~all`). Both records coexist without conflict because they apply to different hostnames. Resend's DMARC alignment relies on DKIM, not SPF, so the separate SPF records do not affect deliverability.
+
+**Alternatives considered:** Zoho Mail free tier (rejected: requires MX configuration and account management overhead; Cloudflare's free forwarding is simpler for a portfolio with no need for inbox features). Google Workspace (rejected: cost).
+
+---
+
+## DEC-069: DMARC p=none baseline policy
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** A bare `v=DMARC1; p=none;` record existed without a `rua` reporting address. No aggregate reports were being collected. The policy was monitor-only but provided no visibility.
+
+**Decision:** Edit the existing record to `v=DMARC1; p=none; rua=mailto:contact@msarib.dev; aspf=r; adkim=r`. Aggregate reports now route to `contact@msarib.dev` (forwarded to Gmail). `aspf=r` (relaxed SPF alignment) accommodates Resend's `send.msarib.dev` MAIL FROM subdomain. `adkim=r` (relaxed DKIM alignment) is standard.
+
+**Consequences:** `p=none` is monitor-only. No mail is rejected or quarantined. Upgrade path: after one to two weeks of clean aggregate reports confirming no legitimate senders are failing, change to `p=quarantine`, then `p=reject`. This is a one-line edit to the TXT record value in Cloudflare DNS.
+
+**Alternatives considered:** `p=quarantine` from day one (rejected: risk of legitimate Resend mail being quarantined before confirming alignment works end-to-end).
+
+---
+
+## DEC-070: docs/DNS_CONFIGURATION.md as single source of truth for DNS state
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** No document captured the DNS configuration. Every record existed only in the Cloudflare dashboard. Making a change required either remembering the current state or inspecting the dashboard before acting, with no audit trail.
+
+**Decision:** `docs/DNS_CONFIGURATION.md` records every DNS record, its value, its purpose, DNSSEC status, CAA state, email configuration, and the change procedure. Updated whenever a DNS change is made. Committed to the repo alongside the change that prompted it.
+
+**Consequences:** The file can become stale if DNS changes are made without updating it. The change procedure in the file itself documents this requirement. DNS exports to `~/dns-backups/` (outside the repo) supplement the file for emergency rollback.
