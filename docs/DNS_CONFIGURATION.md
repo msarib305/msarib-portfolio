@@ -49,6 +49,14 @@ Newer Vercel CNAME routing pattern (replaces the older A record `76.76.21.21` ap
 
 Auto-added by Cloudflare Email Routing. Routes inbound mail to Gmail forwarding rules.
 
+### Ownership verification
+
+| Type | Name | Value | TTL |
+|------|------|-------|-----|
+| TXT | msarib.dev | `google-site-verification=[token]` | 5 min |
+
+Google Search Console Domain Property verification. Added 2026-06-06. Token value is not sensitive (publicly visible in DNS). To find the exact token: Cloudflare dashboard → msarib.dev → DNS → Records, look for the TXT record at `@` containing `google-site-verification=`.
+
 ### Email authentication (SPF)
 
 | Type | Name | Value | TTL |

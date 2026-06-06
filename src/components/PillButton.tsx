@@ -22,6 +22,7 @@ interface PillButtonAsButton extends PillButtonBaseProps {
 interface PillButtonAsLink extends PillButtonBaseProps {
   href: string
   prefetch?: boolean
+  download?: string
 }
 
 type PillButtonProps = PillButtonAsButton | PillButtonAsLink
@@ -37,7 +38,7 @@ export function PillButton(props: PillButtonProps) {
 
   if (props.href !== undefined) {
     return (
-      <Link href={props.href} prefetch={props.prefetch} className={cls}>
+      <Link href={props.href} prefetch={props.prefetch} download={props.download} className={cls}>
         {icon && <span aria-hidden="true">{icon}</span>}
         {children}
       </Link>

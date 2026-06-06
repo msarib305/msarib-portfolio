@@ -7,7 +7,7 @@ export function Timeline() {
     <section className="timeline" aria-labelledby="experience-heading">
       <div className="timeline-head">
         <h2 id="experience-heading">Experience.</h2>
-        <PillButton variant="secondary" size="sm" href="/resume.pdf">
+        <PillButton variant="secondary" size="sm" href="/resume.pdf" download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf">
           Download resume (PDF)
         </PillButton>
       </div>

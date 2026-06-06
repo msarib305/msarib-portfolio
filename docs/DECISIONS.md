@@ -1027,3 +1027,63 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Decision:** `docs/DNS_CONFIGURATION.md` records every DNS record, its value, its purpose, DNSSEC status, CAA state, email configuration, and the change procedure. Updated whenever a DNS change is made. Committed to the repo alongside the change that prompted it.
 
 **Consequences:** The file can become stale if DNS changes are made without updating it. The change procedure in the file itself documents this requirement. DNS exports to `~/dns-backups/` (outside the repo) supplement the file for emergency rollback.
+
+---
+
+## DEC-071: CSP enforcement deferred until site is feature-complete
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Phase 16 shipped the Content Security Policy in `Content-Security-Policy-Report-Only` mode. Phase 18 console sweep across all 7 routes (including 404) found zero actual CSP violations (no "Refused to load" messages, no blocked resources). The only console noise was the browser's structural warning that `upgrade-insecure-requests` is ignored in report-only mode, which is per-spec behavior. The CSP is technically ready to enforce.
+
+**Decision:** Keep CSP in `Content-Security-Policy-Report-Only` mode and defer enforcing until the site is feature-complete. Pending items that could introduce new external sources requiring CSP updates: real ExpertiseCard videos (8 clips, uploaded to Cloudinary), resume PDF regeneration, and any Phase 19 additions. Flipping to enforcing mid-feature-work risks breaking new features that need directive updates.
+
+**Consequences:** Resources are not blocked during this window. The report-only mode is the intended pre-launch state. When ready to flip: change `key: 'Content-Security-Policy-Report-Only'` to `key: 'Content-Security-Policy'` in `next.config.ts` (identify by content match, not line number). Re-sweep all routes after the flip. See `docs/CSP_VIOLATION_LOG.md` for the flip checklist.
+
+**Alternatives considered:** Flip to enforcing in Phase 18 (rejected: Future Work items may add new external sources that would be silently blocked in enforcing mode, discovered only when a recruiter hits the live site).
+
+---
+
+## DEC-072: Resume PDF retained as-is for v1.0.0 launch
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Phase 18 resume audit extracted link annotations from `public/resume.pdf` (76 KB, created 2026-05-18). GitHub link confirmed absent (correct — Perforce is games industry VCS standard). LinkedIn, YouTube, portfolio, and project links present. One code fix applied: `download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf"` attribute added to all three resume link components (`Footer.tsx`, `ContactCTA.tsx`, `Timeline.tsx`) so the browser saves the file with the full descriptive name rather than `resume.pdf`. Body text could not be verified programmatically (no pdftotext available); five pending manual checks are documented in `docs/RESUME_FOLLOWUP.md` (searchable text, displayed date, SwiftNine role, email in body, all links resolve).
+
+**Decision:** Ship the PDF as-is for v1.0.0. The pending manual checks are low-risk (the PDF was generated intentionally three weeks before launch and used in the Resend test email without reported issues). Regeneration from source DOCX is deferred until a role or detail changes, or a pending check fails.
+
+**Consequences:** `docs/RESUME_FOLLOWUP.md` tracks the open items. When the real ExpertiseCard videos ship or a new role is added, regenerate and replace `public/resume.pdf`.
+
+**Alternatives considered:** Regenerate from DOCX before launch (deferred: no issues found that warrant regeneration; DOCX round-trip introduces formatting risk).
+
+---
+
+## DEC-073: v1.0.0 annotated git tag marks production launch state
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** The site is shipping publicly after Phase 18. A stable reference point is needed so that any future regression investigation, rollback, or "what was live at launch" question has a precise answer in git history.
+
+**Decision:** Create an annotated tag `v1.0.0` on the Phase 18 commit. Annotated (not lightweight) so the tag carries a message and is preserved as a first-class git object. SemVer 1.0.0 signals the site is production-complete with no known blocking issues.
+
+**Consequences:** Future feature releases will be tagged `v1.1.0`, `v1.2.0`, etc. Bug fixes to production will be `v1.0.1`, etc. The tag is pushed to `origin` so it is visible in the GitHub remote.
+
+**Alternatives considered:** `v1.0.0-launch` suffix (rejected: redundant; the tag message carries the launch context); no tagging (rejected: no rollback anchor).
+
+---
+
+## DEC-074: Full device matrix testing deferred to post-Phase 19 polish phase
+
+- **Date:** 2026-06-06
+- **Status:** Accepted
+
+**Context:** Phase 18 planned systematic testing across 8 device/browser combinations (Win Desktop x2 with Chrome/Edge/Firefox, HP G4 laptop Chrome, Pixel 8 Pro Chrome, iPhone X iOS 18 Safari, iPhone 14 Plus iOS 26 Safari, MacBook Pro M1 macOS Tahoe Safari). At launch, testing was completed on 1 mobile device and 1 desktop (Chrome), which confirmed the site functions. Full matrix coverage was not completed within the Phase 18 window.
+
+**Decision:** Ship at v1.0.0 with partial device coverage. The 1 mobile + 1 desktop baseline confirms core functionality. Full matrix testing is scheduled for the post-Phase 19 polish phase. The 8-device inventory is documented and the test plan is in the Phase 18 plan file.
+
+**Consequences:** Undiscovered device-specific rendering issues (iOS Safari backdrop-filter, low-spec Chrome performance, Edge-specific layout quirks) may exist. Any issues found during ad-hoc use before the systematic test phase should be filed as bugs and fixed before the next outreach push.
+
+**Alternatives considered:** Block launch until all 8 devices are tested (rejected: core functionality confirmed; marginal risk of undiscovered layout bugs does not outweigh the cost of delaying a time-sensitive outreach window).

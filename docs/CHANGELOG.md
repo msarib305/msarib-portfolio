@@ -23,6 +23,61 @@ Entries are written at commit time, not at phase start.
 
 ---
 
+## 2026-06-06 PKT
+### chore(launch): Phase 18 - production cutover verification and v1.0.0 launch
+
+**Summary:** Pre-launch checklist walked end-to-end. Recruiter simulation clean. Resend dashboard verified. Google Search Console set up. Lighthouse production scores confirmed. OG previews verified. CSP sweep clean (zero violations, enforcement deferred per DEC-071). Resume download filename fixed. v1.0.0 tag marks launch state.
+
+- pnpm typecheck: pass
+- pnpm lint: N/A this phase
+- pnpm build: N/A this phase (production deployment unchanged)
+- Vercel preview: N/A this phase
+- Playwright: console sweep across 7 routes, 404 page screenshot, sitemap and robots.txt verification
+- Manual visual check: confirmed by Sarib (recruiter simulation, real device partial, contact form Tier 1 delivery, OG previews, Resend dashboard, Google Search Console)
+
+**Lighthouse production scores (Phase 18 baseline):**
+
+| Route | Mobile perf | Desktop perf | Mobile LCP | Mobile CLS |
+|-------|-------------|--------------|------------|------------|
+| / | 98 | 100 | 2292ms | 0.000 |
+| /work | 93 | 100 | 3161ms | 0.000 |
+| /about | 85 | 100 | 4449ms | 0.000 |
+| /writings | 98 | 100 | 2406ms | 0.000 |
+| /contact | 100 | 100 | 1601ms | 0.000 |
+| /projects/anime-stylized-action-tgs2024 | 100 | 100 | 1900ms | 0.000 |
+
+All accessibility 98-100. All SEO 100. All best-practices 96. CLS zero on every route.
+/about mobile at 85 (LCP bottleneck is portrait placeholder; target >= 90 when real portrait ships).
+Home mobile 98 — showreel video bandwidth concern from Phase 14 Future Work is not a live issue.
+
+**Changes:**
+
+Code:
+- `src/components/PillButton.tsx`: added `download?: string` prop, forwarded to `<Link>`.
+- `src/components/Footer.tsx`: `download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf"` on resume link.
+- `src/components/ContactCTA.tsx`: same `download` attribute on resume PillButton.
+- `src/components/Timeline.tsx`: same `download` attribute on resume PillButton.
+
+Documentation:
+- `docs/PRE_LAUNCH_CHECKLIST.md`: all items ticked or marked [DEFERRED] with reasons.
+- `docs/DECISIONS.md`: DEC-071 (CSP deferral), DEC-072 (resume PDF retained), DEC-073 (v1.0.0 tag), DEC-074 (device matrix deferred).
+- `docs/DNS_CONFIGURATION.md`: Google Search Console TXT record added under Ownership verification.
+- `docs/CSP_VIOLATION_LOG.md`: new file. Zero violations found. Flip checklist documented.
+- `docs/OG_PREVIEW_MATRIX.md`: new file. LinkedIn results for 3 URLs documented.
+- `docs/RESUME_FOLLOWUP.md`: new file. 5 pending manual checks, download filename fix noted as resolved.
+
+Infrastructure (Cloudflare/Vercel, no code):
+- Google Search Console: Domain Property verified via DNS TXT, sitemap submitted, 14 pages discovered.
+
+Deferred (not blocking v1.0.0):
+- CSP flip to enforcing: post real videos and Phase 19. See DEC-071.
+- Full 8-device matrix testing: post-Phase 19. See DEC-074.
+- Resume body text manual checks: 5 items in docs/RESUME_FOLLOWUP.md.
+- /about LCP improvement: blocked on real portrait asset.
+- OG preview matrix completion: Twitter/X, Slack, WhatsApp, Discord pending Sarib manual check.
+
+---
+
 ## 2026-06-06 15:55 PKT
 ### chore(dns): Phase 17 - DNSSEC, CAA, email routing, SPF/DKIM/DMARC, DNS documentation
 

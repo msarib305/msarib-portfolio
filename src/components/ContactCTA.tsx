@@ -14,7 +14,7 @@ export function ContactCTA() {
           <PillButton variant="primary" size="lg" href="/contact">
             Contact me
           </PillButton>
-          <PillButton variant="secondary" size="lg" href="/resume.pdf">
+          <PillButton variant="secondary" size="lg" href="/resume.pdf" download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf">
             Download resume
           </PillButton>
         </div>
