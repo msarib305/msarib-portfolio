@@ -868,6 +868,22 @@
   }
   .footer-col a:hover { color: var(--color-text-primary); }
 
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-brand .s-logo {
+    align-items: flex-start;
+  }
+
+  .footer-brand .s-logo-text .sub {
+    display: block;
+    margin-left: 0;
+    margin-top: 3px;
+  }
+
   .footer-bottom {
     max-width: var(--container-max);
     margin: 0 auto;
@@ -1472,6 +1488,20 @@
     margin: 0 auto;
     content-visibility: auto;
     contain-intrinsic-size: 800px;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 3%,
+      #000 97%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 3%,
+      #000 97%,
+      transparent 100%
+    );
   }
 
   .expertise-head {
@@ -2356,6 +2386,10 @@
       padding: 0 20px;
     }
 
+    .case-links {
+      padding-inline: 20px;
+    }
+
     .case-section {
       padding: 48px 20px;
     }
@@ -2643,7 +2677,7 @@
 
   .exp-row.current {
     background: radial-gradient(
-      ellipse 70% 110% at center top,
+      ellipse 120% 110% at center top,
       color-mix(in srgb, var(--color-accent) 10%, transparent) 0%,
       color-mix(in srgb, var(--color-accent) 4%, transparent) 40%,
       transparent 80%
@@ -3626,7 +3660,7 @@
     }
     .exp-row.current {
       background: radial-gradient(
-        ellipse 70% 110% at center top,
+        ellipse 120% 110% at center top,
         rgba(0, 217, 196, 0.10) 0%,
         rgba(0, 217, 196, 0.04) 40%,
         transparent 80%
@@ -3794,6 +3828,9 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-block: 24px;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: 32px;
   }
 
   .case-link-pill {

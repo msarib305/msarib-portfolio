@@ -37,8 +37,10 @@ export function Footer() {
 
         {/* Col 1-2: Brand */}
         <div className="footer-col" style={{ gridColumn: 'span 2' }}>
-          <SLogo showText textLabel="SARIB" subText="Lead UE5 Developer" />
-          <LahoreClock />
+          <div className="footer-brand">
+            <SLogo showText textLabel="SARIB" subText="Lead UE5 Developer" />
+            <LahoreClock />
+          </div>
         </div>
 
         {/* Col 3: Pages — heading is h3 to stay sequential after the

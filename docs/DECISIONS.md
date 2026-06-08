@@ -1113,3 +1113,58 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 
 **Alternatives considered:** Remove only the Convai SDK GitHub link, keep the case study.
   Rejected because the case study had no visual assets and weakened the /work grid quality.
+
+---
+
+## DEC-076 -- Phase 19.2 CSS layout and spacing fixes
+**Date:** 2026-06-08
+
+**Context:** Four post-launch visual defects found on msarib.dev:
+  1. Footer brand column: SLogo and LahoreClock flowed side-by-side because both are
+     inline-flex in a block container; "Lead UE5 Developer" appeared inline after "SARIB"
+     because .s-logo-text .sub was display:inline-block.
+  2. Case study link pills: .case-links had no container constraint (no max-width,
+     padding, or margin-inline:auto), causing pills to span edge-to-edge while all
+     adjacent sections (.case-hero, .case-media, .case-body) had container bounds.
+  3. About Experience timeline: .exp-row.current background used
+     radial-gradient(ellipse 70% 110% ...). The 70% horizontal extent is narrower than
+     the element, producing a visible hard edge at left and right of the current row.
+  4. Home expertise grid: on card hover, .exp-card:hover applies
+     box-shadow: 0 0 80px var(--card-glow). With only 32px of section horizontal padding,
+     the 80px glow on edge cards extends 48px past the section boundary and is hard-clipped
+     by body { overflow-x: clip }, producing a sharp cutoff at the viewport edge.
+     (Investigation in Phase 19.2 Step E confirmed: not a CSS background gradient --
+     a box-shadow glow clipped by the body overflow rule.)
+
+**Decision:**
+  D1. Footer: add .footer-brand wrapper (display:flex; flex-direction:column). Scope
+      .s-logo alignment and .sub display:block override to .footer-brand to avoid
+      affecting the Nav SLogo.
+  D2. Case links: add max-width:var(--container-max), margin-inline:auto,
+      padding-inline:32px to .case-links. Mobile breakpoint: padding-inline:20px.
+  D3. About gradient: widen .exp-row.current ellipse from 70% to 120%. At 120% the
+      gradient extends past element bounds and the transition to transparent occurs
+      outside the visible area, eliminating the hard edge. Also update the
+      @supports not (color-mix) fallback at same percentage.
+  D4. Home expertise glow: add horizontal mask-image to .expertise-section. Both
+      -webkit-mask-image and mask-image with linear-gradient(to right, transparent 0%,
+      #000 3%, #000 97%, transparent 100%). The 3% fade zone is ~48px on a 1600px
+      container, matching the glow overhang. Matches the .wib-bg vertical masking
+      pattern already in the codebase.
+
+**Consequences:** No new dependencies. Single commit. Footer brand renders as three-line
+  hierarchy. Case link pills are bounded within the container. Experience and expertise
+  glows/gradients fade smoothly at section edges.
+
+**Alternatives considered:**
+  D3: Use a ::before pseudo-element with z-index for the gradient. Rejected -- ellipse
+  widening is simpler and requires no z-index or position changes.
+  D4: Increase .expertise-section horizontal padding from 32px to 96px (Option B).
+  Rejected -- smuggles a layout change into a glow fix, shrinks all cards, creates visual
+  inconsistency with other home sections. Mask is the minimal-change approach.
+
+**Future reference:** When investigating gradient or glow cutoff at section edges,
+  determine which mechanism applies before choosing the fix:
+  - CSS background radial-gradient with limited horizontal extent: widen the ellipse axis.
+  - box-shadow glow clipped by ancestor overflow rule: add horizontal mask-image to the
+    section container.

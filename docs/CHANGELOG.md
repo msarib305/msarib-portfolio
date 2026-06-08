@@ -3,6 +3,20 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-08
+### fix(css): Phase 19.2 footer brand hierarchy, case-links padding, gradient edge fades
+- Footer.tsx: .footer-brand wrapper added; SLogo and LahoreClock now stack vertically
+- globals.css: .footer-brand CSS rules give three-line brand hierarchy ([S] SARIB / role / clock)
+- globals.css: .case-links gains max-width + margin-inline:auto + padding-inline:32px,
+  matching .case-media container bounds; mobile breakpoint at 600px uses padding-inline:20px
+- globals.css: .exp-row.current ellipse widened from 70% to 120%, eliminating hard gradient
+  edge cutoff on the About Experience current-role row
+- globals.css: @supports not (color-mix) fallback for .exp-row.current updated to match
+- globals.css: .expertise-section gains horizontal mask-image (transparent 0%, #000 3%,
+  #000 97%, transparent 100%) to soften box-shadow glow clipping on edge expertise cards
+- docs/DECISIONS.md: DEC-076 appended (investigation notes: two different fix mechanisms
+  for gradient/glow edge cutoff documented for future reference)
+
+## 2026-06-08
 ### fix(content): Phase 19.1 experience corrections, Convai removal, BuiltWith investigation
 - src/data/experience.ts: Vmmersion role corrected to "Lead Software Developer"
 - src/data/experience.ts: Exarta Senior location corrected to "Lahore (on-site)"
