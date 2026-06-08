@@ -8,7 +8,6 @@ const PRIMARY_ROUTES = [
   { path: '/contact',                                 title: /Contact/ },
   { path: '/projects/anime-stylized-action-tgs2024', title: /Stylized|Anime/i },
   { path: '/projects/character-creator-system',      title: /Character/i },
-  { path: '/projects/convai-npc-integration',        title: /ConvAI|NPC/i },
   { path: '/projects/exarta-metaverse',              title: /Exarta/i },
   { path: '/projects/exarta-uefn-portfolio',         title: /UEFN|Exarta/i },
   { path: '/projects/nvidia-ai-assistant',           title: /NVIDIA|AI/i },

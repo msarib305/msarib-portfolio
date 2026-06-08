@@ -30,7 +30,7 @@ export const experience: ExperienceItem[] = [
   {
     slug:     'vmmersion',
     years:    '04/2024 to 04/2025',
-    role:     'Unreal Engine Developer',
+    role:     'Lead Software Developer',
     company:  'Vmmersion LLC',
     location: 'Remote (US studio)',
     summary:  'Gameplay systems for an anime-stylized action title showcased at Tokyo Game Show 2024 and released on Steam.',
@@ -48,7 +48,7 @@ export const experience: ExperienceItem[] = [
     years:    '11/2022 to 03/2024',
     role:     'Senior Unreal Engine Developer',
     company:  'Exarta',
-    location: 'Lahore (Remote)',
+    location: 'Lahore (on-site)',
     summary:  'Led seven direct reports across UE engineering and 3D art. Scaled the Exarta Metaverse from 10 to 40 concurrent players.',
     bullets: [
       'Custom ReplicationGraph reducing per-client bandwidth by 38%',
@@ -78,7 +78,7 @@ export const experience: ExperienceItem[] = [
     years:    '12/2021 to 05/2022',
     role:     'Unreal Engine Developer',
     company:  'Exarta',
-    location: 'Lahore (Remote)',
+    location: 'Lahore (on-site)',
     summary:  'Built the multiplayer replication foundations and Solana blockchain integration for the Exarta Metaverse.',
     bullets: [
       'Replicated variables, multicast RPCs, and session management for the metaverse prototype',

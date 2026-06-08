@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test'
 const CASES = [
   { slug: 'anime-stylized-action-tgs2024',  hasSpoilerLink: true,  hasGallery: true  },
   { slug: 'character-creator-system',       hasSpoilerLink: false, hasGallery: true  },
-  { slug: 'convai-npc-integration',         hasSpoilerLink: false, hasGallery: false },
   { slug: 'exarta-metaverse',               hasSpoilerLink: false, hasGallery: true  },
   { slug: 'exarta-uefn-portfolio',          hasSpoilerLink: false, hasGallery: false },
   { slug: 'nvidia-ai-assistant',            hasSpoilerLink: false, hasGallery: true  },

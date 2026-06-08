@@ -1087,3 +1087,29 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 **Consequences:** Undiscovered device-specific rendering issues (iOS Safari backdrop-filter, low-spec Chrome performance, Edge-specific layout quirks) may exist. Any issues found during ad-hoc use before the systematic test phase should be filed as bugs and fixed before the next outreach push.
 
 **Alternatives considered:** Block launch until all 8 devices are tested (rejected: core functionality confirmed; marginal risk of undiscovered layout bugs does not outweigh the cost of delaying a time-sensitive outreach window).
+
+## DEC-075 -- Phase 19.1 content corrections, Convai removal, and BuiltWith investigation
+**Date:** 2026-06-08
+**Context:** Three experience data errors survived the v1.0.0 launch: Vmmersion role title
+  showed "Unreal Engine Developer" (correct: "Lead Software Developer"), both Exarta
+  location entries showed "Lahore (Remote)" (correct: on-site). PROFESSIONAL_HISTORY.md had
+  matching stale data. BuiltWith reported GitHub references (source: Convai case study SDK
+  link) and a German Commercial Register Number (false positive). The Convai NPC Integration
+  case study had no images and no video; it weakened the /work grid as an incomplete
+  placeholder.
+
+**Decision:** Apply three field corrections to src/data/experience.ts. Replace both stale
+  PROFESSIONAL_HISTORY.md copies (root and docs/) with a new authoritative version at
+  docs/PROFESSIONAL_HISTORY.md (kept gitignored). Remove Convai NPC Integration case study
+  entirely (content/projects/convai-npc-integration/ and _staging-content version). Remove
+  Convai slug from E2E test suites. Document BuiltWith findings in
+  docs/EXTERNAL_TOOL_FALSE_POSITIVES.md. Add phased-rewrite notice to README.md and fix
+  all em-dashes.
+
+**Consequences:** About page timeline is accurate. PROFESSIONAL_HISTORY.md is the confirmed
+  canonical source with no known mismatches against experience.ts. /work grid shows 8 case
+  studies. BuiltWith GitHub detection resolves after next crawl. German Commercial Register
+  false positive documented for reference. README has zero em-dashes.
+
+**Alternatives considered:** Remove only the Convai SDK GitHub link, keep the case study.
+  Rejected because the case study had no visual assets and weakened the /work grid quality.

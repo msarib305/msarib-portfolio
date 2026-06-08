@@ -2,6 +2,22 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-08
+### fix(content): Phase 19.1 experience corrections, Convai removal, BuiltWith investigation
+- src/data/experience.ts: Vmmersion role corrected to "Lead Software Developer"
+- src/data/experience.ts: Exarta Senior location corrected to "Lahore (on-site)"
+- src/data/experience.ts: Exarta First location corrected to "Lahore (on-site)"
+- PROFESSIONAL_HISTORY.md: stale root and docs/ copies deleted; new authoritative version
+  placed at docs/PROFESSIONAL_HISTORY.md (gitignored per Sarib's decision)
+- content/projects/convai-npc-integration/: deleted (incomplete assets, no images or video)
+- _staging-content/projects/convai-npc-integration.mdx: deleted
+- tests/e2e/sitemap.spec.ts, cases.spec.ts, smoke.spec.ts: Convai slug entries removed
+- /work now shows 8 case studies; sitemap regenerates automatically
+- docs/EXTERNAL_TOOL_FALSE_POSITIVES.md: new file; BuiltWith GitHub detection (resolved)
+  and German Commercial Register Number (false positive) documented
+- docs/DECISIONS.md: DEC-075 appended
+- README.md: phased-rewrite notice added at top; all em-dashes corrected (6 total)
+
 ## Format
 
 Each entry has the following shape:

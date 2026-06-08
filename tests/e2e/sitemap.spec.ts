@@ -13,7 +13,6 @@ const EXPECTED_PATHS = [
   '/contact',
   '/projects/anime-stylized-action-tgs2024',
   '/projects/character-creator-system',
-  '/projects/convai-npc-integration',
   '/projects/exarta-metaverse',
   '/projects/exarta-uefn-portfolio',
   '/projects/nvidia-ai-assistant',
