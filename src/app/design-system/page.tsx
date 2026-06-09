@@ -3,9 +3,10 @@ import type { ReactNode } from 'react'
 import { SLogo }      from '@/components/SLogo'
 import { PillButton } from '@/components/PillButton'
 import { PillBadge }  from '@/components/PillBadge'
+import { Gallery, type MediaItem } from '@/components/Gallery'
 
 export const metadata: Metadata = {
-  title: 'Design System — internal',
+  title: 'Design System (internal)',
   robots: { index: false, follow: false },
 }
 
@@ -33,6 +34,29 @@ function Label({ children }: { children: ReactNode }) {
       {children}
     </p>
   )
+}
+
+// One item per media type. Real assets where they exist; the GIF reuses the
+// showreel video as a stand-in (no true GIF asset exists yet) and both Instagram
+// items omit thumbnailUrl so the brand-neutral placeholder is exercised.
+const GALLERY_DEMO: MediaItem[] = [
+  { type: 'image',          cloudinaryId: 'https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_9_ce4kp1.jpg', alt: 'Static Cloudinary image demo', caption: 'Image (Cloudinary static)' },
+  { type: 'video',          cloudinaryId: 'portfolio-showreel', accessibleName: 'Cloudinary video demo', caption: 'Video (Cloudinary MP4 with controls)' },
+  { type: 'gif',            cloudinaryId: 'portfolio-showreel', alt: 'GIF autoplay-loop demo', caption: 'GIF (Cloudinary autoplay loop, stand-in asset)' },
+  { type: 'youtube',        videoId: '16SzQjJ58Dc', accessibleName: 'YouTube embed demo', caption: 'YouTube (privacy-enhanced embed)' },
+  { type: 'instagram-reel', postUrl: 'https://www.instagram.com/reel/C3tHZnFsSlt', accessibleName: 'Instagram Reel embed demo', caption: 'Instagram Reel (placeholder until activated)' },
+  { type: 'instagram-post', postUrl: 'https://www.instagram.com/reel/C6tQKTQuKUt', accessibleName: 'Instagram Post embed demo', caption: 'Instagram Post (placeholder until activated)' },
+]
+
+function configSummary(item: MediaItem): string {
+  switch (item.type) {
+    case 'image':
+    case 'gif':
+    case 'video':           return item.cloudinaryId
+    case 'youtube':         return `videoId: ${item.videoId}`
+    case 'instagram-reel':
+    case 'instagram-post':  return item.postUrl
+  }
 }
 
 export default function DesignSystemPage() {
@@ -100,6 +124,32 @@ export default function DesignSystemPage() {
           <PillBadge tone="grad-2">Engineering leadership</PillBadge>
           <PillBadge tone="grad-3">Shipped products</PillBadge>
         </div>
+      </section>
+
+      <section>
+        <Label>Gallery Demo Matrix</Label>
+        <p className="font-mono text-xs text-text-muted mb-6">
+          Internal verification surface. Not indexed. One item per media type.
+        </p>
+        <Gallery items={GALLERY_DEMO} ariaLabel="Gallery demo matrix" />
+        <table className="mt-8 w-full text-left font-mono text-xs border-collapse">
+          <thead>
+            <tr className="text-text-muted">
+              <th className="py-2 pr-4">#</th>
+              <th className="py-2 pr-4">Type</th>
+              <th className="py-2">Config</th>
+            </tr>
+          </thead>
+          <tbody>
+            {GALLERY_DEMO.map((item, i) => (
+              <tr key={i} className="border-t border-white/10">
+                <td className="py-2 pr-4">{i + 1}</td>
+                <td className="py-2 pr-4">{item.type}</td>
+                <td className="py-2 break-all">{configSummary(item)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
     </main>

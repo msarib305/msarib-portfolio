@@ -1238,3 +1238,64 @@ already cover touch devices and accessibility.
   Route group approach (B) rejected due to restructuring cost.
   Mounting cursor in every page.tsx individually rejected -- duplicates logic and would
   miss any new pages added in future.
+
+## DEC-079 -- Phase 19.6.1 interactive Gallery component and Keystatic authoring
+**Date:** 2026-06-09
+
+**Context:** Case studies rendered media through `CaseStudyGallery.tsx`, a static CSS grid
+handling three types (image, YouTube, Instagram-as-external-link) with no fullscreen, no
+keyboard support, and no real Instagram embed. Phase 19.6.1 builds a new interactive Gallery
+supporting six media types, authorable inline via Keystatic, and proves it end to end on one
+case study (anime-stylized-action-tgs2024). The other seven stay on the legacy component until
+19.6.2; Exarta UEFN is reserved for 19.6.3.
+
+**Decision:**
+  - Authoring mechanism: a new inline Keystatic markdoc component block (`Gallery`) in
+    `projects.body.components`, not a new top-level frontmatter field. The block schema is
+    `fields.array(fields.conditional(fields.select, { ...six types }))` using the repo's
+    positional Keystatic API (0.5.50), mirroring the existing top-level `gallery` field.
+  - Serialization (verified empirically via the live editor before migrating real content):
+    Keystatic writes the block as a self-closing markdoc tag
+    `{% Gallery items=[{discriminant: "image", value: {...}}, ...] /%}`. `ProjectBody` declares
+    the tag with `attributes: { items: { type: Array } }` and a server `GalleryBlock` wrapper
+    normalizes the raw `{ discriminant, value }` array into the typed `MediaItem` union
+    (`src/components/Gallery/normalize.ts`) before handing off to the client `Gallery`.
+  - Fallback (held in reserve, not used): if the nested-conditional markdoc serialization had
+    proven fragile, galleries would have rendered from the top-level frontmatter field instead.
+    The empirical round-trip passed, so the inline block is the shipped path.
+  - Component boundary: `Gallery` is a client component (state, portal, listeners). The
+    `GalleryBlock` wrapper in `ProjectBody` is server. Images use the existing `CldImage`
+    client wrapper; video/gif use raw `<video>` with Cloudinary `f_auto,q_auto`.
+  - Six types: image, video (Cloudinary MP4), gif (Cloudinary, delivered as autoplay-loop MP4),
+    youtube (privacy-enhanced youtube-nocookie, click-to-activate), instagram-reel,
+    instagram-post (both lazy-load `embed.js` only on first activation).
+  - Focus trap: custom `useFocusTrap` hook mirroring the proven MobileMenu pattern (no new
+    dependency). MobileMenu keeps its own inline copy for now; consolidation is a future option.
+  - `--z-overlay: 200` token for the fullscreen modal: above nav (100), below the site cursor
+    (9999) so the cursor still floats over the modal.
+  - Platform icon overlays on thumbnails (Addition A): YouTube and Instagram thumbnails get the
+    respective Simple Icons glyph (CC0) in a dark chip bottom-right; Cloudinary video/gif get a
+    generic play triangle; static images get none. Instagram items with no `thumbnailUrl` show a
+    brand-neutral gradient tile with a REEL/POST label plus the icon overlay.
+  - Performance: thumbnails lazy except current +/- 1; current main image eager via
+    `loading="eager"` (not `priority`, which emits an unused preload link since the gallery is
+    below the fold and never the LCP element); neighbor image prefetch via hidden CldImage that
+    matches the main request URL; iframes `loading="lazy"`; Instagram script injected once on
+    first activation only.
+  - All-six-type verification surface: the internal `/design-system` page (already noindex and
+    already disallowed in `robots.ts`) carries a six-item demo matrix plus a debug table.
+
+**Consequences:** The new Gallery and the legacy `CaseStudyGallery` coexist during 19.6.1. After
+19.6.2 migrates the remaining case studies, the legacy component and the top-level `gallery`
+field can be retired.
+
+**CSP note (for the future report-only to enforce flip, DEC-071):** Instagram embeds load
+`https://www.instagram.com/embed.js` and frame `https://www.instagram.com/...`. Under the current
+report-only CSP this logs a `frame-src` violation (and a `script-src`/`connect-src`/`img-src`
+need) without blocking, so the embed works today. Before flipping CSP to enforce, add
+`www.instagram.com` (and `*.cdninstagram.com` for media) to `script-src`, `frame-src`,
+`connect-src`, and `img-src`. Logged here and in `docs/CSP_VIOLATION_LOG.md`.
+
+**Known minor item (pre-existing, not introduced here):** the site's fixed nav overlaps the
+Keystatic admin toolbar's Create/Save button because `/keystatic` renders inside the site layout.
+Workable (scroll or submit), out of scope for 19.6.1.

@@ -301,6 +301,10 @@
 
   --mx: 50%;
   --my: 50%;
+
+  /* Gallery fullscreen modal. Above nav (100), below the site cursor (9999) so
+     the custom cursor still floats over the modal. */
+  --z-overlay: 200;
 }
 
 /* ============================================================
@@ -3880,12 +3884,344 @@
     }
   }
 
+  /* ============================================================
+     Gallery (Phase 19.6.1) — interactive case-study media gallery
+     ============================================================ */
+
+  .gallery-root {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: 32px;
+    margin-block: 32px;
+  }
+
+  /* ---- Main display ---- */
+  .gallery-main-frame {
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius-16);
+    overflow: hidden;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .gallery-media-el {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .gallery-iframe { border: none; background: #000; }
+
+  /* Click-to-activate surface for embed thumbnails (YouTube / Instagram). */
+  .gallery-activate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: #000;
+    cursor: pointer;
+  }
+  .gallery-activate .gallery-media-el { object-fit: cover; }
+
+  .gallery-play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: background 150ms var(--ease-base), transform 150ms var(--ease-base);
+  }
+  .gallery-activate:hover .gallery-play-overlay {
+    background: var(--color-accent);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .gallery-expand {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-8);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    cursor: pointer;
+    transition: background 150ms var(--ease-base), border-color 150ms var(--ease-base);
+  }
+  .gallery-expand:hover { background: var(--color-accent); color: var(--color-accent-fg); border-color: transparent; }
+
+  .gallery-caption {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .gallery-caption--fs { color: rgba(255, 255, 255, 0.8); text-align: center; }
+
+  /* ---- Thumbnail strip ---- */
+  .gallery-thumbnails-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .gallery-thumbnails {
+    display: flex;
+    flex: 1;
+    min-width: 0;            /* allow the flex item to shrink so overflow-x governs (no page overflow) */
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-thumbnail {
+    position: relative;
+    flex: 0 0 auto;
+    width: 104px;
+    height: 64px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-8);
+    overflow: hidden;
+    background: var(--color-bg-low);
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition: border-color 150ms var(--ease-base), transform 150ms var(--ease-base);
+  }
+  .gallery-thumbnail:hover { transform: translateY(-2px); }
+  .gallery-thumbnail--active { border-color: var(--color-accent); }
+
+  .gallery-thumbnail-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gallery-thumbnail-badge {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    pointer-events: none;
+  }
+
+  /* ---- Chevrons (strip + fullscreen) ---- */
+  .gallery-chevron {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-high);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background 150ms var(--ease-base), border-color 150ms var(--ease-base), opacity 150ms var(--ease-base);
+  }
+  .gallery-chevron:hover { background: var(--color-bg-hover); border-color: var(--color-border-default); }
+  .gallery-chevron:disabled { opacity: 0.35; cursor: default; }
+
+  /* ---- Instagram brand-neutral placeholder ---- */
+  .gallery-ig-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  }
+  .gallery-ig-placeholder-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+  .gallery-ig-placeholder--thumb .gallery-ig-placeholder-label { font-size: 10px; }
+
+  /* ---- Instagram embed + fallbacks ---- */
+  .gallery-ig-embed {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+  }
+  .gallery-embed-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--color-bg-low);
+    color: var(--color-text-secondary);
+    padding: 24px;
+    text-align: center;
+  }
+  .gallery-embed-link {
+    color: var(--color-accent);
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  }
+
+  .gallery-media-error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-low);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+  .gallery-media-error--muted { background: var(--color-bg-high); }
+
+  /* ---- Screen-reader live region ---- */
+  .gallery-aria-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---- Fullscreen modal ---- */
+  .gallery-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    background: rgba(10, 10, 12, 0.82);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    animation: gallery-fs-in 200ms var(--ease-out);
+  }
+  @supports not ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+    .gallery-fullscreen { background: rgba(8, 8, 10, 0.96); }
+  }
+
+  .gallery-fullscreen-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: min(100%, 1400px);
+    max-height: 100%;
+  }
+  .gallery-fullscreen-frame {
+    position: relative;
+    width: 100%;
+    max-height: 80vh;
+    border-radius: var(--radius-12);
+    overflow: hidden;
+    background: #000;
+  }
+
+  .gallery-fullscreen-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    cursor: pointer;
+    transition: background 150ms var(--ease-base);
+  }
+  .gallery-fullscreen-close:hover { background: var(--color-accent); color: var(--color-accent-fg); }
+
+  .gallery-chevron--fs {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .gallery-fs-counter {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ---- Touch targets: ensure >= 44px on coarse pointers ---- */
+  @media (pointer: coarse) {
+    .gallery-thumbnail { min-width: 64px; height: 56px; }
+    .gallery-chevron   { width: 44px; height: 44px; }
+    .gallery-expand    { width: 44px; height: 44px; }
+  }
+
+  /* ---- Reduced motion: no fade, no hover transforms ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-fullscreen { animation: none; }
+    .gallery-thumbnail:hover { transform: none; }
+    .gallery-activate:hover .gallery-play-overlay { transform: translate(-50%, -50%); }
+  }
+
 } /* end @layer components */
 
 /* @keyframes are global regardless of @layer context. */
 @keyframes s-logo-spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(720deg); }
+}
+
+@keyframes gallery-fs-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes pulse {

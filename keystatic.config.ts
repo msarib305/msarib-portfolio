@@ -197,6 +197,68 @@ export default config({
                 title:     fields.text({ label: 'Accessible title' }),
               },
             }),
+            Gallery: block({
+              label: 'Gallery',
+              schema: {
+                items: fields.array(
+                  fields.conditional(
+                    fields.select({
+                      label: 'Media type',
+                      options: [
+                        { label: 'Image (Cloudinary)', value: 'image'           },
+                        { label: 'Video (Cloudinary)', value: 'video'           },
+                        { label: 'GIF (Cloudinary)',   value: 'gif'             },
+                        { label: 'YouTube',            value: 'youtube'         },
+                        { label: 'Instagram Reel',     value: 'instagram-reel'  },
+                        { label: 'Instagram Post',     value: 'instagram-post'  },
+                      ],
+                      defaultValue: 'image',
+                    }),
+                    {
+                      image: fields.object({
+                        cloudinaryId: fields.text({ label: 'Cloudinary URL or public ID' }),
+                        alt:          fields.text({ label: 'Alt text (required)' }),
+                        caption:      fields.text({ label: 'Caption (optional)' }),
+                        aspectRatio:  fields.text({ label: 'Aspect ratio e.g. 16/9 (optional)' }),
+                      }),
+                      video: fields.object({
+                        cloudinaryId:   fields.text({ label: 'Cloudinary URL or public ID' }),
+                        accessibleName: fields.text({ label: 'Accessible name (required)' }),
+                        caption:        fields.text({ label: 'Caption (optional)' }),
+                        aspectRatio:    fields.text({ label: 'Aspect ratio (optional)' }),
+                        autoplay:       fields.checkbox({ label: 'Autoplay', defaultValue: false }),
+                        loop:           fields.checkbox({ label: 'Loop', defaultValue: false }),
+                      }),
+                      gif: fields.object({
+                        cloudinaryId: fields.text({ label: 'Cloudinary URL or public ID' }),
+                        alt:          fields.text({ label: 'Alt text (required)' }),
+                        caption:      fields.text({ label: 'Caption (optional)' }),
+                        aspectRatio:  fields.text({ label: 'Aspect ratio (optional)' }),
+                      }),
+                      youtube: fields.object({
+                        videoId:        fields.text({ label: 'YouTube video ID (11 chars)' }),
+                        accessibleName: fields.text({ label: 'Accessible name (required)' }),
+                        caption:        fields.text({ label: 'Caption (optional)' }),
+                        thumbnailUrl:   fields.text({ label: 'Thumbnail override (optional)' }),
+                      }),
+                      'instagram-reel': fields.object({
+                        postUrl:        fields.text({ label: 'Instagram Reel URL' }),
+                        accessibleName: fields.text({ label: 'Accessible name (required)' }),
+                        caption:        fields.text({ label: 'Caption (optional)' }),
+                        thumbnailUrl:   fields.text({ label: 'Thumbnail (optional; placeholder if blank)' }),
+                      }),
+                      'instagram-post': fields.object({
+                        postUrl:        fields.text({ label: 'Instagram Post URL' }),
+                        accessibleName: fields.text({ label: 'Accessible name (required)' }),
+                        caption:        fields.text({ label: 'Caption (optional)' }),
+                        thumbnailUrl:   fields.text({ label: 'Thumbnail (optional; placeholder if blank)' }),
+                      }),
+                    },
+                  ),
+                  { label: 'Gallery items' },
+                ),
+              },
+            }),
           },
         }),
       },

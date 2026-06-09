@@ -3,6 +3,40 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-09
+### feat(gallery): Phase 19.6.1 interactive Gallery component, Keystatic block, anime integration
+- New `src/components/Gallery/` module: client `Gallery` shell (useReducer + context), `GalleryMain`,
+  `GalleryThumbnails`, `Thumbnail`, `GalleryFullscreen` (portal modal), `MediaRenderer` (six-type
+  dispatch), plus hooks `useFocusTrap`, `useGalleryKeyboard`, `useInViewport`, `usePrefersReducedMotion`,
+  and `galleryState` / `normalize` / `types` modules.
+- Six media types: image, video (Cloudinary MP4), gif (Cloudinary autoplay loop), youtube
+  (youtube-nocookie, click to activate), instagram-reel, instagram-post (lazy `embed.js` on first
+  activation). Per-type failure handling (asset 404, invalid YouTube id with maxres to hq fallback,
+  Instagram script error fallback link, single-item, empty array).
+- Accessibility: arrow/Home/End navigation, Escape closes fullscreen, focus trap in the modal with
+  focus restored to the trigger, `aria-live` "Item N of M", `aria-current` on the active thumbnail,
+  44px touch targets on coarse pointers, reduced-motion handling (no autoplay, static GIF frame,
+  instant modal).
+- `keystatic.config.ts`: new `Gallery` markdoc block in `projects.body.components`
+  (array of a six-way conditional, positional API). Serialization round-trip verified in the live
+  editor before migrating real content (see DEC-079).
+- `src/components/ProjectBody.tsx`: `Gallery` tag registered (`items: { type: Array }`) with a server
+  `GalleryBlock` wrapper that normalizes raw items to the typed `MediaItem` union.
+- `src/lib/cloudinary.ts`: added `buildCloudinaryUrl`, `cloudinaryVideoPoster`, `youtubeEmbedUrl`,
+  `youtubeThumbnailUrl`, and three resolution tiers (thumb 200 / main 1600 / full 2400).
+- `src/app/globals.css`: gallery styles under `@layer components`, `gallery-fs-in` keyframe outside the
+  layer, new `--z-overlay: 200` token.
+- `src/icons/`: YouTube and Instagram Simple Icons (CC0) plus `PlatformIcon.tsx` (inline, recolorable)
+  for the thumbnail platform overlays.
+- Integration: `content/projects/anime-stylized-action-tgs2024/index.mdoc` migrated (eight images moved
+  from the top-level `gallery` array into an inline `{% Gallery %}` block; cover YouTube unchanged). The
+  other seven case studies remain on the legacy `CaseStudyGallery` (verified no regression).
+- `src/app/design-system/page.tsx`: six-type Gallery demo matrix plus a debug table (noindex page).
+- `src/components/Hero.tsx`: refactored the headline char-offset computation to module scope to satisfy
+  the React Compiler `react-hooks/immutability` rule (a latent issue from Phase 19.5; lint was not run
+  that phase). No behavior change.
+- pnpm typecheck: pass. pnpm lint: pass. pnpm build: pass (anime page prerenders as SSG with the block).
+
+## 2026-06-09
 ### feat(motion): Phase 19.5 hero char reveal, portrait blur glow, site-wide cursor
 - src/components/Hero.tsx: heading animation upgraded from word-level to character-level
   mask reveal. Each character slides up through an overflow:hidden word-wrapper span

@@ -5,6 +5,8 @@ import type { Node as MarkdocNode, Config } from '@markdoc/markdoc'
 import Image from 'next/image'
 import { YouTubeEmbed } from './YouTubeEmbed'
 import { InstagramEmbed } from './InstagramEmbed'
+import { Gallery } from '@/components/Gallery'
+import { normalizeGalleryItems } from '@/components/Gallery/normalize'
 
 const markdocConfig: Config = {
   nodes: {
@@ -39,6 +41,12 @@ const markdocConfig: Config = {
       attributes: {
         permalink: { type: String },
         title:     { type: String },
+      },
+    },
+    Gallery: {
+      render: 'Gallery',
+      attributes: {
+        items: { type: Array },
       },
     },
   },
@@ -81,12 +89,21 @@ function InstagramEmbedBlock({ permalink, title }: { permalink: string; title: s
   return <InstagramEmbed permalink={permalink} title={title} />
 }
 
+// Server wrapper: normalize the raw markdoc items array into the typed MediaItem
+// union, then hand off to the client Gallery. Renders nothing for an empty array.
+function GalleryBlock({ items }: { items?: unknown }) {
+  const normalized = normalizeGalleryItems(items)
+  if (normalized.length === 0) return null
+  return <Gallery items={normalized} />
+}
+
 const components = {
   List,
   ListItem,
   Figure: FigureBlock,
   YouTubeEmbed: YouTubeEmbedBlock,
   InstagramEmbed: InstagramEmbedBlock,
+  Gallery: GalleryBlock,
 }
 
 interface ProjectBodyProps {

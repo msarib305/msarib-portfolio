@@ -57,3 +57,66 @@ if (
     'CldImage will not apply transformations. Add it to .env.local.'
   )
 }
+
+/* ------------------------------------------------------------------ *
+ * Gallery URL builders (Phase 19.6.1)
+ *
+ * CldImage handles image delivery on its own. These helpers cover the
+ * cases CldImage cannot: raw <video>/gif sources, video first-frame
+ * posters, and the YouTube thumbnail/embed URLs. The cloud name comes
+ * from the same env var CldImage uses, falling back to the known
+ * production cloud so server-side URL construction never breaks.
+ * ------------------------------------------------------------------ */
+
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'ddgwzcrim'
+const CLD_BASE   = `https://res.cloudinary.com/${CLOUD_NAME}`
+
+// Three resolution tiers. thumb feeds the scroll strip, main the inline
+// display, full the fullscreen modal (capped, not original, to bound payload).
+export const CLD_TIER_WIDTH = { thumb: 200, main: 1600, full: 2400 } as const
+export type CldTier = keyof typeof CLD_TIER_WIDTH
+
+type CldResource = 'image' | 'video'
+
+/**
+ * Build a Cloudinary delivery URL for a video or GIF asset at a given tier.
+ * Always applies f_auto,q_auto so Cloudinary negotiates codec/format and
+ * adaptive quality at the edge. GIFs are delivered through the `video`
+ * resource type so Cloudinary serves an efficient MP4 loop instead of a
+ * heavy animated GIF.
+ */
+export function buildCloudinaryUrl(
+  idOrUrl: string,
+  opts: { resource: CldResource; tier: CldTier; ext?: string },
+): string {
+  const id        = cloudinaryPublicId(idOrUrl)
+  const width     = CLD_TIER_WIDTH[opts.tier]
+  const transform = `f_auto,q_auto,w_${width}`
+  const suffix    = opts.ext ? `.${opts.ext}` : ''
+  return `${CLD_BASE}/${opts.resource}/upload/${transform}/${id}${suffix}`
+}
+
+/**
+ * First-frame poster (JPG) for a Cloudinary video or GIF, used as the
+ * video element's poster and as the scroll-strip thumbnail for those types.
+ */
+export function cloudinaryVideoPoster(idOrUrl: string, tier: CldTier = 'main'): string {
+  const id    = cloudinaryPublicId(idOrUrl)
+  const width = CLD_TIER_WIDTH[tier]
+  return `${CLD_BASE}/video/upload/f_jpg,so_0,q_auto,w_${width}/${id}.jpg`
+}
+
+/** Privacy-enhanced YouTube embed URL (youtube-nocookie, never youtube.com). */
+export function youtubeEmbedUrl(videoId: string, opts: { autoplay?: boolean } = {}): string {
+  return `https://www.youtube-nocookie.com/embed/${videoId}${opts.autoplay ? '?autoplay=1' : ''}`
+}
+
+/**
+ * YouTube thumbnail URL. maxresdefault is the high-res frame; some videos
+ * lack it and return a 404/placeholder, so callers fall back to hqdefault
+ * via the image's onError handler.
+ */
+export function youtubeThumbnailUrl(videoId: string, quality: 'maxres' | 'hq' = 'maxres'): string {
+  const file = quality === 'maxres' ? 'maxresdefault' : 'hqdefault'
+  return `https://img.youtube.com/vi/${videoId}/${file}.jpg`
+}
