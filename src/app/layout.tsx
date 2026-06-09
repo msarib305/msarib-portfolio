@@ -4,6 +4,7 @@ import './globals.css'
 import { SkipToContent } from '@/components/SkipToContent'
 import { Nav }           from '@/components/Nav'
 import { Footer }        from '@/components/Footer'
+import { CursorMount }  from '@/components/CursorMount'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets:  ['latin'],
@@ -116,6 +117,7 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
+        <CursorMount />
         <SkipToContent />
         <Nav />
         <main id="main-content" tabIndex={-1}>

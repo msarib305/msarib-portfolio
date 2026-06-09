@@ -1209,3 +1209,32 @@ but produced a multi-color glow that diverged from the single-teal brand palette
   the stacking context boundary between the SVG and the blur sibling means the
   backdrop-filter sees only the parent section background, not the SVG circles.
   filter: blur() on the SVG is functionally equivalent and simpler.
+
+## DEC-078 -- Phase 19.5 cursor scope expansion: root layout + CursorMount
+**Date:** 2026-06-09
+
+**Context:** The custom cursor (Cursor.tsx) was mounted only in src/app/page.tsx (home page).
+Issue #15 required it on all portfolio pages except /keystatic. Two approaches evaluated:
+(A) root layout + thin CursorMount client component using usePathname to exclude /keystatic;
+(B) create a (site) route group wrapping all non-keystatic routes with a layout that mounts
+the cursor directly.
+
+**Decision:** Option A. Create CursorMount.tsx ("use client"), use usePathname() to return
+null when the path starts with /keystatic, otherwise render <Cursor />. Mount CursorMount
+as the first child of <body> in src/app/layout.tsx. Remove cursor mount from page.tsx.
+
+**Rationale:** No route groups currently exist in src/app/. Creating (site)/ would require
+moving every route directory (work, about, contact, writings, projects, etc.) into the group.
+High restructuring cost for a decorative cursor with no functional benefit over the conditional
+render. The usePathname check is explicit, low-risk, and easy to extend if additional routes
+need exclusion in future.
+
+**Consequences:** Cursor mounts once per session and persists across soft navigations (no
+flicker between routes). The rAF loop runs on all portfolio pages instead of just the home
+page -- the existing (hover: hover) and (pointer: fine) and prefers-reduced-motion guards
+already cover touch devices and accessibility.
+
+**Alternatives considered:**
+  Route group approach (B) rejected due to restructuring cost.
+  Mounting cursor in every page.tsx individually rejected -- duplicates logic and would
+  miss any new pages added in future.

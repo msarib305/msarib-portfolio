@@ -3,6 +3,32 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-09
+### feat(motion): Phase 19.5 hero char reveal, portrait blur glow, site-wide cursor
+- src/components/Hero.tsx: heading animation upgraded from word-level to character-level
+  mask reveal. Each character slides up through an overflow:hidden word-wrapper span
+  (true mask, not clip-path). 10ms stagger per character, 400ms per character,
+  var(--ease-out) easing. Total heading animation: ~860ms. Issue #1.
+- src/components/Hero.tsx: subheading replaced from word-by-word (35+ word spans) to
+  a single block fade-up animation (hero-block-fade, 600ms, 450ms delay). SUBHEAD_WORDS
+  constant and word-split map removed. Issue #1.
+- src/app/globals.css: word-reveal keyframe and .hero-subhead-word class removed.
+  New keyframes: hero-char-up (translateY 110% to 0) and hero-block-fade (opacity + Y16px).
+  New class: .hero-char. .hero-headline-word updated to mask wrapper (overflow:hidden,
+  vertical-align:bottom). .hero-subhead gets animation declaration.
+- src/components/AboutHero.tsx: portrait wrapped in .about-portrait-outer div. Duplicate
+  <img> with .about-portrait-glow class added as absolutely positioned sibling behind the
+  portrait. Cloudinary source at w_200,q_auto:low (~3-5 KB). Issue #14.
+- src/app/globals.css: .about-portrait-outer (position:relative) and .about-portrait-glow
+  (position:absolute, inset:-10%, filter:blur(80px) saturate(1.4), opacity:0.7) added.
+  .about-portrait gains z-index:1. @media print hides .about-portrait-glow. Issue #14.
+- src/components/CursorMount.tsx: new thin client component. Uses usePathname() to
+  exclude /keystatic routes; renders <Cursor /> on all portfolio pages. Issue #15.
+- src/app/layout.tsx: <CursorMount /> added as first child of <body>. Issue #15.
+- src/app/page.tsx: cursor dynamic() import and <Cursor /> render removed. Issue #15.
+- docs/DECISIONS.md: DEC-078 added (cursor mount strategy: root layout + CursorMount
+  vs route groups; route groups rejected due to restructuring cost).
+
+## 2026-06-09
 ### feat(ui): Phase 19.4 component consistency for badges, cards, and credits
 - src/components/AboutPillars.tsx: replaced flat mono-font .t-pill badges with PillBadge
   component (grad-1/grad-2/grad-3 tones), matching the 3D gradient pill style used on the

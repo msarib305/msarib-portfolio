@@ -5,6 +5,9 @@ const PORTRAIT_ID = cloudinaryPublicId(
   'https://res.cloudinary.com/ddgwzcrim/image/upload/v1780686320/Self_Portrait_bpeyny.jpg'
 )
 
+const PORTRAIT_GLOW_SRC =
+  'https://res.cloudinary.com/ddgwzcrim/image/upload/w_200,q_auto:low/Self_Portrait_bpeyny.jpg'
+
 export function AboutHero() {
   return (
     <section className="about-hero">
@@ -30,15 +33,24 @@ export function AboutHero() {
             </div>
           </div>
         </div>
-        <div className="about-portrait">
-          <CldImage
-            src={PORTRAIT_ID}
-            alt="Portrait of Sarib, Lead Unreal Engine 5 Developer based in Lahore"
-            fill
-            sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 600px"
-            priority
-            className="object-cover"
+        <div className="about-portrait-outer">
+          {/* eslint-disable-next-line @next/next/no-img-element -- decorative blur glow, aria-hidden */}
+          <img
+            src={PORTRAIT_GLOW_SRC}
+            aria-hidden="true"
+            alt=""
+            className="about-portrait-glow"
           />
+          <div className="about-portrait">
+            <CldImage
+              src={PORTRAIT_ID}
+              alt="Portrait of Sarib, Lead Unreal Engine 5 Developer based in Lahore"
+              fill
+              sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 600px"
+              priority
+              className="object-cover"
+            />
+          </div>
         </div>
       </div>
     </section>

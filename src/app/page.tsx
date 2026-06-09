@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import dynamic            from 'next/dynamic'
 import { JsonLd }          from '@/components/JsonLd'
 import { Hero }            from '@/components/Hero'
 import { FeaturedWork }    from '@/components/FeaturedWork'
@@ -7,14 +6,6 @@ import { FeatureShowcase } from '@/components/FeatureShowcase'
 import { ExpertiseGrid }   from '@/components/ExpertiseGrid'
 import { WhatIBring }      from '@/components/WhatIBring'
 import { ContactCTA }      from '@/components/ContactCTA'
-
-// Cursor is pure decoration, desktop-only, mounted below all other
-// content. Code-splitting it into its own chunk keeps the initial
-// bundle leaner — its own checks (matchMedia, rAF) only kick in
-// after the chunk loads, which doesn't block FCP/LCP.
-const Cursor = dynamic(
-  () => import('@/components/Cursor').then(m => ({ default: m.Cursor })),
-)
 
 export const metadata: Metadata = {
   title: {
@@ -92,7 +83,6 @@ export default function Home() {
         fetchPriority="high"
       />
       <JsonLd schema={homeSchema} />
-      <Cursor />
       <Hero />
       <FeaturedWork />
       <FeatureShowcase />

@@ -989,20 +989,21 @@
 
   .hero-headline-word {
     display: inline-block;
-    animation: word-reveal 800ms var(--ease-out) both;
+    overflow: hidden;
+    vertical-align: bottom;
   }
 
-  /* SUBHEAD
-     Same native-wrap approach as headline. */
+  .hero-char {
+    display: inline-block;
+    animation: hero-char-up 400ms var(--ease-out) both;
+  }
+
+  /* SUBHEAD — single block reveal. */
   .hero-subhead {
     font-size: 16px;
     line-height: 1.55;
     color: var(--color-text-secondary);
-  }
-
-  .hero-subhead-word {
-    display: inline-block;
-    animation: word-reveal 800ms var(--ease-out) both;
+    animation: hero-block-fade 600ms var(--ease-out) 450ms both;
   }
 
   /* CTA ROW */
@@ -1186,8 +1187,8 @@
 
   /* HERO REDUCED MOTION
      @layer base already collapses animation-duration to 0.01ms
-     for .hero-headline-word and .hero-subhead-word, so words
-     snap to their final state instantly.
+     for .hero-char and .hero-subhead, so characters and the
+     subhead block snap to their final state instantly.
      Canvas display: none is an extra guard; JS matchMedia also
      prevents the RAF loop from starting. */
   @media (prefers-reduced-motion: reduce) {
@@ -2424,8 +2425,27 @@
     margin-top: 8px;
   }
 
+  .about-portrait-outer {
+    position: relative;
+  }
+
+  .about-portrait-glow {
+    position: absolute;
+    inset: -10%;
+    width: 120%;
+    height: 120%;
+    object-fit: cover;
+    filter: blur(80px) saturate(1.4);
+    transform: scale(1.05);
+    opacity: 0.7;
+    z-index: 0;
+    border-radius: var(--radius-24);
+    pointer-events: none;
+  }
+
   .about-portrait {
     position: relative;
+    z-index: 1;
     aspect-ratio: 4 / 5;
     border-radius: var(--radius-24);
     overflow: hidden;
@@ -3579,7 +3599,8 @@
     .nav, .footer, .mobile-menu, .mobile-menu-backdrop,
     .cursor-gradient, .cursor-dot,
     .atm-wrapper, .showreel-glow-canvas,
-    .reel-label, .reel-credits { display: none !important; }
+    .reel-label, .reel-credits,
+    .about-portrait-glow { display: none !important; }
     main { padding-top: 0 !important; }
     a { color: #000 !important; text-decoration: underline; }
   }
@@ -3872,15 +3893,14 @@
   50%       { opacity: 0.35; }
 }
 
-@keyframes word-reveal {
-  from {
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(40px);
-  }
-  to {
-    clip-path: inset(0);
-    transform: translateY(0);
-  }
+@keyframes hero-char-up {
+  from { transform: translateY(110%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes hero-block-fade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* AtmosphericGradient keyframes (Phase 19.3).
