@@ -1,9 +1,14 @@
+import { PillBadge }          from '@/components/PillBadge'
+import { AtmosphericGradient } from '@/components/AtmosphericGradient'
+
+type BadgeTone = 'grad-1' | 'grad-2' | 'grad-3'
+
 interface Pillar {
   slug:     string
   pill:     string
   headline: string
   desc:     string
-  tint:     't1' | 't2' | 't3'
+  tone:     BadgeTone
 }
 
 const PILLARS: Pillar[] = [
@@ -12,25 +17,23 @@ const PILLARS: Pillar[] = [
     pill:     'Performance is a feature',
     headline: 'Trained on mobile, applied everywhere.',
     desc:     'Mobile UE5 forces discipline that PC engineers learn the hard way later. I do the same arithmetic on a desktop target.',
-    tint:     't1',
+    tone:     'grad-1',
   },
   {
     slug:     'architecture',
     pill:     'Architecture before features',
     headline: 'The decisions that compound.',
     desc:     'The state machine is the codebase. The replication graph is the multiplayer experience. I will spend a week refactoring to save a quarter of downstream pain.',
-    tint:     't2',
+    tone:     'grad-2',
   },
   {
     slug:     'documentation',
     pill:     'Documentation as code',
     headline: 'The next engineer can read it.',
     desc:     'If the architecture decision is not written down, it does not exist. The work that lasts is the work that survives my exit.',
-    tint:     't3',
+    tone:     'grad-3',
   },
 ]
-
-import { AtmosphericGradient } from '@/components/AtmosphericGradient'
 
 export function AboutPillars() {
   return (
@@ -43,8 +46,8 @@ export function AboutPillars() {
       </div>
       <div className="three-grid">
         {PILLARS.map((pillar) => (
-          <article key={pillar.slug} className={`t-card ${pillar.tint}`}>
-            <span className="t-pill">{pillar.pill}</span>
+          <article key={pillar.slug} className="t-card">
+            <PillBadge tone={pillar.tone}>{pillar.pill}</PillBadge>
             <h3>{pillar.headline}</h3>
             <p className="t-desc">{pillar.desc}</p>
           </article>

@@ -3,6 +3,31 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-09
+### feat(ui): Phase 19.4 component consistency for badges, cards, and credits
+- src/components/AboutPillars.tsx: replaced flat mono-font .t-pill badges with PillBadge
+  component (grad-1/grad-2/grad-3 tones), matching the 3D gradient pill style used on the
+  home "What I bring" section. Removed tint field from Pillar type; tone field used
+  directly. t1/t2/t3 tint classes removed from article elements. Issue #11.
+- src/components/TimelineEntry.tsx: confirmed already uses PillBadge tone="grad-1" for the
+  Current badge on the About Experience timeline. No code change needed. Issue #12.
+- src/app/globals.css: .t-card now has position: relative, z-index: 1, and identical
+  hover behavior to .wib-card (background, border-color, translateY(-4px), same transition
+  timings). prefers-reduced-motion disables the transform. Issue #13.
+- src/app/globals.css: .t-pill, .t-card.t1/.t2/.t3 .t-pill rules removed (now dead after
+  PillBadge swap). .t-card.t1 .t-pill rule removed from @supports not (color-mix) fallback
+  block; .exp-row.current fallback in same block is preserved.
+- content/projects/*/index.mdoc: credits sections restructured across 6 case studies.
+  Anime-stylized-action-tgs2024 (5), character-creator-system (2), tresemme-tresverse (4),
+  exarta-metaverse (2), nvidia-ai-assistant (1), exarta-uefn-portfolio (5 across 3 sections).
+  Each credit entry now renders as 3 lines: bold name and role on line 1, contribution on
+  line 2, "Check out their LinkedIn" link on line 3. Backslash hard line breaks (CommonMark
+  spec 6.12) used to produce the visual layout within the single list item paragraph.
+  Parentheses removed from role text. Issue #8.
+- src/app/globals.css: ul.case-list .case-list-item p a rule added: credits LinkedIn links
+  colored in var(--color-accent) teal. Scoped to ul (unordered) only; ol.case-list "What I
+  built" sections remain unaffected.
+
+## 2026-06-09
 ### fix(gradient): Phase 19.3.1 atmospheric blob sizing tuned to UE reference
 - src/components/AtmosphericGradient.tsx: circle radii reduced from 340-180 range to
   110-60 range. Each circle is now 5-9% of viewBox width, matching UE reference proportion
