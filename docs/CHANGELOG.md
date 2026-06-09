@@ -3,6 +3,18 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-09
+### fix(gradient): Phase 19.3.1 atmospheric blob sizing tuned to UE reference
+- src/components/AtmosphericGradient.tsx: circle radii reduced from 340-180 range to
+  110-60 range. Each circle is now 5-9% of viewBox width, matching UE reference proportion
+  (4-6.5%). Previous sizing (15-28% of viewBox width) produced discrete identifiable blobs
+  rather than an atmospheric wash; the blur could not fully dissolve circles that large.
+- Circle opacities increased from 0.35-0.12 to 0.40-0.18 to compensate: smaller circles
+  need higher opacity to register as glow through the blur rather than disappear.
+- Circle positions shifted by 10-40 units (cx/cy) for better distribution at smaller scale.
+- All other Phase 19.3 properties unchanged: blur, mask, keyframes, card backdrop-filter,
+  prefers-reduced-motion, integration in WhatIBring and AboutPillars.
+
+## 2026-06-09
 ### feat(gradient): Phase 19.3 atmospheric SVG color-wash replaces radial-gradient blobs
 - src/components/AtmosphericGradient.tsx: new Server Component; 5 teal SVG circles with
   staggered CSS keyframe animations (20s/25s/30s/35s/28s), filter: blur(100px) on the SVG
