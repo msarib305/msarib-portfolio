@@ -30,12 +30,12 @@ const PILLARS: Pillar[] = [
   },
 ]
 
+import { AtmosphericGradient } from '@/components/AtmosphericGradient'
+
 export function AboutPillars() {
   return (
     <section className="three-card" aria-labelledby="pillars-heading">
-      <div className="three-card-bg" aria-hidden="true">
-        <div className="blob3" />
-      </div>
+      <AtmosphericGradient />
       <div className="three-card-head">
         <p className="eyebrow">Engineering pillars</p>
         <h2 id="pillars-heading">How I think about the work.</h2>

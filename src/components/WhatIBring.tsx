@@ -1,12 +1,11 @@
-import { whatIBring }      from '@/data/what-i-bring'
-import { WhatIBringCard }  from '@/components/WhatIBringCard'
+import { whatIBring }           from '@/data/what-i-bring'
+import { WhatIBringCard }       from '@/components/WhatIBringCard'
+import { AtmosphericGradient }  from '@/components/AtmosphericGradient'
 
 export function WhatIBring() {
   return (
     <section className="wib-section" aria-labelledby="wib-heading">
-      <div className="wib-bg" aria-hidden="true">
-        <div className="wib-blob3" />
-      </div>
+      <AtmosphericGradient />
       <div className="wib-head">
         <p className="eyebrow">Why hire me</p>
         <h2 id="wib-heading">What I bring to your team.</h2>

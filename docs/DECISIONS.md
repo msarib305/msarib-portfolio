@@ -1168,3 +1168,44 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
   - CSS background radial-gradient with limited horizontal extent: widen the ellipse axis.
   - box-shadow glow clipped by ancestor overflow rule: add horizontal mask-image to the
     section container.
+
+## DEC-077 -- Phase 19.3 atmospheric SVG gradient replaces radial-gradient blobs
+**Date:** 2026-06-09
+
+**Context:** The home "What I bring to your team" and about "How I think about the work"
+sections used an animated radial-gradient blob mechanism (Phase 7). Three blobs used
+mix-blend-mode: screen with teal, purple, and indigo colors. The mechanism was functional
+but produced a multi-color glow that diverged from the single-teal brand palette.
+
+**Decision:** Replace both instances with a new reusable AtmosphericGradient component:
+  - 5 SVG circles in teal only (rgba(0,217,196) at 0.35, 0.25, 0.20, 0.15, 0.12 opacity),
+    positioned asymmetrically across a 1200x600 viewBox.
+  - CSS keyframe animations on each circle using translate3d() (GPU compositor path, no
+    layout-triggering properties). Durations 20s, 25s, 30s, 35s, 28s -- non-integer
+    multiples so the pattern never perfectly repeats.
+  - filter: blur(100px) on the SVG element itself converts the circles into a diffuse
+    atmospheric wash. Note: backdrop-filter on a sibling was tried first but excludes
+    elements in the same stacking context from its backdrop, making it ineffective here.
+    filter: blur() as an output filter on the SVG is the correct pattern.
+  - Vertical mask-image on the wrapper fades the wash into the page background at top
+    (0% to 8%) and bottom (92% to 100%).
+  - Cards (.wib-card, .t-card) gain backdrop-filter: blur(20px) to produce frosted-glass
+    panels above the wash.
+  - Responsive blur reductions: 60px at max-width 900px, 40px at max-width 600px.
+    Two smallest circles hidden at 600px. Mitigates integrated GPU cost on low-spec devices.
+  - prefers-reduced-motion: animations stopped; circles remain visible and static.
+
+**Why all-teal:** The prior multi-color (teal + purple + indigo) mechanism diluted brand
+  signal. A single-hue teal wash produces a cohesive atmospheric effect. If the all-teal
+  result reads as too monotone after live review, a warm complement can be introduced in
+  a follow-up phase at low opacity.
+
+**Consequences:** Old .wib-bg, .wib-blob3, .three-card-bg/.blob3 CSS and keyframes
+  (wib-drift1/2/3, about-blob-drift) removed. Component is a Server Component (no
+  "use client"). Reused identically on both home and about pages.
+
+**Alternatives considered:**
+  Using backdrop-filter on a sibling div (as in the UE reference pattern). Rejected --
+  the stacking context boundary between the SVG and the blur sibling means the
+  backdrop-filter sees only the parent section background, not the SVG circles.
+  filter: blur() on the SVG is functionally equivalent and simpler.

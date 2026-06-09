@@ -2,6 +2,28 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-09
+### feat(gradient): Phase 19.3 atmospheric SVG color-wash replaces radial-gradient blobs
+- src/components/AtmosphericGradient.tsx: new Server Component; 5 teal SVG circles with
+  staggered CSS keyframe animations (20s/25s/30s/35s/28s), filter: blur(100px) on the SVG
+  for atmospheric diffusion, vertical mask-image on the wrapper for edge fades
+- src/components/WhatIBring.tsx: removed old .wib-bg block, added AtmosphericGradient
+- src/components/AboutPillars.tsx: removed old .three-card-bg block, added AtmosphericGradient
+- globals.css: removed .wib-bg, .wib-bg::before/after, .wib-blob3 rules
+- globals.css: removed .three-card-bg, .three-card-bg .blob3 rules
+- globals.css: removed @keyframes wib-drift1/2/3 and about-blob-drift
+- globals.css: added .atm-wrapper, .atm-blobs, .atm-b1 through .atm-b5 rules
+- globals.css: added @keyframes atm-drift1 through atm-drift5
+- globals.css: added prefers-reduced-motion block stopping blob animations (static wash remains)
+- globals.css: responsive blur reductions: 60px at 900px, 40px + 2 circles hidden at 600px
+- globals.css: .wib-card and .t-card gain backdrop-filter: blur(20px) for frosted-glass
+  treatment above the wash; @supports fallback raises background opacity to 0.09
+- globals.css: print styles updated (.atm-wrapper replaces .wib-bg/.three-card-bg in hide list)
+- docs/DECISIONS.md: DEC-077 appended documenting the atmospheric SVG technique and the
+  backdrop-filter stacking context constraint discovered during implementation
+- Note: backdrop-filter on a sibling div was tried first (per UE reference pattern) but
+  fails in this stacking context structure; filter: blur() on the SVG is the correct fix
+
 ## 2026-06-08
 ### fix(css): Phase 19.2 footer brand hierarchy, case-links padding, gradient edge fades
 - Footer.tsx: .footer-brand wrapper added; SLogo and LahoreClock now stack vertically
