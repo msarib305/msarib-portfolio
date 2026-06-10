@@ -30,7 +30,10 @@ Timestamped log of every meaningful change to msarib-portfolio. Newest entries a
   complete.
 - pnpm typecheck: pass. pnpm lint: pass. pnpm build: pass (all 8 `/projects/[slug]` pages prerender as
   SSG). Keystatic round-trip verified (all 7 blocks parse back into the editor; Save produces an
-  identical file). Lighthouse Mobile Performance: measured post-deploy against a > 86 target.
+  identical file). Production Lighthouse Mobile Performance: 93 (desktop 100; a11y 100, best-practices
+  96, SEO 100; CLS 0.000, TBT 11ms), above the > 86 target and +2 vs the 19.6.2 tresemme baseline of 91.
+  The below-fold gallery image-preload advisories are a known minor warning and did not materially affect
+  the score; no mitigation applied.
 
 ## 2026-06-10
 ### feat(gallery): Phase 19.6.2 Gallery rollout to 6 case studies + ImageGrid component
