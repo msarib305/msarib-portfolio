@@ -1299,3 +1299,65 @@ need) without blocking, so the embed works today. Before flipping CSP to enforce
 **Known minor item (pre-existing, not introduced here):** the site's fixed nav overlaps the
 Keystatic admin toolbar's Create/Save button because `/keystatic` renders inside the site layout.
 Workable (scroll or submit), out of scope for 19.6.1.
+
+## DEC-080 -- Phase 19.6.2 Gallery rollout and ImageGrid (prose-image grid)
+**Date:** 2026-06-10
+
+**Context:** Phase 19.6.1 (DEC-079) proved the interactive `Gallery` block on one case study. Phase
+19.6.2 rolls it out to six more (xandar, character-creator-system, nvidia-ai-assistant,
+exarta-metaverse, samurai-saga, tresemme-tresverse), leaving Exarta UEFN for 19.6.3. tresemme also
+carried four inline press-coverage images in its body that are prose illustrations, not gallery
+media. They needed a static grid in place, not migration into the carousel.
+
+**Decision:**
+  - New `ImageGrid` component (`src/components/ImageGrid.tsx`): a Server Component (no `"use client"`)
+    that renders an array of images as a CSS Grid (`repeat(2, 1fr)`, stacking to one column below
+    600px). It is the prose-image counterpart to `Gallery`. The distinction is deliberate:
+    `Gallery` is interactive (stateful carousel, thumbnail strip, fullscreen modal, keyboard nav, six
+    media types including embeds); `ImageGrid` is static layout only (no state, no carousel, no
+    fullscreen, images only). Use `Gallery` for an ordered media set the visitor browses; use
+    `ImageGrid` for fixed-position body illustrations.
+  - Authoring: a new `ImageGrid` Keystatic markdoc block in `projects.body.components`, alongside
+    Figure, YouTubeEmbed, InstagramEmbed, and Gallery. Schema is a flat
+    `fields.array(fields.object({ src, alt, caption }))`, not a conditional. Because it is a plain
+    object array (not `fields.conditional` like Gallery), it serializes as bare
+    `{src, alt, caption}` objects, with no `{discriminant, value}` wrapper. Verified empirically in
+    the live editor before authoring real content: a hand-authored block parsed into the field-level
+    editor (item rows labelled by alt), rendered as a 2-column grid, and round-tripped through Save.
+    `ProjectBody` registers the tag (`items: { type: Array }`) with a server `ImageGridBlock` wrapper
+    that runs raw items through `normalizeImageGridItems` (drops rows with empty `src`).
+  - Image rendering reuses the proven `CldImage` + `cloudinaryPublicId` path from the Gallery's
+    `MediaRenderer`. No new dependencies.
+  - Migration mechanics (per case study): empty the top-level `gallery:` frontmatter array to
+    `gallery: []`, then add one `{% Gallery items=[...] /%}` block in the body after `## Results`,
+    before `## Tech stack` (the anime reference placement). Legacy `image`/`video`/`instagram`
+    discriminants remap to the block's `image`/`youtube`/`instagram-reel`. All legacy YouTube IDs were
+    already bare 11-char strings (including `-r0T5lvrP2o`, preserved verbatim); all legacy Instagram
+    permalinks were `/reel/` URLs mapping to `instagram-reel`.
+  - Instagram reels carry `aspectRatio: "9/16"` (confirmed with Sarib) so the gallery main frame and
+    the loaded embed render in portrait, not 16/9 letterboxed. Verified: the `gallery-main-frame`
+    computes `9 / 16` for reel items and the activated `instagram.com/.../embed/` iframe sits inside
+    that portrait frame.
+  - YouTube embeds at scale (exarta-metaverse, 7 items): the Gallery mounts only the current item in
+    the main display, so navigating away unmounts the prior iframe. Maximum one embed iframe exists at
+    any time, which makes simultaneous audio playback impossible. No mitigation needed beyond the
+    existing single-main-item architecture.
+  - Safety net (confirmed with Sarib): the top-level `gallery:` schema field and
+    `CaseStudyGallery.tsx` stay defined but unused on the migrated studies (each now `gallery: []`).
+    Both are retired in a post-19.6.3 cleanup once all eight studies, including the UEFN restructure,
+    are verified clean.
+  - `/design-system` gains a permanent four-image ImageGrid demo (one captioned) for regression
+    coverage, mirroring the Gallery demo matrix.
+
+**Count correction (vs the 19.6.2 plan):** the plan labelled character-creator-system "1 youtube + 6
+image"; the source frontmatter actually held 1 video + 7 images (Character_Creator_1 through _7). All
+seven images were migrated (no image dropped); the accurate count is 1 youtube + 7 images.
+
+**Pre-existing state noted:** exarta-uefn-portfolio already carried `gallery: []` before this phase
+(it does not use the legacy gallery field). It was left untouched, reserved for 19.6.3.
+
+**Consequences:** Seven of eight case studies now render media through the interactive `Gallery`;
+tresemme additionally renders its press images through `ImageGrid`. Legacy `CaseStudyGallery` is now
+unused on those seven. CSP note from DEC-079 still applies: Instagram embeds log report-only
+`frame-src`/`script-src` violations without blocking; account for `www.instagram.com` and
+`*.cdninstagram.com` before flipping CSP to enforce.

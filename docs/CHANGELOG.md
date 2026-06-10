@@ -2,6 +2,41 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-10
+### feat(gallery): Phase 19.6.2 Gallery rollout to 6 case studies + ImageGrid component
+- New `src/components/ImageGrid.tsx`: Server Component (no `"use client"`) rendering an image array as
+  a CSS Grid (`repeat(2, 1fr)`, gap 16px, stacks to one column below 600px). Exports `ImageGrid` and
+  `normalizeImageGridItems`. Reuses the `CldImage` + `cloudinaryPublicId` path. The static prose-image
+  counterpart to the interactive Gallery: no state, no carousel, no fullscreen (see DEC-080).
+- `keystatic.config.ts`: new `ImageGrid` markdoc block in `projects.body.components`, a flat
+  `fields.array(fields.object({ src, alt, caption }))`. Serializes as bare `{src, alt, caption}`
+  objects (no discriminant wrapper). Existing Figure/YouTubeEmbed/InstagramEmbed/Gallery blocks
+  untouched (block count 5 to 6).
+- `src/components/ProjectBody.tsx`: `ImageGrid` tag registered (`items: { type: Array }`) with a
+  server `ImageGridBlock` wrapper that normalizes raw items.
+- `src/app/globals.css`: `.image-grid` rules under `@layer components`, next to `.case-figure`.
+- `src/app/design-system/page.tsx`: permanent four-image ImageGrid demo (one captioned) for
+  regression coverage.
+- Six case studies migrated (each: top-level `gallery:` emptied to `gallery: []`, one inline
+  `{% Gallery %}` block added after `## Results`, before `## Tech stack`; cover unchanged):
+  - xandar: 7 image
+  - character-creator-system: 1 youtube + 7 image (plan said 6; source had 7, all migrated)
+  - nvidia-ai-assistant: 1 instagram-reel (aspectRatio 9/16) + 5 image
+  - exarta-metaverse: 7 youtube (includes `-r0T5lvrP2o`, leading hyphen preserved verbatim)
+  - samurai-saga: 3 youtube + 3 instagram-reel (aspectRatio 9/16)
+  - tresemme-tresverse: 2 youtube + 8 image (Gallery), plus its 4 inline press-coverage images moved
+    in place to a `{% ImageGrid %}` block directly under `### Press coverage` (body order: Press
+    coverage to ImageGrid to Gallery to Tech stack; blockquote preserved)
+- Legacy `gallery:` schema field and `CaseStudyGallery.tsx` kept (now unused on the migrated studies)
+  as a safety net; retired in a post-19.6.3 cleanup. Exarta UEFN reserved for 19.6.3 (untouched).
+- Verified: ImageGrid serialization round-trip in the live Keystatic editor (field-level parse +
+  render + Save); Instagram reels render in 9/16 portrait with the embed loading inside the portrait
+  frame; YouTube-at-scale shows no autoplay leak (only the current item's iframe mounts, prior
+  unmounts on navigation); ImageGrid stacks to one column at 390px; /work lists all 8 studies; anime
+  and /design-system regressions pass.
+- pnpm typecheck: pass. pnpm lint: pass. pnpm build: pass (all 8 `/projects/[slug]` pages prerender as
+  SSG with their blocks).
+
 ## 2026-06-09
 ### feat(gallery): Phase 19.6.1 interactive Gallery component, Keystatic block, anime integration
 - New `src/components/Gallery/` module: client `Gallery` shell (useReducer + context), `GalleryMain`,

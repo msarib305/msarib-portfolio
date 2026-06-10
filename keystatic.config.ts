@@ -259,6 +259,22 @@ export default config({
                 ),
               },
             }),
+            ImageGrid: block({
+              label: 'Image Grid',
+              schema: {
+                items: fields.array(
+                  fields.object({
+                    src:     fields.text({ label: 'Image URL (Cloudinary)' }),
+                    alt:     fields.text({ label: 'Alt text (required)' }),
+                    caption: fields.text({ label: 'Caption (optional)' }),
+                  }),
+                  {
+                    label: 'Grid images',
+                    itemLabel: props => props.fields.alt.value || props.fields.src.value,
+                  },
+                ),
+              },
+            }),
           },
         }),
       },

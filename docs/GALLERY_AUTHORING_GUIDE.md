@@ -131,3 +131,48 @@ Reels. Leave blank for the `16/9` default.
 The internal `/design-system` page carries a six-item demo matrix (one of each type) plus a
 debug table. It is noindex and excluded from `robots.txt`. Use it to sanity-check rendering
 after any change to the Gallery.
+
+---
+
+## ImageGrid: static prose images (when not to use the Gallery)
+
+Introduced in Phase 19.6.2 (DEC-080). `ImageGrid` is a separate block from `Gallery`. Use it when
+the images belong at a fixed point in the article body as illustrations, not as a media set the
+visitor browses.
+
+### Gallery vs ImageGrid
+
+- **Gallery**: interactive. Carousel with a thumbnail strip, a fullscreen modal, keyboard navigation,
+  and six media types including video and embeds. Use it for the project's screenshot and video set.
+- **ImageGrid**: static. A plain CSS grid of images, two columns, stacking to one column on narrow
+  screens. No carousel, no fullscreen, no interactivity, images only. Use it for inline body images
+  such as press clippings or a small set of figures that should sit together at one position.
+
+If you are unsure, default to Gallery. Reach for ImageGrid only when the images are prose
+illustrations that must stay in place.
+
+### Adding an ImageGrid
+
+1. In the Body editor, place the cursor where the grid should appear, type `/`, and choose
+   **Image Grid**.
+2. Click **Edit**, then **Add** for each image. Fill the fields, then **Done** and **Save**.
+
+The block is stored as a markdoc tag, for example:
+
+```
+{% ImageGrid
+   items=[{src: "https://res.cloudinary.com/ddgwzcrim/image/upload/Example_abc123.png", alt: "What the image shows"}] /%}
+```
+
+### Fields (per image)
+
+- `src` (required): Cloudinary URL or public ID. Same rule as the Gallery: do not bake
+  transformations into the URL; ImageGrid sizes the image itself.
+- `alt` (required): describes the image for screen readers. Every image needs real alt text.
+- `caption` (optional): shown below the image in mono type.
+
+### Layout
+
+Items flow into a two-column grid in order: four items render as 2x2, two as a single row, six as
+three rows, and so on. Below 600px the grid stacks to a single column. There is no animation beyond a
+border highlight on hover and focus, so reduced motion needs no special handling.

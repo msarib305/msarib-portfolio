@@ -2203,6 +2203,51 @@
     letter-spacing: 0.02em;
   }
 
+  /* ImageGrid (Phase 19.6.2): static 2-column grid for inline prose images.
+     Distinct from the interactive Gallery: no state, no carousel, no modal. */
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 32px 0;
+    list-style: none;
+    padding: 0;
+  }
+
+  .image-grid-item {
+    margin: 0;
+  }
+
+  .image-grid-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-12);
+    border: 1px solid var(--color-border-faint);
+    transition:
+      border-color 240ms var(--ease-base),
+      transform 240ms var(--ease-base);
+  }
+
+  .image-grid-item:hover .image-grid-img,
+  .image-grid-img:focus-visible {
+    border-color: var(--color-border-subtle);
+  }
+
+  .image-grid-cap {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 600px) {
+    .image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* Prev/next nav */
   .case-nav {
     display: grid;

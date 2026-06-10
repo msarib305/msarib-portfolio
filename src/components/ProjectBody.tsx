@@ -7,6 +7,7 @@ import { YouTubeEmbed } from './YouTubeEmbed'
 import { InstagramEmbed } from './InstagramEmbed'
 import { Gallery } from '@/components/Gallery'
 import { normalizeGalleryItems } from '@/components/Gallery/normalize'
+import { ImageGrid, normalizeImageGridItems } from '@/components/ImageGrid'
 
 const markdocConfig: Config = {
   nodes: {
@@ -45,6 +46,12 @@ const markdocConfig: Config = {
     },
     Gallery: {
       render: 'Gallery',
+      attributes: {
+        items: { type: Array },
+      },
+    },
+    ImageGrid: {
+      render: 'ImageGrid',
       attributes: {
         items: { type: Array },
       },
@@ -97,6 +104,14 @@ function GalleryBlock({ items }: { items?: unknown }) {
   return <Gallery items={normalized} />
 }
 
+// Server wrapper: normalize the raw markdoc items array into the typed ImageGridItem
+// list, then hand off to the server ImageGrid. Renders nothing for an empty array.
+function ImageGridBlock({ items }: { items?: unknown }) {
+  const normalized = normalizeImageGridItems(items)
+  if (normalized.length === 0) return null
+  return <ImageGrid items={normalized} />
+}
+
 const components = {
   List,
   ListItem,
@@ -104,6 +119,7 @@ const components = {
   YouTubeEmbed: YouTubeEmbedBlock,
   InstagramEmbed: InstagramEmbedBlock,
   Gallery: GalleryBlock,
+  ImageGrid: ImageGridBlock,
 }
 
 interface ProjectBodyProps {

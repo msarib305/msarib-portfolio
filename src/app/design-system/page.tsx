@@ -4,6 +4,7 @@ import { SLogo }      from '@/components/SLogo'
 import { PillButton } from '@/components/PillButton'
 import { PillBadge }  from '@/components/PillBadge'
 import { Gallery, type MediaItem } from '@/components/Gallery'
+import { ImageGrid, type ImageGridItem } from '@/components/ImageGrid'
 
 export const metadata: Metadata = {
   title: 'Design System (internal)',
@@ -46,6 +47,16 @@ const GALLERY_DEMO: MediaItem[] = [
   { type: 'youtube',        videoId: '16SzQjJ58Dc', accessibleName: 'YouTube embed demo', caption: 'YouTube (privacy-enhanced embed)' },
   { type: 'instagram-reel', postUrl: 'https://www.instagram.com/reel/C3tHZnFsSlt', accessibleName: 'Instagram Reel embed demo', caption: 'Instagram Reel (placeholder until activated)' },
   { type: 'instagram-post', postUrl: 'https://www.instagram.com/reel/C6tQKTQuKUt', accessibleName: 'Instagram Post embed demo', caption: 'Instagram Post (placeholder until activated)' },
+]
+
+// Four real Cloudinary assets, rendered as a 2x2 grid. One item carries a caption
+// to exercise the figcaption path. ImageGrid is static (no carousel, no modal):
+// the prose-image counterpart to the interactive Gallery above.
+const IMAGE_GRID_DEMO: ImageGridItem[] = [
+  { src: 'https://res.cloudinary.com/ddgwzcrim/image/upload/BeautyMatter_Press_Release_eb9sjz.png', alt: 'Press coverage from BeautyMatter', caption: 'Captioned item (exercises figcaption)' },
+  { src: 'https://res.cloudinary.com/ddgwzcrim/image/upload/happi_Press_Release_cwmp8d.png',        alt: 'Press coverage from Happi' },
+  { src: 'https://res.cloudinary.com/ddgwzcrim/image/upload/ParlayMe_Press_Release_ufepyf.png',     alt: 'Press coverage from ParlayMe' },
+  { src: 'https://res.cloudinary.com/ddgwzcrim/image/upload/IGN_Pakistan_Press_Release_vxf1d4.png', alt: 'Press coverage from IGN Pakistan' },
 ]
 
 function configSummary(item: MediaItem): string {
@@ -150,6 +161,15 @@ export default function DesignSystemPage() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section>
+        <Label>ImageGrid Demo</Label>
+        <p className="font-mono text-xs text-text-muted mb-6">
+          Static prose-image grid (Phase 19.6.2). Four items render as a 2x2 grid that stacks
+          to one column below 600px. Not interactive: no carousel, no fullscreen.
+        </p>
+        <ImageGrid items={IMAGE_GRID_DEMO} ariaLabel="ImageGrid demo" />
       </section>
 
     </main>
