@@ -1361,3 +1361,66 @@ tresemme additionally renders its press images through `ImageGrid`. Legacy `Case
 unused on those seven. CSP note from DEC-079 still applies: Instagram embeds log report-only
 `frame-src`/`script-src` violations without blocking; account for `www.instagram.com` and
 `*.cdninstagram.com` before flipping CSP to enforce.
+
+## DEC-081 -- Phase 19.6.3 Exarta UEFN media migration and multi-gallery-per-page policy
+**Date:** 2026-06-10
+
+**Context:** Phase 19.6.3 closes the 19.6 trilogy by migrating the last case study,
+exarta-uefn-portfolio, off inline `{% YouTubeEmbed %}` tags and raw `![](url)` markdown images. Unlike
+the seven studies in DEC-080, UEFN groups its media under six sub-projects (Enigmara, Clumsy Champions,
+Exarta HQ, Sands of Glory, Frightmare, CR-ICE-IS), with a tournament teaser nested inside Enigmara. It
+is the first production page to mount multiple `Gallery` instances (seven), which raised three
+multi-gallery concerns: keyboard scoping, performance, and state isolation.
+
+**Decision:**
+  - Per-sub-project in-place migration, not one consolidated block. Each sub-project keeps its media at
+    its existing position: one `{% Gallery %}` block replaces the inline media between the sub-project
+    description and its "Play on Fortnite" island-code line. The Enigmara tournament teaser is its own
+    separate single-item Gallery inside the `#### The tournament` subsection, so it stays in narrative
+    context rather than folding into the main Enigmara gallery. Seven blocks total, 35 items: Enigmara
+    main (4 youtube + 10 image), Enigmara tournament (1 youtube), Clumsy Champions (7 image), Exarta HQ
+    (5 image), Sands of Glory (6 image), Frightmare (1 image), CR-ICE-IS (1 image). This differs from
+    DEC-080's single-block-after-Results placement because UEFN's media is meaningfully grouped, not one
+    set the visitor browses end to end.
+  - Cover/trailer duplication is intentional. The cover (`youtubeId: o8NW4gXP_Cc`) also appears as the
+    first item of the Enigmara main gallery. The cover serves the `/work` card; the gallery item serves
+    in-page browsing. Confirmed with Sarib; not a bug.
+  - Single-item galleries over Figure for Frightmare, CR-ICE-IS, and the tournament teaser, for
+    consistency across all sub-projects. A single-item Gallery hides the thumbnail strip and chevrons
+    (`GalleryThumbnails` returns null at `count <= 1`), rendering just the main frame and the fullscreen
+    expand control. Verified in the live DOM.
+  - Multi-gallery keyboard scoping (CONCERN 1): no code change needed, the architecture already handles
+    it. The `useGalleryKeyboard` handler (Arrow/Home/End/Escape) is attached only to the fullscreen
+    modal container (`GalleryFullscreen`), never to the inline gallery root. Inline strips have zero
+    arrow-key listeners, so N inline galleries in the viewport at once cannot cross-fire on arrow keys;
+    they navigate only by click and swipe. Arrow navigation is live only inside an open fullscreen
+    modal, and fullscreen is one-at-a-time (focus trap, scrim, body scroll lock prevent a second modal
+    opening before the first closes). This is option (c) from the 19.6.3 plan, in place since 19.6.1.
+    The misleading comment in `useGalleryKeyboard.ts` (which claimed the handler attaches to "the inline
+    gallery root and the fullscreen modal") was corrected to prevent a future reader from wiring it onto
+    the inline root and reintroducing the conflict.
+  - State isolation (CONCERN 3): confirmed correct. Each `Gallery` owns its `useReducer`, provider,
+    `useInViewport` observer, and `createPortal` target, so there is no shared state across instances.
+    Body scroll lock lives in the fullscreen mount/unmount effect; with one fullscreen at a time there is
+    no nested lock. Instagram's `window.instgrm` lazy-load does not apply (UEFN is all youtube and
+    Cloudinary images). Verified on `/design-system`: opening one gallery's fullscreen, arrowing, and
+    closing leaves the other galleries' inline state untouched and restores body scroll each time.
+  - Policy: the `Gallery` component supports N instances per page, verified on UEFN (7 instances, 35
+    items). `/design-system` gains a permanent two-gallery regression surface (Gallery X and Gallery Y,
+    two items each, both in viewport) so this property has ongoing coverage.
+
+**Performance note (CONCERN 2):** with 7 galleries, each gallery's main-frame image and eager-neighbor
+thumbnails preload, and the 6 below-fold galleries' preloads trigger browser "preloaded but not used
+within a few seconds" advisories (non-blocking, not errors). The single console error on the page is the
+pre-existing site-wide CSP `upgrade-insecure-requests` report-only notice, unrelated to this phase.
+Lighthouse Mobile target is > 86 (a 5-point regression budget from tresemme's 91). If a real budget
+violation shows up, mitigation options are lazy-mounting below-fold galleries, reducing neighbor
+prefetch from current +/- 1 to current only, or a more aggressive Cloudinary thumbnail quality tier; do
+not pre-apply.
+
+**Safety net unchanged:** `gallery:` frontmatter stays `[]` and `CaseStudyGallery.tsx` stays defined but
+unused, per DEC-080. With all eight studies now migrated, the post-19.6.3 cleanup that removes both can
+proceed in a later phase (not 19.6.3 scope).
+
+**Consequences:** All eight case studies now render media through the interactive `Gallery`. The 19.6
+Gallery trilogy is complete.

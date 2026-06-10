@@ -3,6 +3,36 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-10
+### feat(gallery): Phase 19.6.3 Exarta UEFN media migration to 7 Gallery instances
+- `content/projects/exarta-uefn-portfolio/index.mdoc`: migrated all inline media to the interactive
+  `Gallery` block, one per sub-project, replacing 5 `{% YouTubeEmbed %}` tags and 30 raw markdown images
+  with 7 `{% Gallery %}` blocks (35 items, none dropped). Cover (`youtubeId: o8NW4gXP_Cc`) unchanged;
+  `gallery:` frontmatter stays `[]` (legacy safety net per DEC-080). Per-sub-project block counts:
+  - Enigmara main: 14 (4 youtube + 10 image). First youtube (`o8NW4gXP_Cc`) intentionally duplicates the
+    cover for in-page browsing.
+  - Enigmara tournament: 1 youtube (`It2NGQe0xh0`), a separate single-item Gallery inside the
+    `#### The tournament` subsection to preserve narrative placement.
+  - Clumsy Champions: 7 image. Exarta HQ: 5 image. Sands of Glory: 6 image.
+  - Frightmare: 1 image (single-item). CR-ICE-IS: 1 image (single-item).
+  All sub-section structure, descriptions, "Play on Fortnite" links, per-sub-project credits (Phase 19.4
+  format), and the brief/role/hard part/results/tech stack/lessons sections preserved exactly (diff: 14
+  insertions, 63 deletions, media-only).
+- `src/app/design-system/page.tsx`: permanent multi-gallery regression section (Gallery X and Gallery Y,
+  two items each, both in viewport) for ongoing multi-instance coverage.
+- `src/components/Gallery/hooks/useGalleryKeyboard.ts`: comment-only correction. The handler attaches
+  only to the fullscreen modal, never to the inline strip; arrow navigation is deliberately
+  fullscreen-only so multiple inline galleries cannot cross-fire (see DEC-081). No behavior change.
+- Multi-gallery behavior verified (no code change required, correct since 19.6.1): with two inline
+  galleries in the viewport, arrow keys are inert on the strips and click navigation is isolated per
+  gallery; fullscreen is one-at-a-time; body scroll restores on every close. Single-item galleries hide
+  the strip and chevrons. YouTube activation mounts exactly one iframe and unmounts the prior on
+  navigation (no audio leak). All 8 case studies render media through `Gallery`; the 19.6 trilogy is
+  complete.
+- pnpm typecheck: pass. pnpm lint: pass. pnpm build: pass (all 8 `/projects/[slug]` pages prerender as
+  SSG). Keystatic round-trip verified (all 7 blocks parse back into the editor; Save produces an
+  identical file). Lighthouse Mobile Performance: measured post-deploy against a > 86 target.
+
+## 2026-06-10
 ### feat(gallery): Phase 19.6.2 Gallery rollout to 6 case studies + ImageGrid component
 - New `src/components/ImageGrid.tsx`: Server Component (no `"use client"`) rendering an image array as
   a CSS Grid (`repeat(2, 1fr)`, gap 16px, stacks to one column below 600px). Exports `ImageGrid` and

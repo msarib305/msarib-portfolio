@@ -176,3 +176,43 @@ The block is stored as a markdoc tag, for example:
 Items flow into a two-column grid in order: four items render as 2x2, two as a single row, six as
 three rows, and so on. Below 600px the grid stacks to a single column. There is no animation beyond a
 border highlight on hover and focus, so reduced motion needs no special handling.
+
+---
+
+## Multiple galleries on one page
+
+Added in Phase 19.6.3 (DEC-081). A page can hold any number of `Gallery` blocks. exarta-uefn-portfolio
+ships seven, one per sub-project, plus a separate single-item gallery for a nested tournament teaser.
+
+### When to use multiple galleries
+
+Use one gallery per logical group when the page has distinct sections, each with its own media set (for
+example, several sub-projects, each with its own screenshots). Author one `{% Gallery %}` block inside
+each section, where the media belongs. A single-item gallery is fine and renders cleanly (just the main
+frame and the fullscreen control, no strip or chevrons).
+
+Use a single consolidated gallery when the media is one set the visitor browses end to end, with no
+meaningful grouping. That is the common case and the DEC-080 default (one block after `## Results`).
+
+### How it behaves with several instances
+
+- Each gallery has fully isolated state. Navigating, opening fullscreen, or activating an embed in one
+  gallery never affects another.
+- Arrow keys (and Home/End) work only inside an open fullscreen modal, never on the inline thumbnail
+  strips. So multiple galleries in the viewport at once never cross-fire on arrow keys; inline galleries
+  navigate by click or swipe. Fullscreen is one-at-a-time.
+- Only the current item of each gallery mounts in its main display, and embeds (YouTube, Instagram) load
+  only after activation, so at most one embed iframe exists at a time across the whole page.
+
+### What to avoid
+
+- Do not wire the `useGalleryKeyboard` handler onto the inline gallery root. Arrow navigation is
+  intentionally fullscreen-only; attaching it inline would make every visible gallery respond to the same
+  key press.
+- Be mindful of how many galleries sit below the fold: each gallery's main image preloads, so a very tall
+  page with many galleries can trigger "preloaded but not used" browser advisories and add load weight.
+  These are non-blocking, but if a page's Lighthouse score regresses, the fix is to lazy-mount below-fold
+  galleries rather than to change the authoring.
+
+The internal `/design-system` page carries a permanent two-gallery regression surface (Gallery X and
+Gallery Y) for verifying this behavior after any change to the Gallery.

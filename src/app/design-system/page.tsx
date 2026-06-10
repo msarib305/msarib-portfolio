@@ -59,6 +59,20 @@ const IMAGE_GRID_DEMO: ImageGridItem[] = [
   { src: 'https://res.cloudinary.com/ddgwzcrim/image/upload/IGN_Pakistan_Press_Release_vxf1d4.png', alt: 'Press coverage from IGN Pakistan' },
 ]
 
+// Two small galleries (two items each) rendered together so both sit in the viewport
+// at once. Permanent regression surface for multi-instance behavior (Phase 19.6.3,
+// DEC-081): arrow keys are inert on inline strips, state is isolated per instance,
+// and fullscreen is one-at-a-time. Reuses assets already referenced on this page.
+const MULTI_GALLERY_X: MediaItem[] = [
+  { type: 'image', cloudinaryId: 'https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_9_ce4kp1.jpg',                       alt: 'Gallery X item 1' },
+  { type: 'image', cloudinaryId: 'https://res.cloudinary.com/ddgwzcrim/image/upload/BeautyMatter_Press_Release_eb9sjz.png',  alt: 'Gallery X item 2' },
+]
+
+const MULTI_GALLERY_Y: MediaItem[] = [
+  { type: 'image', cloudinaryId: 'https://res.cloudinary.com/ddgwzcrim/image/upload/happi_Press_Release_cwmp8d.png',         alt: 'Gallery Y item 1' },
+  { type: 'image', cloudinaryId: 'https://res.cloudinary.com/ddgwzcrim/image/upload/ParlayMe_Press_Release_ufepyf.png',      alt: 'Gallery Y item 2' },
+]
+
 function configSummary(item: MediaItem): string {
   switch (item.type) {
     case 'image':
@@ -170,6 +184,19 @@ export default function DesignSystemPage() {
           to one column below 600px. Not interactive: no carousel, no fullscreen.
         </p>
         <ImageGrid items={IMAGE_GRID_DEMO} ariaLabel="ImageGrid demo" />
+      </section>
+
+      <section>
+        <Label>Multi-gallery test</Label>
+        <p className="font-mono text-xs text-text-muted mb-6">
+          Two galleries on one page (Phase 19.6.3). Regression surface for multi-instance behavior:
+          arrow keys are inert on inline strips; fullscreen is one-at-a-time; state is isolated per
+          gallery.
+        </p>
+        <h3 className="font-mono text-xs text-text-muted mb-3">Gallery X</h3>
+        <Gallery items={MULTI_GALLERY_X} ariaLabel="Multi-gallery test X" />
+        <h3 className="font-mono text-xs text-text-muted mb-3 mt-10">Gallery Y</h3>
+        <Gallery items={MULTI_GALLERY_Y} ariaLabel="Multi-gallery test Y" />
       </section>
 
     </main>
