@@ -7,6 +7,13 @@ function escapeCDATA(s: string): string {
   return s.replace(/\]\]>/g, ']]]]><![CDATA[>')
 }
 
+// Prerender at build time. getPublishedWritings() reads the Keystatic content/
+// files, which exist at build but are not bundled into a dynamic serverless
+// function, so a request-time render would emit an empty feed in production the
+// moment a writing is published. Static generation runs the read at build, when
+// the content is present, and regenerates on the next deploy (DEC-082).
+export const dynamic = 'force-static'
+
 function xmlEscape(s: string): string {
   return s
     .replace(/&/g, '&amp;')

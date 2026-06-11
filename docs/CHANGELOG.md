@@ -77,6 +77,14 @@ and `llms-full.txt`: zero em-dashes, zero en-dashes. Console: one pre-existing s
 Lighthouse SEO 100 on /, /about, /work, and /projects/anime-stylized-action-tgs2024 (mobile and
 desktop); mobile Performance 80 to 86 is the pre-existing showreel/LCP item, unchanged by this phase.
 
+Post-deploy hotfix: added `export const dynamic = 'force-static'` to the `llms.txt`, `llms-full.txt`,
+and `feed.xml` route handlers. Without it, Next.js classified the routes as dynamic and they returned
+empty content on Vercel, because Keystatic content is a build-time artifact and is not present in the
+serverless filesystem at request time (production `llms-full.txt` rendered with an empty case-study
+section, 4053 bytes versus 9685 locally). Static export runs the content reads at build, matching the
+SSG case-study pages. Route audit confirmed no other content-reading handlers remain dynamic. See
+DEC-082 for details and the rule for future content-reading routes.
+
 ## 2026-06-10
 ### feat(gallery): Phase 19.6.3 Exarta UEFN media migration to 7 Gallery instances
 - `content/projects/exarta-uefn-portfolio/index.mdoc`: migrated all inline media to the interactive

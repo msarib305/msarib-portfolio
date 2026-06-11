@@ -10,6 +10,13 @@ import { getProjects } from '@/data/projects'
 
 const SITE = 'https://msarib.dev'
 
+// Prerender at build time. getProjects() reads the Keystatic content/ files,
+// which exist in the build environment but are NOT bundled into a dynamic
+// serverless function, so a request-time render returns an empty case-study
+// list in production. Static generation (matching sitemap.ts) runs the read at
+// build, when the content is present, and serves the baked result. (DEC-082)
+export const dynamic = 'force-static'
+
 // Editorial per-slug prose, keyed by case-study slug. The route emits these in the
 // site's display order from getProjects(); a missing slug falls back to its summary.
 const CASE_STUDY_PROSE: Record<string, string> = {

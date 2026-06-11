@@ -1512,3 +1512,22 @@ the visible copy is resolved in the post-19.7 copy editorial pass, not this phas
 Twitter Cards; AI tools get explicit permission plus two machine-readable profiles; the RSS feed is
 discoverable site-wide. No visible page changes shipped, so the copy editorial pass remains the single
 outstanding item before the count wording is fully consistent across meta and visible copy.
+
+**Amendment (post-deploy hotfix): static export for content-reading routes.** The `llms.txt`,
+`llms-full.txt`, and `feed.xml` route handlers read Keystatic-managed content (via `getProjects()` and
+`getPublishedWritings()`). Without an explicit `export const dynamic = 'force-static'`, Next.js
+classified these routes as dynamic in the production deploy, so they attempted the content reads at
+request time. The Vercel serverless filesystem at request time does not contain the Keystatic content
+files (those are build-time artifacts), so the dynamic routes returned empty or truncated content: the
+case-study section silently dropped out of `llms.txt` and `llms-full.txt` in production (the first
+post-deploy verification caught `llms-full.txt` at 4053 bytes versus 9685 locally), and `feed.xml` would
+have emitted an empty feed the first time a writing was published. `sitemap.xml` was unaffected because
+the sitemap special file prerenders statically by default, which is why it carried all 8 project routes
+to production while the dynamic routes did not.
+
+Fix: add `export const dynamic = 'force-static'` to every route handler that reads content. Next.js then
+evaluates the route at build time, snapshots the output, and serves the snapshot per request, the same
+model used for the SSG case-study pages. Route audit at the time of the fix: the three content-reading
+handlers are now static; `og` (query-param image generation) and `api/keystatic` (CMS API) are correctly
+dynamic and read no content; `sitemap.ts` is already static. Rule going forward: any new content-reading
+route (a `/<file>.txt` or `.xml` handler that reads from `content/`) MUST include this directive.
