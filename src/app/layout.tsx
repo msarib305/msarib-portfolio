@@ -41,6 +41,13 @@ export const metadata: Metadata = {
     ],
   },
 
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Sarib · Lead UE5 Developer',
+    description: 'Lead Unreal Engine 5 developer with seven years in engine and ten shipped titles. C++, GAS, multiplayer replication, mobile, VR.',
+    images:      ['/og?title=Lead+UE5+Developer&eyebrow=msarib.dev'],
+  },
+
   icons: {
     icon: [
       { url: '/icons/favicon.ico' },
@@ -96,6 +103,17 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="//img.youtube.com" />
         <link rel="dns-prefetch" href="//www.youtube-nocookie.com" />
+        {/* RSS feed advertised site-wide. This lives in <head> as a raw link,
+            not in Metadata.alternates.types, because Next.js replaces (not
+            merges) `alternates` when a page sets its own `alternates.canonical`,
+            which every page does. A head link is the only way to guarantee the
+            feed is discoverable on every page, not just /writings (DEC-082). */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Writings · Sarib"
+          href="/feed.xml"
+        />
         {/* Preload the two above-the-fold font files. Without these the
             text uses the metric-matched fallback for ~300ms longer on
             slow networks, which measurably hurts FCP and CLS. React 19

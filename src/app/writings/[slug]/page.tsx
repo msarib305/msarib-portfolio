@@ -38,6 +38,12 @@ export async function generateMetadata(
       tags:          [...writing.tags],
       images:        [{ url: ogUrl, width: 1200, height: 630, alt: writing.title }],
     },
+    twitter: {
+      card:        'summary_large_image',
+      title:       `${writing.title} · Sarib`,
+      description: writing.summary,
+      images:      [ogUrl],
+    },
   }
 }
 

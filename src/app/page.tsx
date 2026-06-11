@@ -11,14 +11,20 @@ export const metadata: Metadata = {
   title: {
     absolute: 'Sarib · Lead UE5 Developer',
   },
-  description: 'Lead Unreal Engine 5 developer based in Lahore. Seven years in engine, ten shipped titles. Available for senior and lead engineering roles at studios in Germany and Japan.',
+  description: 'Lead Unreal Engine 5 developer in Lahore: ten shipped titles across six studios in seven years. Open to senior and lead roles at studios in Germany and Japan.',
   alternates: { canonical: 'https://msarib.dev' },
   openGraph: {
     type:        'website',
     url:         'https://msarib.dev',
     title:       'Sarib · Lead UE5 Developer',
-    description: 'Lead Unreal Engine 5 developer based in Lahore. Seven years in engine, ten shipped titles.',
+    description: 'Lead Unreal Engine 5 developer based in Lahore. Ten shipped titles across six studios in seven years.',
     images: [{ url: '/og?title=Lead+UE5+Developer&eyebrow=msarib.dev', width: 1200, height: 630, alt: 'Sarib' }],
+  },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Sarib · Lead UE5 Developer',
+    description: 'Lead Unreal Engine 5 developer based in Lahore. Ten shipped titles across six studios in seven years.',
+    images:      ['/og?title=Lead+UE5+Developer&eyebrow=msarib.dev'],
   },
 }
 

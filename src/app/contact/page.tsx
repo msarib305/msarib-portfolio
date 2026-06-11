@@ -14,6 +14,12 @@ export const metadata: Metadata = {
     description: 'Available for senior and lead UE5 roles in Germany and Japan. Freelance worldwide.',
     images: [{ url: '/og?title=Contact&eyebrow=Get+in+Touch', width: 1200, height: 630, alt: 'Contact · Sarib' }],
   },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Contact · Sarib',
+    description: 'Available for senior and lead UE5 roles in Germany and Japan. Freelance worldwide.',
+    images:      ['/og?title=Contact&eyebrow=Get+in+Touch'],
+  },
 }
 
 const contactSchema = {

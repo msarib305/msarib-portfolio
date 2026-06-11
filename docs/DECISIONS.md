@@ -1424,3 +1424,91 @@ proceed in a later phase (not 19.6.3 scope).
 
 **Consequences:** All eight case studies now render media through the interactive `Gallery`. The 19.6
 Gallery trilogy is complete.
+
+## DEC-082 -- Phase 19.7 SEO and AI-discoverability infrastructure
+**Date:** 2026-06-11
+
+**Context:** Phase 19.7 adds machine-readable discoverability for two distinct audiences: classic search
+engines (richer JSON-LD, Twitter Cards, RSS discoverability, tightened meta descriptions) and AI tools
+that recruiters increasingly use to research candidates (explicit crawler permissions plus `llms.txt`
+and `llms-full.txt`). No new visual components, no new dependencies, no changes to visible page copy.
+
+**Decision:**
+  - **AI-crawler allowance policy.** `robots.ts` keeps the existing default-permissive `{ userAgent: '*',
+    allow: '/' }` rule (with the `/keystatic/`, `/api/`, `/design-system/`, `/_next/`, `/og` disallow
+    list) and adds twelve explicit `{ userAgent, allow: '/' }` entries: GPTBot, Google-Extended,
+    ClaudeBot, anthropic-ai, CCBot, PerplexityBot, ChatGPT-User, Claude-User, OAI-SearchBot,
+    Applebot-Extended, Bytespider, Meta-ExternalAgent. The wildcard already permits them; the explicit
+    entries are a legible, intentional signal that training, retrieval, and AI-search bots are welcome.
+    Thirteen user-agent groups total. No Crawl-delay, no Host directive.
+  - **`llms.txt` and `llms-full.txt`** as machine-readable, AI-targeted site overviews, served from
+    route handlers (`text/plain; charset=utf-8`, `Cache-Control: public, max-age=3600,
+    stale-while-revalidate=86400`, the same delivery pattern as `feed.xml`). `llms.txt` is a concise
+    overview (positioning blurb, core pages, a dynamically generated case-study list from
+    `getProjects()`, resume and social links). `llms-full.txt` is a dense profile (overview,
+    professional positioning, per-case-study prose, a 5-category skills inventory, notable shipped work,
+    background, contact). Every fact in both files traces to `docs/MASTER_CONTEXT.md` or
+    `docs/PROFESSIONAL_HISTORY.md` (or, for engine-version specifics, the case-study `engine:` fields).
+    Locked redaction rules: the Vmmersion title is never named (framed as an anime-stylized action title
+    at TGS 2024 on Steam), the AI antagonist is "the AI pursuer," the Steam URL is not included, and
+    Web3 work (Ethereum for Samurai Saga, Solana for Xandar) is named only inside the relevant
+    case-study prose, never led with. No em-dashes, no en-dashes.
+  - **Per-slug VideoGame JSON-LD map.** Four game projects render as schema.org `VideoGame` with a
+    `gamePlatform` and `applicationCategory: "Game"`: exarta-uefn-portfolio ("Fortnite (UEFN)"),
+    anime-stylized-action-tgs2024 ("PC, Steam"), samurai-saga ("PC"), xandar ("PC"). Every other case
+    study stays `CreativeWork` with its existing shape. The anime VideoGame `name` is the redacted
+    case-study title; the Vmmersion game name never appears in schema, and Web3 specifics are not
+    surfaced in the type.
+  - **`dateCreated` ISO 8601 helper.** `project.date` is a human string such as "Q1 2023 to Q1 2024".
+    `extractIsoYear()` emits the first 4-digit year for `dateCreated`; if no year is found, `dateCreated`
+    is omitted entirely rather than shipping an invalid value.
+  - **BreadcrumbList** added to every case study as a second `<JsonLd>` block (Home to Work to the
+    project), giving Google an eligible breadcrumb trail.
+  - **Twitter Card metadata** added site-wide (a `summary_large_image` default in `layout.tsx`) and
+    per-page on all seven page types. Next.js does not auto-copy `openGraph.images` into
+    `twitter.images`, so each page sets an explicit `twitter` block pointing at its own page-specific OG
+    image rather than the site default.
+  - **Site-wide RSS discoverability.** The feed `<link rel="alternate" type="application/rss+xml">` is
+    rendered as a raw element in the `RootLayout` `<head>`, not via `Metadata.alternates.types`. This is
+    deliberate: Next.js does not merge `alternates`, it replaces them, so a child page that sets its own
+    `alternates.canonical` (which every page here does) wipes any root-level `alternates.types`. The
+    first cut of this phase put the feed in root metadata and the link silently rendered only on
+    `/writings` (the one page that re-declared `types`). The raw `<head>` link sidesteps the
+    metadata-merge system entirely and appears on every page, current and future, exactly once. The
+    redundant `alternates.types` was removed from both `layout.tsx` metadata and `writings/page.tsx`.
+    The visible "RSS" link in the `/writings` body UI is unchanged.
+  - **RSS feed corrections.** `feed.xml` `<title>` changed from the em-dash form to `Writings · Sarib`
+    (middot, matching the site title pattern), and `managingEditor`/`webMaster` use RFC-822 format
+    (`contact@msarib.dev (Muhammad Sarib)`).
+  - **Person `sameAs`** lists LinkedIn (`https://www.linkedin.com/in/msarib/`, the vanity slug) and
+    YouTube (`https://www.youtube.com/@msarib305`). GitHub is omitted on purpose: Perforce is the
+    games-industry VCS standard and a GitHub presence on a UE5 portfolio reads as junior/web-dev
+    background (consistent with the resume, per RESUME_FOLLOWUP.md).
+  - **Optional improvements.** Keystatic route metadata gains `robots: { index: false, follow: false }`
+    as belt-and-suspenders alongside the `robots.txt` Disallow. The sitemap mtime `lastmod` improvement
+    was skipped (it would have required more refactoring than its value justified; `lastModified` stays
+    pinned to the launch date per the Phase 16 decision).
+
+**GSC canonical warning:** The "Alternative page with proper canonical tag" status in Google Search
+Console is treated as expected behavior, no code change required. Most likely cause: Google found URL
+variants (www host, trailing-slash, `/og?title=...` dynamic OG-image URLs) that correctly point to their
+apex canonicals, so it de-indexed the variants, which is exactly what canonical tags are for. The site
+canonicalizes www to apex via 308 redirect (Phase 17) and every page declares an absolute apex canonical.
+No GSC data was pulled for this phase. If GSC later shows actual content pages (case studies, about, etc.)
+as "alternative" rather than just `/og` URLs, that warrants future investigation; not this phase.
+
+**Vmmersion title inconsistency (tracked, not overlooked):** `llms-full.txt` names Sarib's Vmmersion role
+"Lead Software Developer," matching the canonical `docs/PROFESSIONAL_HISTORY.md`. The published anime
+case-study mdoc summary still says "Senior Unreal Engine Developer"; that visible-copy mdoc is stale (it
+was not updated when `experience.ts` was corrected in Phase 19.1). The mdoc fix is logged in
+`docs/DEFERRED_FIXES.md` for the post-19.7 copy editorial pass. `llms-full.txt` is correct as shipped.
+
+**Meta-vs-visible copy mismatch (time-bounded):** Meta descriptions on `/about` and `/work` now use the
+canonical counts ("six studios", "ten shipped titles"), while the visible page copy still reads "five
+studios" / "nine projects". This temporary mismatch is approved and tracked in `docs/DEFERRED_FIXES.md`;
+the visible copy is resolved in the post-19.7 copy editorial pass, not this phase.
+
+**Consequences:** Search engines get richer structured data (VideoGame, BreadcrumbList, ISO dates) and
+Twitter Cards; AI tools get explicit permission plus two machine-readable profiles; the RSS feed is
+discoverable site-wide. No visible page changes shipped, so the copy editorial pass remains the single
+outstanding item before the count wording is fully consistent across meta and visible copy.

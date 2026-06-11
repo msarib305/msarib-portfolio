@@ -2,6 +2,81 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-11
+### feat(seo): Phase 19.7 AI discoverability, JSON-LD, Twitter Cards, llms.txt
+SEO and AI-discoverability infrastructure. No new visual components, no new dependencies, no visible
+page copy changes. Full rationale in DEC-082.
+
+Deliverables (all complete):
+1. **AI-crawler rules** (`src/app/robots.ts`): kept the default-permissive `*` rule with the existing
+   `/keystatic/`, `/api/`, `/design-system/`, `/_next/`, `/og` disallow list; added 12 explicit
+   `allow: '/'` entries (GPTBot, Google-Extended, ClaudeBot, anthropic-ai, CCBot, PerplexityBot,
+   ChatGPT-User, Claude-User, OAI-SearchBot, Applebot-Extended, Bytespider, Meta-ExternalAgent).
+   `/robots.txt` now emits 13 User-Agent groups; sitemap declaration retained.
+2. **`src/app/llms.txt/route.ts`** (new): concise AI-targeted overview. `text/plain; charset=utf-8`,
+   `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`. Positioning blurb, core pages,
+   a case-study list generated from `getProjects()`, resume and social links.
+3. **`src/app/llms-full.txt/route.ts`** (new): dense profile (overview, positioning, per-case-study
+   prose, 5-category skills, notable shipped work, background, contact). Every fact traces to
+   `docs/MASTER_CONTEXT.md` / `docs/PROFESSIONAL_HISTORY.md` (engine versions from the case-study
+   `engine:` fields). Locked redactions hold: Vmmersion game unnamed, "the AI pursuer," no Steam URL,
+   Web3 named only inside the relevant case-study prose.
+4. **JSON-LD on case studies** (`src/app/projects/[slug]/page.tsx`): per-slug VideoGame map for the 4
+   game titles (exarta-uefn-portfolio "Fortnite (UEFN)", anime-stylized-action-tgs2024 "PC, Steam",
+   samurai-saga "PC", xandar "PC"), each with `applicationCategory: "Game"`; other 4 studies stay
+   `CreativeWork`. `extractIsoYear()` emits an ISO 8601 `dateCreated` (first 4-digit year) or omits it.
+   `BreadcrumbList` (Home to Work to project) added as a second `<JsonLd>` on every case study.
+5. **Person `sameAs`**: LinkedIn (`/in/msarib/` vanity) + YouTube; GitHub omitted on purpose (Perforce
+   is the games-industry VCS standard).
+6. **GSC canonical warning**: treated as expected behavior, no code change (DEC-082). No GSC data pulled.
+7. **RSS** (`src/app/feed.xml/route.ts`): `<title>` is `Writings · Sarib` (em-dash removed),
+   `managingEditor`/`webMaster` in RFC-822 (`contact@msarib.dev (Muhammad Sarib)`). Site-wide feed
+   discoverability via a raw `<link rel="alternate" type="application/rss+xml" href="/feed.xml">` in the
+   `RootLayout` `<head>` (see the fix note below).
+8. **Twitter Cards**: `summary_large_image` default in `layout.tsx` plus explicit per-page `twitter`
+   blocks on all 7 page types, each pointing at its own page-specific OG image (Next.js does not copy
+   `openGraph.images` into `twitter.images`).
+9. **Meta descriptions**: home rewritten to 158 chars ("ten shipped titles across six studios... Germany
+   and Japan"); about uses "six studios" (147 chars); work uses "Ten shipped titles across six studios"
+   (153 chars). All canonical counts, all under 160.
+10. **Optional**: keystatic route metadata gets `robots: { index: false, follow: false }`
+    (belt-and-suspenders with the robots.txt Disallow). Sitemap mtime `lastmod` skipped (kept pinned to
+    launch date per Phase 16).
+
+Files touched: `src/app/robots.ts`, `src/app/llms.txt/route.ts` (new), `src/app/llms-full.txt/route.ts`
+(new), `src/app/feed.xml/route.ts`, `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/about/page.tsx`,
+`src/app/work/page.tsx`, `src/app/contact/page.tsx`, `src/app/writings/page.tsx`,
+`src/app/writings/[slug]/page.tsx`, `src/app/projects/[slug]/page.tsx`, `src/app/keystatic/layout.tsx`,
+`docs/DECISIONS.md` (DEC-082), `docs/DEFERRED_FIXES.md` (new), `docs/CHANGELOG.md`.
+
+**RSS site-wide fix (found in verification):** the first cut placed the feed in root
+`Metadata.alternates.types`, but Next.js replaces (not merges) `alternates` when a child page sets its
+own `alternates.canonical`, which every page does. The link silently rendered only on `/writings`.
+Fixed by rendering a raw `<link>` in the `RootLayout` `<head>` and removing the now-redundant
+`alternates.types` from `layout.tsx` and `writings/page.tsx`. Verified: exactly one feed link on every
+page (no `/writings` duplicate). See DEC-082.
+
+**Vmmersion title discrepancy (tracked):** `llms-full.txt` names the Vmmersion role "Lead Software
+Developer," matching canonical `docs/PROFESSIONAL_HISTORY.md`. The published anime case-study mdoc
+summary still reads "Senior Unreal Engine Developer"; that mdoc is stale and is logged in
+`docs/DEFERRED_FIXES.md` for the post-19.7 copy editorial pass. `llms-full.txt` is correct as shipped.
+
+**Meta-vs-visible copy mismatch (time-bounded):** meta descriptions on `/about` and `/work` now use the
+canonical counts while the visible page copy still reads "five studios" / "nine projects." Approved and
+tracked in `docs/DEFERRED_FIXES.md`; resolved in the post-19.7 copy editorial pass, not this phase.
+
+Verification: pnpm typecheck pass, pnpm lint pass, pnpm build pass (all 8 `/projects/[slug]` prerender
+SSG; `llms.txt`, `llms-full.txt`, `feed.xml` server-rendered on demand). JSON-LD extracted from every
+modified page type and validated as well-formed JSON with correct types and required fields: home
+Person+WebSite+ProfessionalService, about Person, work CollectionPage+ItemList, contact ContactPage,
+nvidia CreativeWork+BreadcrumbList, anime + exarta-uefn VideoGame+BreadcrumbList (BreadcrumbList
+position/name/item complete on each; anime schema `name` is the redacted case-study title, not the game
+name). The authoritative Google Rich Results Test runs against production URLs post-deploy. `llms.txt`
+and `llms-full.txt`: zero em-dashes, zero en-dashes. Console: one pre-existing site-wide CSP
+`upgrade-insecure-requests` report-only notice per page, zero hydration warnings, no new errors.
+Lighthouse SEO 100 on /, /about, /work, and /projects/anime-stylized-action-tgs2024 (mobile and
+desktop); mobile Performance 80 to 86 is the pre-existing showreel/LCP item, unchanged by this phase.
+
 ## 2026-06-10
 ### feat(gallery): Phase 19.6.3 Exarta UEFN media migration to 7 Gallery instances
 - `content/projects/exarta-uefn-portfolio/index.mdoc`: migrated all inline media to the interactive

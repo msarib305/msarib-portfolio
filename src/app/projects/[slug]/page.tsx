@@ -10,6 +10,25 @@ import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
 
+// Per-slug VideoGame typing (Phase 19.7, DEC-082). The four game projects render
+// as schema.org VideoGame with a platform; every other case study stays
+// CreativeWork. The anime title is never named: the redacted case-study title is
+// used as the schema name, and Web3 details are not surfaced in the type.
+const VIDEO_GAME_PLATFORMS: Record<string, string> = {
+  'exarta-uefn-portfolio':         'Fortnite (UEFN)',
+  'anime-stylized-action-tgs2024': 'PC, Steam',
+  'samurai-saga':                  'PC',
+  'xandar':                        'PC',
+}
+
+// project.date is a human string such as "Q1 2023 to Q1 2024". schema.org Date
+// expects ISO 8601, so emit the first 4-digit year, or omit dateCreated entirely
+// rather than ship an invalid value.
+function extractIsoYear(dateString: string): string | undefined {
+  const match = dateString.match(/\b(\d{4})\b/)
+  return match ? match[1] : undefined
+}
+
 export const dynamicParams = false
 
 export async function generateStaticParams() {
@@ -41,6 +60,12 @@ export async function generateMetadata({
       description: project.summary,
       images:      [{ url: ogImage, width: 1200, height: 630, alt: project.thumbnail.alt }],
     },
+    twitter: {
+      card:        'summary_large_image',
+      title:       `${project.title} · Sarib`,
+      description: project.summary,
+      images:      [ogImage],
+    },
   }
 }
 
@@ -56,24 +81,42 @@ export default async function ProjectPage({
   ])
   if (!project) notFound()
 
-  const projectSchema = {
+  const gamePlatform = VIDEO_GAME_PLATFORMS[project.slug]
+  const isoYear      = extractIsoYear(project.date)
+
+  const projectSchema: Record<string, unknown> = {
     '@context':    'https://schema.org',
-    '@type':       'CreativeWork',
+    '@type':       gamePlatform ? 'VideoGame' : 'CreativeWork',
     '@id':         `https://msarib.dev/projects/${project.slug}#work`,
     'name':        project.title,
     'description': project.summary,
     'url':         `https://msarib.dev/projects/${project.slug}`,
     'image':       project.thumbnail.src,
-    'dateCreated': project.date,
     'author':      { '@id': 'https://msarib.dev/#person' },
     'creator':     { '@id': 'https://msarib.dev/#person' },
     'keywords':    project.tags.join(', '),
     'isPartOf':    { '@id': 'https://msarib.dev/work#collection' },
   }
+  if (isoYear) projectSchema.dateCreated = isoYear
+  if (gamePlatform) {
+    projectSchema.gamePlatform        = gamePlatform
+    projectSchema.applicationCategory = 'Game'
+  }
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type':    'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://msarib.dev' },
+      { '@type': 'ListItem', 'position': 2, 'name': 'Work', 'item': 'https://msarib.dev/work' },
+      { '@type': 'ListItem', 'position': 3, 'name': project.title, 'item': `https://msarib.dev/projects/${project.slug}` },
+    ],
+  }
 
   return (
     <>
       <JsonLd schema={projectSchema} />
+      <JsonLd schema={breadcrumbSchema} />
       <div className="case-hero">
         <CaseStudyHeader tags={project.tags} title={project.title} />
         <div className="case-summary">

@@ -32,14 +32,14 @@ export async function GET() {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Sarib — Writings</title>
+    <title>Writings · Sarib</title>
     <link>${SITE_URL}/writings</link>
     <description>Technical notes on Unreal Engine 5: multiplayer replication, performance, editor tools, and the systems work that doesn&apos;t show up in a screenshot reel.</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
-    <managingEditor>${AUTHOR}</managingEditor>
-    <webMaster>${AUTHOR}</webMaster>
+    <managingEditor>contact@msarib.dev (${AUTHOR})</managingEditor>
+    <webMaster>contact@msarib.dev (${AUTHOR})</webMaster>
     ${items}
   </channel>
 </rss>`

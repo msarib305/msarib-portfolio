@@ -7,18 +7,19 @@ import { JsonLd }         from '@/components/JsonLd'
 export const metadata: Metadata = {
   title:       'Writings',
   description: "Technical notes on Unreal Engine 5: multiplayer replication, performance, editor tools, and the systems work that doesn't show up in a screenshot reel.",
-  alternates: {
-    canonical: 'https://msarib.dev/writings',
-    types: {
-      'application/rss+xml': 'https://msarib.dev/feed.xml',
-    },
-  },
+  alternates: { canonical: 'https://msarib.dev/writings' },
   openGraph: {
     type:        'website',
     url:         'https://msarib.dev/writings',
     title:       'Writings · Sarib',
     description: "Technical notes on UE5: multiplayer replication, performance, editor tools.",
     images: [{ url: '/og?title=Writings&eyebrow=Engineering+Notes', width: 1200, height: 630, alt: 'Writings · Sarib' }],
+  },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Writings · Sarib',
+    description: "Technical notes on UE5: multiplayer replication, performance, editor tools.",
+    images:      ['/og?title=Writings&eyebrow=Engineering+Notes'],
   },
 }
 
