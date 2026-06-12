@@ -4131,6 +4131,13 @@
     display: flex;
     justify-content: center;
   }
+  /* Cap the embed so a reel/post does not stretch to the full gallery
+     stage width. The flex parent centers it; embed.js manages the
+     internal aspect (9:16 reels, 1:1 posts), so no aspect override. */
+  .gallery-ig-embed .instagram-media {
+    max-width: 480px;
+    margin-inline: auto;
+  }
   .gallery-embed-fallback {
     position: absolute;
     inset: 0;
