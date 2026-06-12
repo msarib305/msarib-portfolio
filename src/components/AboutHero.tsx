@@ -10,7 +10,7 @@ const PORTRAIT_GLOW_SRC =
 
 export function AboutHero() {
   return (
-    <section className="about-hero">
+    <section className="about-hero section-container section-container--hero">
       <div className="about-hero-grid">
         <div>
           <p className="eyebrow">About</p>

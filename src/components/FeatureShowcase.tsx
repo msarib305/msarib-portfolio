@@ -8,7 +8,7 @@ const SHOWCASE_CREDIT = 'Anime Action · TGS 2024 · Vmmersion'
 
 export function FeatureShowcase() {
   return (
-    <section className="feature-showcase" aria-labelledby="leadership-heading">
+    <section className="feature-showcase section-container" aria-labelledby="leadership-heading">
       <div className="feature-text">
         <p className="eyebrow">Engineering leadership</p>
         <h2 id="leadership-heading">

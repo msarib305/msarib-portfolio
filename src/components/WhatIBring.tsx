@@ -4,7 +4,7 @@ import { AtmosphericGradient }  from '@/components/AtmosphericGradient'
 
 export function WhatIBring() {
   return (
-    <section className="wib-section" aria-labelledby="wib-heading">
+    <section className="wib-section section-container" aria-labelledby="wib-heading">
       <AtmosphericGradient />
       <div className="wib-head">
         <p className="eyebrow">Why hire me</p>

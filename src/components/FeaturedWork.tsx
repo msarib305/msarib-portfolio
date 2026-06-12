@@ -5,7 +5,7 @@ import { PillButton }   from '@/components/PillButton'
 export async function FeaturedWork() {
   const featured = await getFeaturedProjects()
   return (
-    <section className="section" aria-labelledby="selected-work-heading">
+    <section className="section section-container" aria-labelledby="selected-work-heading">
       <div className="section-head">
         <h2 id="selected-work-heading">Selected work</h2>
         <PillButton variant="secondary" size="sm" href="/work">

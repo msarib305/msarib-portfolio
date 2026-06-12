@@ -117,7 +117,7 @@ export default async function ProjectPage({
     <>
       <JsonLd schema={projectSchema} />
       <JsonLd schema={breadcrumbSchema} />
-      <div className="case-hero">
+      <div className="case-hero section-container section-container--hero">
         <CaseStudyHeader tags={project.tags} title={project.title} />
         <div className="case-summary">
           <p className="case-summary-text">{project.summary}</p>

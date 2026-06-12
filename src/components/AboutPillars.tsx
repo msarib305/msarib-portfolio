@@ -37,7 +37,7 @@ const PILLARS: Pillar[] = [
 
 export function AboutPillars() {
   return (
-    <section className="three-card" aria-labelledby="pillars-heading">
+    <section className="three-card section-container" aria-labelledby="pillars-heading">
       <AtmosphericGradient />
       <div className="three-card-head">
         <p className="eyebrow">Engineering pillars</p>

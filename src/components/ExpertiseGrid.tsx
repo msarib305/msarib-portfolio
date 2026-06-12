@@ -3,7 +3,7 @@ import { ExpertiseCard } from '@/components/ExpertiseCard'
 
 export function ExpertiseGrid() {
   return (
-    <section className="expertise-section" aria-labelledby="expertise-heading">
+    <section className="expertise-section section-container" aria-labelledby="expertise-heading">
       <div className="expertise-head">
         <h2 id="expertise-heading">
           Ships fully loaded across the stack.

@@ -5,7 +5,7 @@ const BODY    = 'Studio roles in Germany and Japan. Freelance contracts worldwid
 
 export function ContactCTA() {
   return (
-    <section className="contact-cta-section" aria-labelledby="cta-home-heading">
+    <section className="contact-cta-section section-container" aria-labelledby="cta-home-heading">
       <div className="contact-cta-card">
         <p className="eyebrow">Get in touch</p>
         <h2 id="cta-home-heading">{HEADING}</h2>

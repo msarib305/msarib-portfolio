@@ -3,7 +3,7 @@ import { SkillCategory } from '@/components/SkillCategory'
 
 export function SkillsGrid() {
   return (
-    <section className="skills-section" aria-labelledby="skills-heading">
+    <section className="skills-section section-container section-container--flush-top" aria-labelledby="skills-heading">
       <div className="skills-section-head">
         <h2 id="skills-heading">Skills.</h2>
       </div>

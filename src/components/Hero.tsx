@@ -51,7 +51,7 @@ function renderWord(word: string, charOffset: number) {
 
 export function Hero() {
   return (
-    <section className="hero" aria-labelledby="hero-headline">
+    <section className="hero section-container section-container--hero" aria-labelledby="hero-headline">
       <div className="hero-grid">
 
         <div className="hero-text">

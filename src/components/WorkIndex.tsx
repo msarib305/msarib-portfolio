@@ -5,7 +5,7 @@ export async function WorkIndex() {
   const allProjects = await getProjects()
   return (
     <>
-      <div className="work-index-hero">
+      <div className="work-index-hero section-container section-container--hero">
         <div className="work-index-hero-grid">
           <div>
             <p className="eyebrow">All projects</p>
@@ -33,7 +33,7 @@ export async function WorkIndex() {
         </div>
       </div>
 
-      <div className="work-index-cards">
+      <div className="work-index-cards section-container section-container--flush-top">
         <div className="work-grid">
           {allProjects.map((project, i) => (
             <WorkCard key={project.slug} project={project} priority={i < 2} />

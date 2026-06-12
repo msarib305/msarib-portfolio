@@ -43,7 +43,7 @@ export default function ContactPage() {
   return (
     <main>
       <JsonLd schema={contactSchema} />
-      <section className="contact-hero">
+      <section className="contact-hero section-container section-container--hero">
         <div className="contact-hero-grid">
           <div>
             <p className="eyebrow">Get in touch</p>
@@ -71,7 +71,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <div className="contact-grid">
+      <div className="contact-grid section-container section-container--flush-top">
         <ContactForm turnstileSiteKey={turnstileSiteKey} />
         <ContactInfo />
       </div>

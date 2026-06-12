@@ -329,6 +329,17 @@
     appearance: none;
   }
 
+  /* Phase 20.3b visual adoptions. text-wrap: balance distributes
+     multi-line headings evenly (graceful no-op on older browsers).
+     Paragraph line-height loosens to UE's 165% (from the prior mix of
+     1.5/1.55/1.6); denser blocks can override at their own selector. */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  p {
+    line-height: 1.65;
+  }
+
   ::selection {
     background-color: var(--color-accent);
     color: var(--color-accent-fg);
@@ -365,12 +376,19 @@
 :root {
   color-scheme: dark;
 
-  --container-max: 1600px;
+  /* Phase 20.3b: tightened from 1600 to UE's 1440 (ultrawide steps in the
+     min-width media queries below shifted down one tier to match). */
+  --container-max: 1440px;
+
+  /* Section inline gutter (Phase 20.3b). Single source of truth for the
+     horizontal padding of every section wrapper, so content left-edges stay
+     aligned down each page. UE breakpoint-keyed: 64 / 40 / 32 / 16.
+     Reductions live in the @media blocks immediately after this rule. */
+  --section-gutter: 64px;
 
   /* Article-width tiers (Phase 20). Not in @theme: these are plain
      CSS vars referenced via var(), not a Tailwind --container-*
-     namespace (which would generate container utilities). Consumed
-     by prose layouts in 20.3b. See DEC-083. */
+     namespace (which would generate container utilities). */
   --container-article-sm: 824px;
   --container-article-md: 1200px;
   --container-article-lg: 1440px;
@@ -397,6 +415,13 @@
   --z-overlay: 200;
 }
 
+/* Section gutter reductions (Phase 20.3b). Unlayered like --container-max so
+   they win cleanly. Every section wrapper reads var(--section-gutter), so one
+   change here re-gutters the whole site at each breakpoint. */
+@media (max-width: 1280px) { :root { --section-gutter: 40px; } }
+@media (max-width: 1024px) { :root { --section-gutter: 32px; } }
+@media (max-width: 768px)  { :root { --section-gutter: 16px; } }
+
 /* ============================================================
    @layer components — design-system primitives (Phase 3)
    All values are var() references to @theme or :root tokens.
@@ -414,43 +439,37 @@
      ---------------------------------------------------------- */
 
   /* SECTION CONTAINER: single source of truth for section spacing.
-     UE breakpoint-keyed values (80/64 desktop down to 40/16 mobile).
-     The --hero modifier adds top padding to clear the fixed nav. */
+     Block padding is UE's 80px desktop / 40px from 1280 down. Inline
+     padding is the --section-gutter token (64/40/32/16) shared by every
+     section wrapper site-wide, so content left-edges align down the page.
+     --hero adds nav-clearance top padding; --flush-top zeroes the top for
+     sections that directly follow a hero. */
   .section-container {
     max-width: var(--container-max);
     margin-inline: auto;
     padding-block: 80px;
-    padding-inline: 64px;
+    padding-inline: var(--section-gutter);
   }
   @media (max-width: 1280px) {
     .section-container {
       padding-block: 40px;
-      padding-inline: 40px;
-    }
-  }
-  @media (max-width: 1024px) {
-    .section-container {
-      padding-inline: 32px;
-    }
-  }
-  @media (max-width: 768px) {
-    .section-container {
-      padding-inline: 16px;
     }
   }
 
   .section-container--hero {
     padding-block-start: 132px;
   }
+  /* 100px from 1280 down (no separate 768 step): gives ~35px clearance
+     above the fixed nav on mobile, comfortable for dense case-study heros
+     where eyebrow + title sit directly under the nav. See DEC-083. */
   @media (max-width: 1280px) {
     .section-container--hero {
       padding-block-start: 100px;
     }
   }
-  @media (max-width: 768px) {
-    .section-container--hero {
-      padding-block-start: 88px;
-    }
+
+  .section-container--flush-top {
+    padding-block-start: 0;
   }
 
   /* TYPE RECIPE CLASSES: every value is a var() reference to the
@@ -1198,14 +1217,11 @@
   /* ----------------------------------------------------------
      HERO
      Two-column grid: hero-text (0.85fr) | showreel (1.4fr).
-     padding-top: 132px accounts for the fixed nav height (~68px)
-     plus optical breathing room.
+     Spacing (132px nav-clearance top, gutter, max-width) comes from
+     .section-container.section-container--hero (Phase 20.3b).
      ---------------------------------------------------------- */
   .hero {
     position: relative;
-    padding: 132px 32px 80px;
-    max-width: var(--container-max);
-    margin: 0 auto;
   }
 
   .hero-grid {
@@ -1425,8 +1441,8 @@
 
   @media (max-width: 600px) {
     .hero {
-      padding: 100px 20px 64px;
-      /* Clip the showreel glow canvas that overflows 10% beyond .showreel;
+      /* spacing via .section-container.section-container--hero; containment kept.
+         Clip the showreel glow canvas that overflows 10% beyond .showreel;
          prevents the absolute child from expanding the mobile layout viewport. */
       overflow-x: hidden;
     }
@@ -1474,9 +1490,7 @@
      .section-head: flex row with h2 on left, CTA on right.
      ---------------------------------------------------------- */
   .section {
-    padding: 96px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
   }
 
   .section-head {
@@ -1634,9 +1648,7 @@
     grid-template-columns: 1fr 1.2fr;
     gap: 80px;
     align-items: center;
-    padding: 96px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
   }
 
   .feature-text {
@@ -1737,9 +1749,7 @@
      a compositing layer that breaks mix-blend-mode visually.
      ---------------------------------------------------------- */
   .expertise-section {
-    padding: 96px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
     content-visibility: auto;
     contain-intrinsic-size: 800px;
     -webkit-mask-image: linear-gradient(
@@ -1897,15 +1907,7 @@
     .expertise-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    .section {
-      padding: 72px 20px;
-    }
-    .feature-showcase {
-      padding: 72px 20px;
-    }
-    .expertise-section {
-      padding: 72px 20px;
-    }
+    /* section padding now handled by .section-container (Phase 20.3b) */
   }
 
   @media (max-width: 600px) {
@@ -1915,15 +1917,6 @@
     .expertise-grid {
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-    }
-    .section {
-      padding: 56px 16px;
-    }
-    .feature-showcase {
-      padding: 56px 16px;
-    }
-    .expertise-section {
-      padding: 56px 16px;
     }
     .section-head {
       margin-bottom: 32px;
@@ -1952,9 +1945,7 @@
      ---------------------------------------------------------- */
   .wib-section {
     position: relative;
-    padding: 96px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
     isolation: isolate;
   }
 
@@ -2066,11 +2057,13 @@
      viewport widths without double-counting on wide screens.
      ---------------------------------------------------------- */
   .contact-cta-section {
-    padding: 96px 32px;
+    /* spacing via .section-container (Phase 20.3b) */
   }
 
+  /* The section-container now owns max-width + gutter + centering, so the
+     card fills the gutter-bounded content width (Phase 20.3b). */
   .contact-cta-card {
-    max-width: min(var(--container-max), calc(100% - 64px));
+    max-width: 100%;
     margin: 0 auto;
     background: var(--color-light-005);
     border: 1px solid var(--color-border-faint);
@@ -2111,9 +2104,6 @@
     .wib-grid {
       grid-template-columns: 1fr;
     }
-    .wib-section {
-      padding: 72px 20px;
-    }
     .contact-cta-card {
       padding: 64px 32px;
     }
@@ -2121,8 +2111,8 @@
 
   @media (max-width: 600px) {
     .wib-section {
-      padding: 56px 16px;
-      /* Contain the .atm-wrapper which extends -8vw on each side; at mobile
+      /* spacing via .section-container; overflow containment kept.
+         Contain the .atm-wrapper which extends -8vw on each side; at mobile
          the bleed expands the layout viewport and shifts fixed nav. */
       overflow-x: hidden;
     }
@@ -2148,9 +2138,7 @@
      Re-uses existing .work-grid and .work-card for the card grid.
      ---------------------------------------------------------- */
   .work-index-hero {
-    padding: 152px 32px 64px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--hero (Phase 20.3b) */
   }
 
   .work-index-hero-grid {
@@ -2200,9 +2188,7 @@
   }
 
   .work-index-cards {
-    padding: 0 32px 96px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--flush-top (Phase 20.3b) */
   }
 
   /* ----------------------------------------------------------
@@ -2210,9 +2196,8 @@
      ---------------------------------------------------------- */
 
   .case-hero {
-    padding: 132px 32px 0;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--hero (Phase 20.3b).
+       Bottom padding now 80px (was 0); brief gets breathing room. */
   }
 
   .case-meta-row {
@@ -2296,7 +2281,7 @@
   .case-media {
     margin: 64px auto;
     max-width: var(--container-max);
-    padding: 0 32px;
+    padding: 0 var(--section-gutter);
   }
 
   .case-media-frame {
@@ -2310,9 +2295,9 @@
 
   /* Body prose sections */
   .case-section {
-    max-width: 1100px;
+    max-width: var(--container-article-md);
     margin: 0 auto;
-    padding: 64px 32px;
+    padding: 64px var(--section-gutter);
   }
 
   .case-section h2 {
@@ -2341,9 +2326,9 @@
   }
 
   .case-body {
-    max-width: 1100px;
+    max-width: var(--container-article-md);
     margin: 0 auto;
-    padding: 64px 32px;
+    padding: 64px var(--section-gutter);
   }
 
   .case-body h2 {
@@ -2486,7 +2471,7 @@
     gap: 24px;
     max-width: var(--container-max);
     margin: 64px auto;
-    padding: 0 32px;
+    padding: 0 var(--section-gutter);
   }
 
   .case-nav-link {
@@ -2589,36 +2574,19 @@
   }
 
   @media (max-width: 600px) {
-    .work-index-hero {
-      padding: 120px 20px 48px;
-    }
-
-    .work-index-cards {
-      padding: 0 20px 72px;
-    }
-
-    .case-hero {
-      padding: 120px 20px 0;
-    }
-
+    /* Hero/cards/media/links inline+block now via .section-container and the
+       --section-gutter token (Phase 20.3b). Only the prose block reductions
+       and non-spacing tweaks remain. */
     .case-title {
       font-size: clamp(40px, 11vw, 64px);
     }
 
-    .case-media {
-      padding: 0 20px;
-    }
-
-    .case-links {
-      padding-inline: 20px;
-    }
-
     .case-section {
-      padding: 48px 20px;
+      padding-block: 48px;
     }
 
     .case-body {
-      padding: 48px 20px;
+      padding-block: 48px;
     }
 
     .case-list-item {
@@ -2631,7 +2599,6 @@
     }
 
     .case-nav {
-      padding: 0 16px;
       margin: 48px auto;
     }
 
@@ -2651,9 +2618,7 @@
 
   /* Hero */
   .about-hero {
-    padding: 152px 32px 64px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--hero (Phase 20.3b) */
   }
 
   .about-hero-grid {
@@ -2734,9 +2699,9 @@
 
   /* Narrative */
   .about-narrative {
-    max-width: 800px;
+    max-width: var(--container-article-sm);
     margin: 0 auto;
-    padding: 64px 32px;
+    padding: 64px var(--section-gutter);
   }
 
   .about-narrative h2 {
@@ -2767,9 +2732,7 @@
   /* Engineering pillars */
   .three-card {
     position: relative;
-    padding: 96px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
     isolation: isolate;
   }
 
@@ -2845,9 +2808,7 @@
 
   /* Timeline */
   .timeline {
-    padding: 64px 32px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container (Phase 20.3b) */
   }
 
   .timeline-head {
@@ -2972,9 +2933,7 @@
 
   /* Skills */
   .skills-section {
-    padding: 0 32px 96px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--flush-top (Phase 20.3b) */
   }
 
   .skills-section-head {
@@ -3069,29 +3028,17 @@
   }
 
   @media (max-width: 600px) {
-    .about-hero {
-      padding: 120px 20px 48px;
-    }
-
+    /* .about-hero spacing via .section-container.section-container--hero */
     .about-h1 {
       font-size: clamp(40px, 11vw, 64px);
     }
 
     .about-narrative {
-      padding: 48px 20px;
+      padding-block: 48px;
     }
 
-    .three-card {
-      padding: 72px 20px;
-    }
-
-    .timeline {
-      padding: 48px 20px;
-    }
-
-    .skills-section {
-      padding: 0 20px 72px;
-    }
+    /* .three-card / .timeline / .skills-section spacing now via
+       .section-container and --section-gutter (Phase 20.3b). */
 
     .skills-grid {
       grid-template-columns: 1fr;
@@ -3106,9 +3053,7 @@
 
   /* Index hero */
   .writings-hero {
-    padding: 132px 32px 64px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--hero (Phase 20.3b) */
   }
 
   .writings-hero-grid {
@@ -3149,9 +3094,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 0 32px 96px;
+    /* spacing via .section-container.section-container--flush-top (Phase 20.3b) */
   }
 
   .write-card {
@@ -3246,7 +3189,7 @@
 
   /* Post hero */
   .post-hero {
-    padding: 132px 32px 32px;
+    padding: 132px var(--section-gutter) 32px;
     max-width: 880px;
     margin: 0 auto;
   }
@@ -3291,9 +3234,9 @@
 
   /* Post body */
   .post-body {
-    max-width: 720px;
+    max-width: var(--container-article-sm);
     margin: 0 auto;
-    padding: 32px;
+    padding: 32px var(--section-gutter);
     font-size: 17px;
     line-height: 1.75;
     color: var(--color-text-secondary);
@@ -3383,9 +3326,9 @@
 
   /* Post CTA */
   .post-cta {
-    max-width: 720px;
+    max-width: var(--container-article-sm);
     margin: 0 auto;
-    padding: 48px 32px 96px;
+    padding: 48px var(--section-gutter) 96px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -3467,16 +3410,16 @@
 
     .writings-grid {
       grid-template-columns: 1fr;
-      padding: 0 20px 64px;
     }
 
     .write-card.is-featured { padding: 32px; }
 
-    .post-hero { padding: 100px 20px 24px; }
+    /* Prose block reductions; inline padding stays on --section-gutter. */
+    .post-hero { padding-block: 100px 24px; }
 
-    .post-body { padding: 24px 20px; }
+    .post-body { padding-block: 24px; }
 
-    .post-cta { padding: 32px 20px 64px; }
+    .post-cta { padding-block: 32px 64px; }
 
     .writing-nav {
       grid-template-columns: 1fr;
@@ -3492,9 +3435,7 @@
 
   /* Hero */
   .contact-hero {
-    padding: 132px 32px 64px;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    /* spacing via .section-container.section-container--hero (Phase 20.3b) */
   }
 
   .contact-hero-grid {
@@ -3529,9 +3470,7 @@
     display: grid;
     grid-template-columns: 1.4fr 1fr;
     gap: 80px;
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 0 32px 96px;
+    /* spacing via .section-container.section-container--flush-top (Phase 20.3b) */
   }
 
   /* Form card */
@@ -3743,19 +3682,12 @@
     .contact-grid {
       grid-template-columns: 1fr;
       gap: 40px;
-      padding: 0 32px 72px;
+      /* padding now via .section-container.section-container--flush-top */
     }
   }
 
   @media (max-width: 600px) {
-    .contact-hero {
-      padding: 100px 20px 48px;
-    }
-
-    .contact-grid {
-      padding: 0 20px 64px;
-    }
-
+    /* .contact-hero / .contact-grid spacing via .section-container (Phase 20.3b) */
     .contact-form {
       padding: 32px 24px;
     }
@@ -3813,17 +3745,16 @@
   /* Ultrawide displays: 21:9 and beyond. Open up the container
      slightly so generous side margins do not feel like dead space,
      but keep prose columns capped via existing per-element rules. */
+  /* Ultrawide container ladder, shifted down one tier in Phase 20.3b
+     (base is now 1440). */
   @media (min-width: 2200px) {
-    :root { --container-max: 1760px; }
+    :root { --container-max: 1600px; }
   }
   @media (min-width: 3000px) {
-    :root { --container-max: 1920px; }
-    .hero, .section, .feature-showcase, .expertise-section,
-    .wib-section, .work-index-hero, .work-index-cards,
-    .case-hero, .case-section, .case-body, .case-media, .case-nav,
-    .about-hero, .about-narrative, .three-card, .timeline,
-    .skills-section, .writings-hero, .writings-grid,
-    .contact-hero, .contact-grid, .footer-grid { padding-left: 64px; padding-right: 64px; }
+    :root { --container-max: 1760px; }
+    /* Section inline padding at ultrawide is owned by --section-gutter
+       (64px) now, so only the untouched footer needs an explicit gutter. */
+    .footer-grid { padding-left: 64px; padding-right: 64px; }
   }
 
   /* Tiny browsers / WebView edge cases.
@@ -4010,7 +3941,7 @@
     margin-block: 24px;
     max-width: var(--container-max);
     margin-inline: auto;
-    padding-inline: 32px;
+    padding-inline: var(--section-gutter);
   }
 
   .case-link-pill {
