@@ -86,6 +86,12 @@ Hover behavior: JS adds `.spinning` on `mouseenter`, removes on `animationend`. 
 
 ---
 
+## Section-container standard (Phase 20)
+
+`.section-container` is the single source of truth for section spacing. New pages and sections MUST use it and MUST NOT declare their own section `padding` / `max-width` / `margin: 0 auto`. Modifiers: `.section-container--hero` (nav-clearance top) and `.section-container--flush-top` (zero top, for a section right under a hero). Inline padding everywhere reads the `--section-gutter` token (64/40/32/16) so content left-edges align down each page; bespoke prose/media sections that can't use the class still set `padding-inline: var(--section-gutter)`. Prose widths use `--container-article-sm/md/lg`. Full rationale in DEC-083.
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
@@ -93,4 +99,4 @@ Intentionally deferred items. Full details in AGENTS.md under the same heading.
 - **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.
 - **Lighthouse CI**: `lighthouserc.js` + GitHub Actions. Catches performance regressions on PRs. Deferred from Phase 14.
 - **Vercel Analytics**: Real-user performance data. Sarib decides if/when.
-- **Real ExpertiseCard videos**: 8 clips to replace demo sea_turtle placeholders. Upload to `ddgwzcrim` Cloudinary account, update `src/data/expertise.ts` public IDs.
+- **Real ExpertiseCard videos**: MOOT as of Phase 20.2. The hover-to-play video was removed, so the demo sea_turtle clips no longer render and no clips need uploading. `expertise.ts` keeps unused `video`/`poster` fields (harmless; strip in a future cleanup).

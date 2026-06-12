@@ -35,6 +35,18 @@ Priority order:
 
 ---
 
+## Tooling (added Phase 20, 2026-06-12)
+
+5. **WSL Lighthouse runner: Chrome path fails to launch.** The project's Lighthouse runner
+   (`scripts/lighthouse.mjs`, run via `pnpm lighthouse`) resolves a Windows Chrome path
+   (`C:\Users\...`) that fails to launch when invoked from WSL, so local Lighthouse cannot run in a
+   WSL session. Workaround for a future WSL run: install Chrome in the Linux side and set
+   `CHROME_PATH=/usr/bin/google-chrome` (or point the runner at the Playwright-bundled Chromium).
+   Environmental only, unrelated to any shipped code. Production Lighthouse (run from a normal
+   browser or CI) is unaffected.
+
+---
+
 ## Notes
 
 - These items were surfaced during the Phase 19.7 working-tree audit. The count discrepancies trace to

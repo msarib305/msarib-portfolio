@@ -2,6 +2,53 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-12
+### feat(design-system): Phase 20 strategic density pass + 2 side fixes
+
+Adopted UE-derived design-system patterns and matched UE's spacing density. Shipped as four
+independently revertable commits plus a docs commit. Full rationale in DEC-083.
+
+**20.1 -- `fix(gallery): cap Instagram embed at 480px in main display`**
+Instagram embeds in the main gallery surface stretched to the full stage width, dwarfing adjacent media.
+Added `.gallery-ig-embed .instagram-media { max-width: 480px; margin-inline: auto }`. Aspect handled by
+IG's embed.js; thumbnail strip untouched. Files: `globals.css`. Verified on production (samurai-saga
+reel): embed renders at exactly 480px, centered.
+
+**20.2 -- `feat(home): remove hover-to-play video on expertise cards`**
+Removed the hover-to-play `<video>` on home expertise cards. Kept every other hover effect (image
+scale 1.06, tint 0.8->0.15, border glow, gradient, title). Changed `.exp-card:hover .exp-img` to drop
+`opacity: 0` so the image stays visible. `ExpertiseCard.tsx` lost all hooks/refs/handlers, so `'use
+client'` was dropped (now a Server Component). Files: `ExpertiseCard.tsx`, `globals.css`. Note:
+`expertise.ts` `video`/`poster` fields are now unused but left intact; the deferred "upload 8 real
+ExpertiseCard clips" item is now moot (no hover video to fill). Verified: no `sea_turtle`/`embed.js`
+requests on hover; all other hover effects intact.
+
+**20.3a -- `feat(design-system): add UE-derived tokens, recipes, scaffolding`**
+Additive only, ZERO visual change (proven via byte-identical local-vs-prod fingerprints + zero new-class
+usage on all 8 pages). Added to `globals.css`: spacing scale `--space-4..128`; type recipe tokens +
+classes (`.heading-2xl`..`.ui-sm`); material tokens; blur tokens; aspect-ratio tokens; article-width
+tokens; breakpoints xs/xxl; and `.section-container` + `--hero` defined-but-not-applied. text-wrap and
+paragraph line-height were deliberately deferred to 20.3b (they are visual).
+
+**20.3b -- `feat(design-system): apply UE visual values for section spacing`**
+The user-visible change. Introduced `--section-gutter` (64/40/32/16) as the single source of truth for
+inline padding; refactored `.section-container` to consume it; applied `.section-container`
+(+ `--hero` / `--flush-top`) to 17 sections across all pages; deleted the redundant per-section padding
+rules and trimmed the responsive override blocks. Section block 96->80, gutter 32->64, container
+1600->1440 (ultrawide 1600/1760). Prose widths to article tokens (case 1100->1200, post/about 720/800
+->824). `text-wrap: balance` on h1-h6 and `line-height: 1.65` on bare `<p>` (@layer base). Heroes
+unified: work-index/about 152->132 top, case-hero bottom 0->80, mobile hero top 100 (35px nav
+clearance). Files: `globals.css` + 14 JSX section components/pages. Verified on production across all 8
+pages at desktop/tablet/mobile: alignment holds, no horizontal scroll, all target values correct.
+
+**Revertability:** the additive scaffolding (20.3a) and the behavioral values (20.3b) are separate
+commits. `git revert <20.3b>` restores the prior spacing while keeping all 20.3a tokens/recipes. This is
+the rollback path if the tighter UE rhythm does not feel right in production.
+
+**Tooling note:** the project Lighthouse runner cannot launch Chrome from WSL (logged in
+DEFERRED_FIXES.md). SEO/A11y/Best-Practices are unaffected by 20.3b (spacing-only change, no semantic/
+meta/contrast/tap-target impact); the prior 100 scores hold.
+
 ## 2026-06-11
 ### feat(seo): Phase 19.7 AI discoverability, JSON-LD, Twitter Cards, llms.txt
 SEO and AI-discoverability infrastructure. No new visual components, no new dependencies, no visible

@@ -1531,3 +1531,94 @@ model used for the SSG case-study pages. Route audit at the time of the fix: the
 handlers are now static; `og` (query-param image generation) and `api/keystatic` (CMS API) are correctly
 dynamic and read no content; `sitemap.ts` is already static. Rule going forward: any new content-reading
 route (a `/<file>.txt` or `.xml` handler that reads from `content/`) MUST include this directive.
+
+## DEC-083 -- Phase 20 strategic density pass: section-container, gutter token, UE visual values
+
+Phase 20 adopted UE-derived design-system patterns and matched UE's spacing density. It shipped as four
+independently revertable commits (20.1 Instagram embed cap, 20.2 expertise hover-video removal, 20.3a
+additive tokens, 20.3b visual values) plus this docs commit. The architectural decisions:
+
+**Section-container is the single source of truth for section spacing.** Before Phase 20 every section
+declared its own `padding` / `max-width` / `margin: 0 auto`, with values drifting across pages (96/32,
+72/20, 56/16, hero variants at 132-152). There was no shared spacing class and no `--space-*` scale at
+all. Phase 20 introduced `.section-container` (in `@layer components`): `max-width: var(--container-max)`,
+`margin-inline: auto`, `padding-block: 80px` (40px from 1280 down), `padding-inline: var(--section-gutter)`.
+Every content section now carries this class; per-section padding rules were deleted. New pages MUST use
+`.section-container` and MUST NOT declare their own section padding.
+
+**Gutter-token strategy (the key refactor).** A naive "apply section-container everywhere" breaks three
+section categories: custom-width prose (post-hero 880, case-body 1100, post-body 720, about-narrative
+800) would blow out to the container width; flush-top sections (cards that follow a hero, intentionally
+`padding-top: 0`) would gain an 80px gap; and margin-based media sections (`case-media`, `case-nav` use
+`margin: 64px auto`). More importantly, if heroes adopt a 64px inline gutter but their following content
+sections keep 32px, content left-edges misalign down the page. The fix: extract the inline gutter into a
+single token, `--section-gutter` (64 / 40 / 32 / 16 at the 1280/1024/768 breakpoints), set on `:root` and
+consumed by `padding-inline` on `.section-container` AND on every bespoke section. One token re-gutters
+the whole site at each breakpoint and guarantees alignment. Verified on production: all full-width section
+content-left-edges share the same x (93px at 1512, 40px at 1280, etc.).
+
+**Modifiers.** `.section-container--hero` adds `padding-block-start: 132px` (100px from 1280 down) for
+fixed-nav clearance. `.section-container--flush-top` sets `padding-block-start: 0` for sections that
+directly follow a hero (work-index-cards, skills-section, writings-grid, contact-grid). Naming is
+`--flush-top` (not `--flush`) for clarity about which edge is zeroed.
+
+**UE visual values adopted (20.3b), with an escape hatch.** Section block padding 96 -> 80 (desktop),
+inline gutter 32 -> 64, container max 1600 -> 1440 (ultrawide ladder shifted 1760/1920 -> 1600/1760).
+20.3b is a single commit so `git revert <20.3b-hash>` restores the prior spacing while keeping 20.3a's
+token/recipe additions intact. If the tighter rhythm does not feel right in production, that revert is
+the rollback path.
+
+**Hero unification (correction to the original plan note).** The 152px heroes are `.work-index-hero` and
+`.about-hero`; both tighten to 132 to unify with all other heroes. `.case-hero` was already 132 (not 152
+as first stated). `.case-hero` bottom padding goes 0 -> 80 (it adopts the base block padding): the case
+brief now has 80px of breathing room below the title. This is an intentional consolidation toward one
+hero rhythm, not a bug, and is one of the data points that informs whether to revert 20.3b.
+
+**Mobile hero clearance.** Initial mobile hero top of 88px measured 23px of clearance above the 65px fixed
+nav (marginal, and on case studies the eyebrow/title sit directly under the nav with no showreel buffer).
+Bumped to 100px for 35px clearance, verified on home and a case study at 393x873. Implemented by dropping
+the 768 breakpoint override entirely: the 1280-down rule already cascades 100px to mobile, so heroes are
+132 (desktop) / 100 (1280 and below). 100px stays within UE's mobile hero range.
+
+**Type recipe naming convention.** Recipe classes `.heading-2xl` through `.heading-xs`, `.paragraph-lg`
+through `.paragraph-xs`, `.eyebrow-lg/md/sm`, `.ui-lg/md/sm`, each built from `--text-*` and
+`--leading-recipe-*` tokens (no hardcoded sizes). Sizes mirror the existing de-facto inline scale
+(`heading-lg` == `--text-hero`, `heading-md` == `--text-h2`; `--leading-recipe-heading-lg` 1.05 matches
+`--leading-hero`, `-md` 1.1 matches `--leading-heading`). Landed dormant in 20.3a as scaffolding for
+future pages; nothing in Phase 20 consumes them.
+
+**Material token naming: UE convention, Sarib's values.** `--material-strong/default/weak` use the
+frosted-glass white-alpha values already in the design (0.10 / 0.06 / 0.04), NOT UE's dark-glass values
+(rgba 16,16,20 at 0.4-0.85). The naming follows UE; the values follow this site. Future-Claude: the
+UE-flavored name does not imply UE's value.
+
+**Other token systems (20.3a, dormant).** Blur tokens `--blur-card/overlay/atmosphere` (50/75/100px).
+Aspect-ratio tokens (square/landscape/portrait/wide/ultrawide/golden). Spacing scale `--space-4` through
+`--space-128` (8px-base + 4px infill); named `--space-*` deliberately (not Tailwind's `--spacing-*`
+namespace) so they stay plain CSS vars and generate no utilities. Article-width tokens
+`--container-article-sm/md/lg` (824/1200/1440); kept in `:root` (not `@theme`) so they do not generate
+Tailwind container utilities. Applied in 20.3b: `.case-body`/`.case-section` -> `-md` (1100 -> 1200),
+`.post-body`/`.post-cta` -> `-sm` (720 -> 824), `.about-narrative` -> `-sm` (800 -> 824; the 3% widening
+is invisible but kills the last bespoke prose width, so it tracks the token if the token retunes).
+Breakpoint tokens `--breakpoint-xs` (375) and `--breakpoint-xxl` (1920) are dormant: the existing media
+queries are hardcoded `max-width` values, not token-driven, so these only matter for future Tailwind
+utility variants.
+
+**cosmos-card calc radius: considered and deferred.** The UE analysis suggested a calc-driven thumbnail
+radius (`calc(outer - gap)` so an inner element's corners follow the outer geometry). No current component
+has a padded card containing an inner element that needs its own mathematically-derived radius, so adding
+the pattern now would be YAGNI. Re-add when the first card variant requires it.
+
+**text-wrap: balance + paragraph line-height (20.3b, @layer base).** `h1-h6 { text-wrap: balance }`
+(graceful no-op on older browsers). `p { line-height: 1.65 }` is a base element rule, so it loosens only
+bare `<p>`; paragraphs with an explicit class line-height (hero subhead, ledes, `.post-body` 1.75) keep
+their tuned values. This was intentionally held out of 20.3a (which had a strict zero-visual-change gate)
+and shipped in 20.3b.
+
+**Verification.** 20.3a proved zero visual change via byte-identical local-vs-production computed-style
+fingerprints on home/about/case-study plus zero new-class usage on all 8 pages. 20.3b verified on
+production across all 8 pages at desktop/tablet/mobile: container 1440, gutter 64/40/16, heroes
+132/100, alignment holds (no misalignment), no horizontal scroll, text-wrap balance active. Lighthouse
+SEO/A11y/Best-Practices were not re-run locally (the project's runner cannot launch Chrome from WSL, see
+DEFERRED_FIXES.md); 20.3b changes only spacing/width/line-height/text-wrap, none of which affect those
+audits' inputs (semantics, meta, contrast, tap targets), so the prior 100 scores hold.

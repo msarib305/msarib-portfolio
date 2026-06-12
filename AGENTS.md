@@ -123,6 +123,33 @@ Videos are uploaded as unlisted to youtube.com/@msarib305. The 11-character vide
 
 ---
 
+## Layout system (Phase 20 standard)
+
+`.section-container` is the single source of truth for section spacing. Every full-width content section
+uses it. Do NOT declare per-section `padding` / `max-width` / `margin: 0 auto` on new sections.
+
+- **`.section-container`**: `max-width: var(--container-max)`, `margin-inline: auto`, `padding-block: 80px`
+  (40px from 1280 down), `padding-inline: var(--section-gutter)`.
+- **`.section-container--hero`**: adds nav-clearance top padding (132px desktop, 100px from 1280 down).
+  Use on the first section of a page (the hero).
+- **`.section-container--flush-top`**: zeroes the top padding. Use on a section that directly follows a
+  hero (e.g. a card grid under the hero), so it does not double the vertical gap.
+- **`--section-gutter`** (64 / 40 / 32 / 16 at 1280/1024/768) is the shared inline gutter token. Bespoke
+  sections that cannot use `.section-container` (custom-width prose, margin-based media rows) MUST still
+  set `padding-inline: var(--section-gutter)` so their content left-edges align with everything else.
+- **Article widths**: prose columns use `--container-article-sm` (824, long-form reading),
+  `--container-article-md` (1200, case body with images), `--container-article-lg` (1440). Do not
+  introduce new bespoke prose `max-width` values; reuse a token (within ~5%).
+- **Breakpoints**: the system is xs(375) / sm(600) / md(900) / lg(1200) / xl(1600) / xxl(1920) as tokens,
+  but the section media queries are hardcoded at 1280/1024/768 (UE's values) and 1200/900/600 (legacy
+  grid breakpoints). Match the existing query for the property you are editing.
+- **Type recipes**: `.heading-2xl`..`.heading-xs`, `.paragraph-lg`..`.paragraph-xs`, `.eyebrow-lg/md/sm`,
+  `.ui-lg/md/sm` are available. Prefer a recipe class over a fresh inline `font-size` on new pages.
+
+Full rationale and the gutter-token strategy are in DEC-083.
+
+---
+
 ## Testing protocol
 
 Run in this order after every meaningful change. All steps must pass before the change is considered done.
@@ -152,4 +179,4 @@ This section is a queue of intentionally deferred items. Each item is scoped wor
 
 **Content**
 
-- Upload real ExpertiseCard videos. All 8 expertise items in `src/data/expertise.ts` currently use `res.cloudinary.com/demo/...` placeholder sea turtle videos. Sarib is producing 8 short clips (one per expertise card). Upload to `res.cloudinary.com/ddgwzcrim` and update public IDs in `expertise.ts`. Re-run Lighthouse against production after upload to confirm home page mobile Performance 90+.
+- ~~Upload real ExpertiseCard videos.~~ MOOT as of Phase 20.2. The hover-to-play video on home expertise cards was removed (Sarib did not want the hover behavior), so the placeholder sea turtle clips no longer render. `src/data/expertise.ts` still carries unused `video`/`poster` fields; they can be stripped in a future cleanup but are harmless. No clips need uploading.
