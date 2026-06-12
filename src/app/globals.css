@@ -1579,24 +1579,10 @@
     z-index: 1;
   }
 
-  .exp-card:hover .exp-img { opacity: 0; transform: scale(1.06); }
-
-  /* Hover-reveal video fades in over the BW image */
-  .exp-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 500ms var(--ease-base);
-    z-index: 2;
-  }
-
-  .exp-card:hover .exp-video { opacity: 1; }
+  .exp-card:hover .exp-img { transform: scale(1.06); }
 
   /* Tint layer with mix-blend-mode: color creates the colourised-BW
-     effect. Fades out on hover so the colour video takes over. */
+     effect. Fades down on hover to brighten the image. */
   .exp-tint {
     position: absolute;
     inset: 0;
@@ -1696,16 +1682,12 @@
   }
 
   /* EXPERTISE REDUCED MOTION
-     Keep the default visual state on hover: BW image stays visible,
-     no video, tint stays at resting opacity. Card is visually static
+     Keep the default visual state on hover: BW image stays put (no
+     scale), tint stays at resting opacity. Card is visually static
      on hover, which is the correct reduced-motion contract. */
   @media (prefers-reduced-motion: reduce) {
     .exp-card:hover .exp-img {
-      opacity: 1;
       transform: none;
-    }
-    .exp-card:hover .exp-video {
-      opacity: 0;
     }
     .exp-card:hover .exp-tint {
       opacity: 0.8;
