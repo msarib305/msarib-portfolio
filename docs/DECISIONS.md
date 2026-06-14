@@ -1622,3 +1622,50 @@ production across all 8 pages at desktop/tablet/mobile: container 1440, gutter 6
 SEO/A11y/Best-Practices were not re-run locally (the project's runner cannot launch Chrome from WSL, see
 DEFERRED_FIXES.md); 20.3b changes only spacing/width/line-height/text-wrap, none of which affect those
 audits' inputs (semantics, meta, contrast, tap targets), so the prior 100 scores hold.
+
+### Phase 20.4 amendment -- post-ship regression fixes
+
+Phase 20.3b's `.section-container` migration capped sections at `max-width: 1440` with viewport-relative
+gutter padding. Four existing elements that do NOT follow the section pattern needed different containment
+and broke in the process. Phase 20.4 fixes all four (CSS-only, single commit `87dcb1b`).
+
+1. **NSFW spoiler panel (`.case-spoiler-links`).** Had no inline containment pre-Phase-20; the mismatch
+   only became visible once its sibling `.case-links` (the regular external-links row directly above it)
+   got its own containment. Fix: identical treatment to `.case-links` (`max-width: var(--container-max)`,
+   `margin-inline: auto`, `padding-inline: var(--section-gutter)`) so the two link rows align. It matches
+   `.case-links` (container-max), NOT the narrower `.case-body` article width, precisely because the two
+   are adjacent link rows that must share an edge.
+
+2. **AtmosphericGradient (`.atm-wrapper`).** Used `inset: -80px -8vw` to bleed past its parent section.
+   Phase 20 capped the parent at 1440, so `-8vw` was measured from the cap, not the viewport: on wide
+   viewports the overflow clip landed inside the visible area and showed vertical seams. Fix:
+   viewport-relative positioning (`top/bottom: -80px; left: 50%; width: 104vw; margin-left: -52vw`)
+   detaches the wrapper from parent width; 104vw centered pushes the clip ~2vw past each edge.
+   `body { overflow-x: clip }` prevents horizontal scroll. DEC-077's 8%/92% vertical mask is preserved.
+
+3. **Experience current-row gradient (`.exp-row.current`).** Was a row background. Phase 20 shrank the
+   row box (`.timeline` is now `.section-container`), clipping the gradient at the row's edge. Fix:
+   gradient renders on a full-bleed `.exp-row.current::before` (`left: 50%; width: 100vw;
+   margin-left: -50vw; z-index: -1`); row content stays in the 1440 grid. The `@supports not (color-mix)`
+   rgba fallback moved to the `::before` too.
+
+4. **Expertise card filter (`.exp-img` / `.exp-tint`).** Base filter was `grayscale(1) brightness(0.5)`
+   at both rest and hover, with the tint at 0.8 supplying colour via `mix-blend-mode: color`. On hover the
+   tint faded to 0.15, exposing the raw grayscale image, which read as MORE B&W on hover (the inverse of
+   intent). Fix: the filter now transitions `grayscale(1) brightness(0.5)` (rest) -> `grayscale(0)
+   brightness(1)` (hover), and `filter` was added to the transition; tint rest opacity bumped 0.8 -> 0.85
+   for a slightly brighter at-rest wash. Reduced-motion: the existing `prefers-reduced-motion` block
+   predated this change and pinned only `transform` + tint, so reduced-motion users would still get the
+   colour reveal. Phase 20.4 added a `filter: grayscale(1) brightness(0.5)` pin (and updated the tint pin
+   to 0.85) so reduced-motion users keep the full rest state on hover (no colour reveal, no scale).
+
+**Architectural rule that emerged: full-bleed elements must NOT live inside `.section-container`.** Any
+element that needs to reach the viewport edges (atmospheric washes, banded backgrounds, edge-to-edge
+gradients) cannot rely on its parent's width, because `.section-container` caps the parent at 1440. Use
+one of two patterns:
+- self-positioned element: `position: absolute; left: 50%; width: 100vw; margin-left: -50vw` (or 104/-52
+  for a 2vw safety overshoot);
+- background behind contained content: a `::before` / `::after` with the same technique, while the content
+  stays inside `.section-container`.
+`body { overflow-x: clip }` is what makes `width: 100vw` safe (no horizontal scrollbar). The NSFW spoiler
+row is the exception to the "match the section" instinct: it matches its sibling link row, not a section.

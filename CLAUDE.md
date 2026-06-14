@@ -90,6 +90,8 @@ Hover behavior: JS adds `.spinning` on `mouseenter`, removes on `animationend`. 
 
 `.section-container` is the single source of truth for section spacing. New pages and sections MUST use it and MUST NOT declare their own section `padding` / `max-width` / `margin: 0 auto`. Modifiers: `.section-container--hero` (nav-clearance top) and `.section-container--flush-top` (zero top, for a section right under a hero). Inline padding everywhere reads the `--section-gutter` token (64/40/32/16) so content left-edges align down each page; bespoke prose/media sections that can't use the class still set `padding-inline: var(--section-gutter)`. Prose widths use `--container-article-sm/md/lg`. Full rationale in DEC-083.
 
+Full-bleed elements (atmospheric washes, edge-to-edge gradients, banded backgrounds) MUST NOT live inside `.section-container`: it caps the parent at 1440, which clips them on wide viewports. Use a viewport-relative box (`position: absolute; left: 50%; width: 100vw; margin-left: -50vw`, or `104vw / -52vw` for a 2vw overshoot) or a `::before`/`::after` with the same technique while the content stays in the container. `body { overflow-x: clip }` makes `width: 100vw` safe. Worked examples (`.atm-wrapper`, `.exp-row.current::before`) in the DEC-083 Phase 20.4 amendment.
+
 ---
 
 ## Future work

@@ -145,8 +145,15 @@ uses it. Do NOT declare per-section `padding` / `max-width` / `margin: 0 auto` o
   grid breakpoints). Match the existing query for the property you are editing.
 - **Type recipes**: `.heading-2xl`..`.heading-xs`, `.paragraph-lg`..`.paragraph-xs`, `.eyebrow-lg/md/sm`,
   `.ui-lg/md/sm` are available. Prefer a recipe class over a fresh inline `font-size` on new pages.
+- **Full-bleed elements must NOT live inside `.section-container`.** Anything that reaches the viewport
+  edges (atmospheric washes, banded backgrounds, edge-to-edge gradients) cannot rely on its parent's
+  width, because `.section-container` caps it at 1440. Use a viewport-relative box (`position: absolute;
+  left: 50%; width: 100vw; margin-left: -50vw`, or `104vw / -52vw` for a 2vw overshoot), or render the
+  background on a `::before` / `::after` with the same technique while the content stays inside the
+  container. `body { overflow-x: clip }` makes `width: 100vw` safe (no horizontal scroll). See the
+  DEC-083 Phase 20.4 amendment (`.atm-wrapper`, `.exp-row.current::before`) for worked examples.
 
-Full rationale and the gutter-token strategy are in DEC-083.
+Full rationale and the gutter-token strategy are in DEC-083 (and its Phase 20.4 amendment).
 
 ---
 

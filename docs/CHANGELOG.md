@@ -2,6 +2,32 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-14
+### fix(layout): Phase 20.4 regression fixes from Phase 20 spacing pass
+
+Four visual regressions surfaced after Phase 20's `.section-container` migration (which capped sections
+at max-width 1440). All four are elements that do NOT follow the section pattern and broke when their
+containing box shrank. CSS-only; single fix commit plus this docs commit. Full root-cause writeup in the
+DEC-083 Phase 20.4 amendment.
+
+- **`.case-spoiler-links`** (NSFW spoiler row): added `max-width: var(--container-max)` +
+  `margin-inline: auto` + `padding-inline: var(--section-gutter)`, matching the `.case-links` sibling row
+  above it (was flush to viewport edges with no inline containment).
+- **`.atm-wrapper`** (atmospheric gradient on home "What I bring" and about "How I think"): switched from
+  parent-relative `inset: -80px -8vw` to viewport-relative `width: 104vw; left: 50%; margin-left: -52vw`.
+  The old `-8vw` measured from the 1440-capped parent, landing the overflow clip inside wide viewports
+  (visible vertical seams). DEC-077 8%/92% vertical mask preserved.
+- **`.exp-row.current`** (about Experience current-role highlight): gradient moved to a full-bleed
+  `::before` (`width: 100vw; margin-left: -50vw; z-index: -1`) so it spans the viewport; row content
+  stays in the 1440 grid. `@supports` rgba fallback moved to the `::before` too.
+- **`.exp-img` / `.exp-tint`** (home expertise cards): filter inverted from "B&W on hover" to "colour on
+  hover" -- rest `grayscale(1) brightness(0.5)`, hover `grayscale(0) brightness(1)`, with `filter` added
+  to the transition; tint rest opacity 0.8 -> 0.85. Added a `prefers-reduced-motion` filter pin so
+  reduced-motion users keep the rest state on hover (no colour reveal).
+
+Verification: `pnpm typecheck` / `lint` / `build` green; em-dash grep clean on the diff; production CSS
+on msarib.dev confirmed to carry all four changes. Single source file modified: `src/app/globals.css`.
+
 ## 2026-06-12
 ### feat(design-system): Phase 20 strategic density pass + 2 side fixes
 
