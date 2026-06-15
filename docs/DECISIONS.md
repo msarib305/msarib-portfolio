@@ -1669,3 +1669,92 @@ one of two patterns:
   stays inside `.section-container`.
 `body { overflow-x: clip }` is what makes `width: 100vw` safe (no horizontal scrollbar). The NSFW spoiler
 row is the exception to the "match the section" instinct: it matches its sibling link row, not a section.
+
+## DEC-084 -- Phase 21: content swaps, WIB mobile scroll fix, AtmosphericGradient retune
+
+Three independent workstreams shipped as four commits (21.1 content, 21.2 WIB fix, 21.3 gradient
+retune, docs). Shipped 2026-06-15.
+
+### Content strategy (21.1)
+
+Own work over stock. The 8 expertise-card images and the systems-section image were placeholder
+Cloudinary `demo`-account assets (`sample`); they now ship real per-project art from Sarib's
+`ddgwzcrim` cloud. The delivery transform was kept identical (`f_auto,q_auto,c_fill,g_auto,w_600` for
+cards, `w_1200` for systems); only the cloud name and public_id changed, and the `.png` extension was
+dropped so `f_auto` serves WebP/AVIF. Each image has a clear visual subject for fast (sub-100ms)
+recognition on the card grid.
+
+Showreel encoding. Swapped the hero showreel from the `portfolio-showreel` placeholder to
+`portfolio-showreel-new` (720p source). Delivery URL `f_auto,q_auto:eco,w_1280/portfolio-showreel-new.mp4`,
+NOT the Cloudinary Player embed. Counter-intuitively the `.mp4` extension does not defeat `f_auto`:
+verified that Chrome (Accept: video/webm) receives WebM/VP9 at ~2.9 MB, while Safari falls back to MP4
+at ~4.6 MB. The extension is the fallback format, `f_auto` still negotiates up. Both Hero and `page.tsx`
+posters were re-derived from the new public_id and kept byte-identical (the `page.tsx` poster is the
+preload `<link>` for the mobile LCP). The old `portfolio-showreel` public_id is left in Cloudinary
+(unreferenced in production; safe to delete in a future cleanup). `/design-system` keeps its
+`portfolio-showreel` demo references (internal media-type stand-in, not the hero).
+
+TGS gallery additions. Three Tokyo Game Show 2024 floor photos appended to the anime case study gallery
+(Vmmersion booth, attendee playing the demo, demo station), per the Phase 19.6.1 Gallery schema.
+
+Lily_* filename URLs kept. The new gallery and showreel assets expose `Lily_*` public_ids in their URLs.
+The character name leaks in the URL but is not visible in the image content, and recruiter exposure is
+minimal (URLs are not inspected during portfolio review). Kept as-is to preserve the low-friction asset
+upload workflow.
+
+### WIB mobile horizontal scroll fix (21.2)
+
+The original brief assumed `.wib-section` lacked `overflow-x` containment. Headless Playwright
+measurement at 375 and 393 disproved that: `.wib-section` already had `overflow-x: hidden` scoped to
+`@media (max-width: 600px)`. The real defect is that `overflow-x: hidden` coerces `overflow-y` to `auto`
+(CSS spec: one axis non-visible forces the other off `visible`), turning the section into a nested
+scroll container. The `.atm-wrapper`'s 104vw horizontal bleed becomes scrollable content inside that
+container, and on real touch hardware a nested scroll container is finger-pannable, which reads as "the
+WIB section scrolls sideways" while the page itself does not. `.three-card` (the about equivalent) has
+no overflow rule and relies on `body { overflow-x: clip }`, so it never becomes a scroll container and
+never panned.
+
+Fix: `overflow-x: hidden` -> `overflow-x: clip`, inside the same `@media (max-width: 600px)` scope.
+`clip` clips without creating a scroll container (it is the exception that lets the cross-axis stay
+`visible`), so the touch-pan vector is removed.
+
+Two things were deliberately NOT done:
+- Not applied unconditionally. Measured at 1512px: an unconditional section-level clip would chop the
+  `.atm-wrapper` (which bleeds to x=-38..1535 past the viewport) back to the 1440 section box, leaving
+  bare ~30-40px gutters. That regresses Phase 20.4. The `@media` scope stays; desktop containment
+  remains the job of `body { overflow-x: clip }` at the viewport.
+- `.atm-wrapper` itself untouched. Its 104vw width is intentional (Phase 20.4).
+
+Architectural lesson: prefer `overflow-x: clip` over `hidden` when the goal is purely visual
+containment. `clip` contains without making the axis a programmatically/touch scrollable scroll
+container.
+
+Sequencing: 21.2 must ship before 21.3. The `hidden -> clip` swap restores `overflow-y: visible` on the
+WIB section, which is a prerequisite for 21.3's -200px vertical bleed to render. Under the old
+`overflow-y: auto`, the vertical bleed would have been clipped/scrolled at the section bottom on mobile,
+defeating the 4-side bleed.
+
+Real-device note: headless Chromium confirmed the mechanism (scroll container eliminated) but never
+reproduced an actual page-level scroll or touch-pan (it cannot emulate real touch / overlay-scrollbar
+behavior). Final touch-pan confirmation is a manual Pixel 8 Pro test, tracked as pending.
+
+### AtmosphericGradient retune (21.3)
+
+- Animation durations 2.5x faster (matches UE gradient pacing per Sarib's reference): b1 20s->8s,
+  b2 25s->10s, b3 30s->12s, b4 35s->14s, b5 28s->11.2s.
+- Vertical bleed `-80px -> -200px` on `.atm-wrapper` top/bottom, extending Phase 20.4's horizontal
+  full-bleed pattern to all 4 sides. The DEC-077 8%/92% vertical mask was preserved unchanged; the
+  fades stayed soft at the larger bleed (the 4%/96% fallback was not needed). Verified the wash fades
+  out before the adjacent ExpertiseGrid (top) and ContactCTA (bottom), no hard leak.
+- Color palette: all-teal `rgba(0,217,196,a)` -> teal/purple/pink, Option A distribution (T/P/K/T/P
+  across b1-b5): teal `#55D4C4`, purple `#C075E9`, pink `#F9B7BF`. Each circle keeps its prior alpha
+  (.40/.32/.26/.22/.18) for the depth falloff; only the hue changed. Teal stays the dominant/brightest
+  anchor (b1, b4); the new palette breaks the all-teal flatness while keeping the teal-led identity.
+
+### Verification
+
+Build clean; em-dash grep clean on all diffs. Production Lighthouse: SEO 100 and A11y 100 (about 98 via
+pre-existing `heading-order`), BP 96 site-wide (pre-existing `errors-in-console` from the report-only CSP
+notice, tied to the deferred CSP-flip item), Performance home 96 / anime 98 / about 87 (pre-existing
+about-portrait LCP). The showreel swap did not regress Performance. None of the Lighthouse gaps trace to
+Phase 21.

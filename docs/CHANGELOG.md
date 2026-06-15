@@ -2,6 +2,36 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-15
+### Phase 21 -- content swaps, WIB mobile scroll fix, gradient retune
+
+Four commits. All shipped to production. Full rationale in DEC-084.
+
+**21.1 -- `feat(content): expertise cards, systems image, showreel, TGS gallery`**
+Replaced 8 placeholder expertise-card images and the systems-section image (were `demo`-cloud `sample`)
+with real per-project art on the `ddgwzcrim` cloud, same delivery transforms. Swapped the hero showreel
+to `portfolio-showreel-new` via `f_auto,q_auto:eco,w_1280` (Chrome WebM/VP9 ~2.9 MB, Safari MP4 fallback
+~4.6 MB); Hero + `page.tsx` posters re-derived to match. Added 3 Tokyo Game Show 2024 floor photos to the
+anime case study gallery. Files: `expertise.ts`, `FeatureShowcase.tsx`, `Hero.tsx`, `page.tsx`, anime
+`index.mdoc`.
+
+**21.2 -- `fix(home): contain WIB section's atmospheric gradient to prevent mobile horizontal scroll`**
+Root cause (found via headless measurement, not the original brief's assumption): `.wib-section` already
+had `overflow-x: hidden` at `@media (max-width: 600px)`, which coerces `overflow-y` to `auto` and makes
+the section a nested, touch-pannable scroll container around the `.atm-wrapper` bleed. Fix: `hidden` ->
+`clip` in the same scope (clip contains without creating a scroll container, and keeps `overflow-y:
+visible`). Kept mobile-scoped so desktop Phase 20.4 full-bleed is preserved. File: `globals.css`.
+
+**21.3 -- `feat(home): atmospheric gradient retune`**
+Animation 2.5x faster (durations 8/10/12/14/11.2s), vertical bleed `-80px -> -200px` (4-side bleed; DEC-077
+8%/92% mask preserved), and a new teal/purple/pink palette (Option A: T/P/K/T/P across the 5 circles,
+per-circle alphas preserved). Files: `globals.css`, `AtmosphericGradient.tsx`.
+
+Verification: `pnpm typecheck` / `lint` / `build` green; em-dash grep clean on every diff; production
+values confirmed on msarib.dev (home + about); production Lighthouse SEO/A11y 100 (about A11y 98 pre-existing),
+BP 96 (pre-existing report-only-CSP console notice), Perf 96/98/87. WIB mobile horizontal scroll fixed in
+headless; real-device Pixel 8 Pro confirmation pending.
+
 ## 2026-06-14
 ### fix(layout): Phase 20.4 regression fixes from Phase 20 spacing pass
 

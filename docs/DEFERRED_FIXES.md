@@ -47,6 +47,31 @@ Priority order:
 
 ---
 
+## Discovered Phase 21 (2026-06-15)
+
+Phase 21 resolved none of the items above; all remain pending. Two new items surfaced.
+
+6. **Pre-existing em-dash audit and sweep.** Discovered during Phase 21.1: em-dashes exist in
+   `src/data/expertise.ts` `bwImageAlt` strings (e.g. "Combat and gameplay systems -- Unreal Engine
+   development"), `src/components/FeatureShowcase.tsx` `SHOWCASE_ALT`, and various comments across the
+   codebase. These predate Phase 21. Per the project no-em-dash rule they should be removed in a
+   dedicated sweep phase. Special handling for alt text (read aloud by screen readers as pauses, which
+   is sometimes structurally intentional), evaluate case-by-case: em-dash separating subject from
+   clarifier -> replace with comma or colon; em-dash as AI-tell punctuation -> replace with comma or
+   sentence rewrite; em-dash inside a quote -> preserve (quoted material is exempt). Comments can be
+   swept aggressively (no a11y or rendering concerns). Recommend: post-Phase-21, before any new content
+   phases. (Note: this deliberately expands the line-below caveat, which previously left comment/alt
+   em-dashes untracked; alt text is delivered, screen-reader-facing copy and is now in scope.)
+
+7. **Next.js 16 `images.qualities` warnings (dev-only).** Surfaced during Phase 21.2 on a fresh dev
+   server start. The `<Image>` component warns when `quality` props do not match values in
+   `next.config.ts`'s `images.qualities` array (default `[75]`). Current code uses `quality={40}` on the
+   FeatureShowcase glow and `quality={55}` on the expertise cards. Fix: add 40 and 55 to the array,
+   `images: { qualities: [40, 55, 75] }`. Two-line config change. Dev-only warning; production renders
+   correctly. Predates Phase 21.
+
+---
+
 ## Notes
 
 - These items were surfaced during the Phase 19.7 working-tree audit. The count discrepancies trace to
