@@ -4060,9 +4060,13 @@
        measured from the parent, which Phase 20 capped at max-width 1440, so the
        overflow clip landed inside wide viewports and showed vertical seams.
        104vw centered keeps the blob field ~viewport-sized and pushes the clip
-       ~2vw past each edge. body has overflow-x: clip, so no horizontal scroll. */
-    top: -80px;
-    bottom: -80px;
+       ~2vw past each edge. body has overflow-x: clip, so no horizontal scroll.
+       Phase 21.3: vertical bleed -80px -> -200px so the wash also extends past
+       the section top and bottom (4-side bleed). Relies on the host section
+       keeping overflow-y: visible (WIB uses overflow-x: clip, not hidden, so it
+       does not become a scroll container that would clip this). */
+    top: -200px;
+    bottom: -200px;
     left: 50%;
     right: auto;
     width: 104vw;
@@ -4087,11 +4091,13 @@
     filter: blur(100px);
   }
 
-  .atm-b1 { animation: atm-drift1 20s ease-in-out infinite; transform-origin: center; }
-  .atm-b2 { animation: atm-drift2 25s ease-in-out infinite; transform-origin: center; }
-  .atm-b3 { animation: atm-drift3 30s ease-in-out infinite; transform-origin: center; }
-  .atm-b4 { animation: atm-drift4 35s ease-in-out infinite; transform-origin: center; }
-  .atm-b5 { animation: atm-drift5 28s ease-in-out infinite; transform-origin: center; }
+  /* Phase 21.3: durations 2.5x faster (matches UE gradient pacing). Was
+     20/25/30/35/28s. */
+  .atm-b1 { animation: atm-drift1 8s    ease-in-out infinite; transform-origin: center; }
+  .atm-b2 { animation: atm-drift2 10s   ease-in-out infinite; transform-origin: center; }
+  .atm-b3 { animation: atm-drift3 12s   ease-in-out infinite; transform-origin: center; }
+  .atm-b4 { animation: atm-drift4 14s   ease-in-out infinite; transform-origin: center; }
+  .atm-b5 { animation: atm-drift5 11.2s ease-in-out infinite; transform-origin: center; }
 
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .wib-card,
