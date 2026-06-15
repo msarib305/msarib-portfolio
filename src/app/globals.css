@@ -2118,10 +2118,15 @@
 
   @media (max-width: 600px) {
     .wib-section {
-      /* spacing via .section-container; overflow containment kept.
-         Contain the .atm-wrapper which extends -8vw on each side; at mobile
-         the bleed expands the layout viewport and shifts fixed nav. */
-      overflow-x: hidden;
+      /* Contain the .atm-wrapper's horizontal bleed on mobile (keeps the fixed
+         nav from shifting). clip, not hidden: clip does NOT coerce overflow-y to
+         auto, so the section never becomes a nested scroll container, which on
+         touch devices pans horizontally and reads as the section scrolling
+         sideways. overflow-y stays visible so the Phase 21.3 vertical bleed
+         renders. Kept mobile-scoped so desktop keeps the Phase 20.4 full-bleed
+         via body overflow-x: clip (unconditional clip here would chop the
+         .atm-wrapper at the 1440 section box on wide viewports). */
+      overflow-x: clip;
     }
     .wib-card {
       padding: 28px 24px;
