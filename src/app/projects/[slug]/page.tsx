@@ -9,6 +9,7 @@ import { ProjectBody }      from '@/components/ProjectBody'
 import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
+import { platformIconForUrl } from '@/icons/PlatformIcon'
 
 // Per-slug VideoGame typing (Phase 19.7, DEC-082). The four game projects render
 // as schema.org VideoGame with a platform; every other case study stays
@@ -145,6 +146,7 @@ export default async function ProjectPage({
               rel="noopener noreferrer"
               className="case-link-pill"
             >
+              {platformIconForUrl(link.url)}
               {link.label}
             </a>
           ))}

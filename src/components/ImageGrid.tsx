@@ -14,6 +14,7 @@ export interface ImageGridItem {
   src:      string
   alt:      string
   caption?: string
+  href?:    string
 }
 
 interface ImageGridProps {
@@ -38,7 +39,7 @@ export function normalizeImageGridItems(raw: unknown): ImageGridItem[] {
     const e = entry as Record<string, unknown>
     const src = str(e.src)
     if (src.length === 0) continue
-    items.push({ src, alt: str(e.alt), caption: optStr(e.caption) })
+    items.push({ src, alt: str(e.alt), caption: optStr(e.caption), href: optStr(e.href) })
   }
   return items
 }
@@ -48,22 +49,39 @@ export function ImageGrid({ items, ariaLabel }: ImageGridProps) {
 
   return (
     <ul className="image-grid" aria-label={ariaLabel ?? 'Image grid'}>
-      {items.map((item, i) => (
-        <li key={i} className="image-grid-item">
-          <figure>
-            <CldImage
-              src={cloudinaryPublicId(item.src)}
-              alt={item.alt}
-              width={1200}
-              height={675}
-              sizes="(max-width: 600px) 100vw, 50vw"
-              className="image-grid-img"
-              loading="lazy"
-            />
-            {item.caption && <figcaption className="image-grid-cap">{item.caption}</figcaption>}
-          </figure>
-        </li>
-      ))}
+      {items.map((item, i) => {
+        const img = (
+          <CldImage
+            src={cloudinaryPublicId(item.src)}
+            alt={item.alt}
+            width={1200}
+            height={675}
+            sizes="(max-width: 600px) 100vw, 50vw"
+            className="image-grid-img"
+            loading="lazy"
+          />
+        )
+        return (
+          <li key={i} className="image-grid-item">
+            <figure>
+              {item.href ? (
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="image-grid-link"
+                  aria-label={`${item.alt} (opens in a new tab)`}
+                >
+                  {img}
+                </a>
+              ) : (
+                img
+              )}
+              {item.caption && <figcaption className="image-grid-cap">{item.caption}</figcaption>}
+            </figure>
+          </li>
+        )
+      })}
     </ul>
   )
 }

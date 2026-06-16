@@ -267,6 +267,7 @@ export default config({
                     src:     fields.text({ label: 'Image URL (Cloudinary)' }),
                     alt:     fields.text({ label: 'Alt text (required)' }),
                     caption: fields.text({ label: 'Caption (optional)' }),
+                    href:    fields.text({ label: 'Link URL (optional, opens in new tab)' }),
                   }),
                   {
                     label: 'Grid images',

@@ -2486,6 +2486,19 @@
     border-color: var(--color-border-subtle);
   }
 
+  /* Linked grid item (e.g. TRESverse press images): clearer affordance than the
+     base border tint, so it reads as clickable through to the source article. */
+  .image-grid-link {
+    display: block;
+    cursor: pointer;
+    border-radius: var(--radius-12);
+  }
+  .image-grid-link:hover .image-grid-img,
+  .image-grid-link:focus-visible .image-grid-img {
+    border-color: var(--color-accent);
+    transform: scale(1.02);
+  }
+
   .image-grid-cap {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -4001,15 +4014,24 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
+    padding: 10px 16px;
     background: var(--color-bg-low);
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-full);
     font-size: 13px;
+    font-weight: 600;
     color: var(--color-text-secondary);
     text-decoration: none;
     transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
     white-space: nowrap;
+  }
+
+  /* Leading platform icon (PlatformIcon.tsx). Inherits the pill's currentColor so
+     it tracks the text color through the hover transition. */
+  .case-link-icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
   }
 
   .case-link-pill:hover {
