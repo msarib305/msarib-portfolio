@@ -118,61 +118,71 @@ export default async function ProjectPage({
     <>
       <JsonLd schema={projectSchema} />
       <JsonLd schema={breadcrumbSchema} />
-      <div className="case-hero section-container section-container--hero">
-        <CaseStudyHeader tags={project.tags} title={project.title} />
-        <div className="case-summary">
-          <p className="case-summary-text">{project.summary}</p>
-          <CaseStudySpecs
-            date={project.date}
-            client={project.client}
-            role={project.role}
-            engine={project.engine}
-            status={project.status}
-          />
-        </div>
-      </div>
 
-      <div className="case-media">
-        <CaseStudyCover cover={project.cover} />
-      </div>
+      {/* <article> + schema.org CreativeWork microdata: gives browser reading
+          modes (Edge Immersive Reader, Chrome Reading Mode) a clean content
+          root, and mirrors the CreativeWork JSON-LD for crawlers. Nav and the
+          JSON-LD scripts stay outside so the reader view excludes them. */}
+      <article itemScope itemType="https://schema.org/CreativeWork">
+        {isoYear && <meta itemProp="dateCreated" content={isoYear} />}
+        <meta itemProp="author" content="Muhammad Sarib" />
 
-      {project.links.length > 0 && (
-        <div className="case-links">
-          {project.links.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="case-link-pill"
-            >
-              {platformIconForUrl(link.url)}
-              {link.label}
-            </a>
-          ))}
-        </div>
-      )}
-
-      {project.spoilerLinks.length > 0 && (
-        <div className="case-spoiler-links">
-          {project.spoilerLinks.map((sl) => (
-            <SpoilerLink
-              key={sl.url}
-              label={sl.label}
-              url={sl.url}
-              warning={sl.warning}
+        <div className="case-hero section-container section-container--hero">
+          <CaseStudyHeader tags={project.tags} title={project.title} />
+          <div className="case-summary">
+            <p className="case-summary-text" itemProp="description">{project.summary}</p>
+            <CaseStudySpecs
+              date={project.date}
+              client={project.client}
+              role={project.role}
+              engine={project.engine}
+              status={project.status}
             />
-          ))}
+          </div>
         </div>
-      )}
 
-      <ProjectBody body={project.body} />
+        <div className="case-media">
+          <CaseStudyCover cover={project.cover} />
+        </div>
 
-      {project.gallery.length > 0 && (
-        <section aria-label="Project gallery">
-          <CaseStudyGallery items={project.gallery} />
-        </section>
-      )}
+        {project.links.length > 0 && (
+          <div className="case-links">
+            {project.links.map((link) => (
+              <a
+                key={link.url}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="case-link-pill"
+              >
+                {platformIconForUrl(link.url)}
+                {link.label}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {project.spoilerLinks.length > 0 && (
+          <div className="case-spoiler-links">
+            {project.spoilerLinks.map((sl) => (
+              <SpoilerLink
+                key={sl.url}
+                label={sl.label}
+                url={sl.url}
+                warning={sl.warning}
+              />
+            ))}
+          </div>
+        )}
+
+        <ProjectBody body={project.body} />
+
+        {project.gallery.length > 0 && (
+          <section aria-label="Project gallery">
+            <CaseStudyGallery items={project.gallery} />
+          </section>
+        )}
+      </article>
 
       <CaseStudyNav prev={nav.prev} next={nav.next} />
     </>

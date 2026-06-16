@@ -82,20 +82,23 @@ export default async function WritingPage(
   }
 
   return (
-    <main>
+    <>
       <JsonLd schema={writingSchema} />
-      <article>
+      <article itemScope itemType="https://schema.org/BlogPosting">
+        <meta itemProp="author" content="Muhammad Sarib" />
+        <meta itemProp="datePublished" content={writing.published} />
+        <meta itemProp="dateModified" content={writing.updated ?? writing.published} />
         <header className="post-hero">
           <WritingMeta
             published={writing.published}
             readingTimeMinutes={writing.readingTimeMinutes}
             tags={writing.tags}
           />
-          <h1>{writing.title}</h1>
+          <h1 itemProp="headline">{writing.title}</h1>
           <p className="post-byline">
             By <strong>Sarib</strong>, Lead Unreal Engine Developer
           </p>
-          <p className="post-deck">{writing.summary}</p>
+          <p className="post-deck" itemProp="description">{writing.summary}</p>
         </header>
         <WritingBody body={writing.body} />
       </article>
@@ -114,6 +117,6 @@ export default async function WritingPage(
       </section>
 
       <WritingNav prev={nav.prev} next={nav.next} />
-    </main>
+    </>
   )
 }

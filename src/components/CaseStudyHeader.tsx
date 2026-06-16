@@ -11,7 +11,7 @@ export function CaseStudyHeader({ tags, title }: CaseStudyHeaderProps) {
           <span key={tag} className="case-chip">{tag}</span>
         ))}
       </div>
-      <h1 className="case-title">{title}</h1>
+      <h1 className="case-title" itemProp="name">{title}</h1>
     </>
   )
 }
