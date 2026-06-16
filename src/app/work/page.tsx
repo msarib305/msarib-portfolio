@@ -5,19 +5,19 @@ import { JsonLd }         from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title:       'Work',
-  description: 'Ten shipped titles across six studios. Unreal Engine 5 work in C++, Blueprints, the Gameplay Ability System, multiplayer replication, AI, mobile, and VR.',
+  description: 'Ten shipped titles across five studios. Unreal Engine 5 work in C++, Blueprints, the Gameplay Ability System, multiplayer replication, AI, mobile, and VR.',
   alternates:  { canonical: 'https://msarib.dev/work' },
   openGraph: {
     type:        'website',
     url:         'https://msarib.dev/work',
     title:       'Work · Sarib',
-    description: 'Ten shipped titles across six studios. Unreal Engine 5 work in C++, Blueprints, GAS, multiplayer replication, AI, mobile, and VR.',
+    description: 'Ten shipped titles across five studios. Unreal Engine 5 work in C++, Blueprints, GAS, multiplayer replication, AI, mobile, and VR.',
     images: [{ url: '/og?title=Work&eyebrow=Selected+Projects', width: 1200, height: 630, alt: 'Work · Sarib' }],
   },
   twitter: {
     card:        'summary_large_image',
     title:       'Work · Sarib',
-    description: 'Ten shipped titles across six studios. Unreal Engine 5 work in C++, Blueprints, GAS, multiplayer replication, AI, mobile, and VR.',
+    description: 'Ten shipped titles across five studios. Unreal Engine 5 work in C++, Blueprints, GAS, multiplayer replication, AI, mobile, and VR.',
     images:      ['/og?title=Work&eyebrow=Selected+Projects'],
   },
 }

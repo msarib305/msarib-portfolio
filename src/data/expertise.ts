@@ -1,5 +1,5 @@
 /**
- * PLACEHOLDER CONTENT — Cloudinary demo account URLs.
+ * PLACEHOLDER CONTENT, Cloudinary demo account URLs.
  *
  * Replace these with Sarib's own Cloudinary assets when uploaded.
  * Folder convention: msarib/<project-slug>/<asset-name>.
@@ -13,7 +13,7 @@
 export interface ExpertiseItem {
   slug:       string
   title:      string
-  bwImage:    string    /* Cloudinary URL — colour source, CSS applies grayscale */
+  bwImage:    string    /* Cloudinary URL, colour source, CSS applies grayscale */
   bwImageAlt: string
   video:      string    /* Cloudinary video URL */
   poster:     string    /* Still frame URL for video first-paint */
@@ -33,7 +33,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'combat-gameplay',
     title:      'Combat & Gameplay Systems',
     bwImage:    `${CARD_BASE}/CombatAndGameplay_fdjwr2`,
-    bwImageAlt: 'Combat and gameplay systems — Unreal Engine development',
+    bwImageAlt: 'Combat and gameplay systems, Unreal Engine development',
     video:      `${VID}/sea_turtle`,     // TODO: combat-gameplay
     poster:     `${POST}/sea_turtle`,    // TODO: combat-gameplay
     tintClass:  'c1',
@@ -42,7 +42,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'multiplayer-replication',
     title:      'Multiplayer Replication',
     bwImage:    `${CARD_BASE}/MultiplayerReplication_lvwbzs`,
-    bwImageAlt: 'Multiplayer and replication — server-authoritative UE5 networking',
+    bwImageAlt: 'Multiplayer and replication, server-authoritative UE5 networking',
     video:      `${VID}/sea_turtle`,     // TODO: multiplayer-replication
     poster:     `${POST}/sea_turtle`,    // TODO: multiplayer-replication
     tintClass:  'c2',
@@ -51,7 +51,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'performance-profiling',
     title:      'Performance Profiling',
     bwImage:    `${CARD_BASE}/PerformanceAndProfiling_zfnmnu`,
-    bwImageAlt: 'Performance profiling — Unreal Insights, Stat GPU, RenderDoc',
+    bwImageAlt: 'Performance profiling, Unreal Insights, Stat GPU, RenderDoc',
     video:      `${VID}/sea_turtle`,     // TODO: performance-profiling
     poster:     `${POST}/sea_turtle`,    // TODO: performance-profiling
     tintClass:  'c3',
@@ -60,7 +60,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'virtual-reality',
     title:      'Virtual Reality',
     bwImage:    `${CARD_BASE}/VirtualReality_g1tlwh`,
-    bwImageAlt: 'Virtual Reality — Meta Quest 2 standalone UE5 development',
+    bwImageAlt: 'Virtual Reality, Meta Quest 2 standalone UE5 development',
     video:      `${VID}/sea_turtle`,     // TODO: virtual-reality
     poster:     `${POST}/sea_turtle`,    // TODO: virtual-reality
     tintClass:  'c4',
@@ -69,7 +69,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'artificial-intelligence',
     title:      'Artificial Intelligence',
     bwImage:    `${CARD_BASE}/ArtificialIntelligence_qfadgm`,
-    bwImageAlt: 'AI in Unreal Engine — Behavior Trees, EQS, GAS, Convai, Llama LLM',
+    bwImageAlt: 'AI in Unreal Engine, Behavior Trees, EQS, GAS, Convai, Llama LLM',
     video:      `${VID}/sea_turtle`,     // TODO: artificial-intelligence
     poster:     `${POST}/sea_turtle`,    // TODO: artificial-intelligence
     tintClass:  'c5',
@@ -78,7 +78,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'rendering',
     title:      'Rendering',
     bwImage:    `${CARD_BASE}/Rendering_trejpe`,
-    bwImageAlt: 'Rendering — Niagara VFX, materials, post-process, Sequencer',
+    bwImageAlt: 'Rendering, Niagara VFX, materials, post-process, Sequencer',
     video:      `${VID}/sea_turtle`,     // TODO: rendering
     poster:     `${POST}/sea_turtle`,    // TODO: rendering
     tintClass:  'c6',
@@ -87,7 +87,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'metaverse',
     title:      'Metaverse',
     bwImage:    `${CARD_BASE}/Metaverse_ennvmp`,
-    bwImageAlt: 'Metaverse — Pixel Streaming, Cesium 3D Tiles, branded real-time experiences',
+    bwImageAlt: 'Metaverse, Pixel Streaming, Cesium 3D Tiles, branded real-time experiences',
     video:      `${VID}/sea_turtle`,     // TODO: metaverse
     poster:     `${POST}/sea_turtle`,    // TODO: metaverse
     tintClass:  'c7',
@@ -96,7 +96,7 @@ export const expertise: ExpertiseItem[] = [
     slug:       'editor-tools-verse',
     title:      'Editor Tools & Verse',
     bwImage:    `${CARD_BASE}/EditorToolsAndVerse_xh49xm`,
-    bwImageAlt: 'Editor tools and Verse — UEFN, Fortnite Creative, utility widgets',
+    bwImageAlt: 'Editor tools and Verse, UEFN, Fortnite Creative, utility widgets',
     video:      `${VID}/sea_turtle`,     // TODO: editor-tools-verse
     poster:     `${POST}/sea_turtle`,    // TODO: editor-tools-verse
     tintClass:  'c8',

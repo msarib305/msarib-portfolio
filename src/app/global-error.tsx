@@ -21,7 +21,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             <span className="error-page-code" aria-hidden="true">500</span>
             <h1 className="error-page-heading">Critical error</h1>
             <p className="error-page-body">
-              The application crashed. Reload the page — if it keeps happening, try again later.
+              The application crashed. Reload the page. If it keeps happening, try again later.
             </p>
             <button
               onClick={reset}

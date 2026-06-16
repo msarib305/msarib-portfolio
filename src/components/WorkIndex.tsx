@@ -9,9 +9,9 @@ export async function WorkIndex() {
         <div className="work-index-hero-grid">
           <div>
             <p className="eyebrow">All projects</p>
-            <h1>Selected work, 2019 to present.</h1>
+            <h1>Selected work.</h1>
             <p>
-              Nine shipped projects across five studios. C++, Blueprints, GAS,
+              Ten titles across five studios. C++, Blueprints, GAS,
               multiplayer, AI, geospatial, mobile, VR. Each entry links to a
               full case study of my role and contribution.
             </p>
@@ -19,11 +19,11 @@ export async function WorkIndex() {
           <div className="work-index-meta">
             <div className="work-index-meta-row">
               <span>SHIPPED:</span>
-              <strong>09 titles</strong>
+              <strong>10 titles</strong>
             </div>
             <div className="work-index-meta-row">
               <span>STUDIOS:</span>
-              <strong>05 engagements</strong>
+              <strong>06 engagements</strong>
             </div>
             <div className="work-index-meta-row">
               <span>PLATFORMS:</span>

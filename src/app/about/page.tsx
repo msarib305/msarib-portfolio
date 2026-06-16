@@ -9,19 +9,19 @@ import { JsonLd }         from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title:       'About',
-  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across six studios. Currently leading engineering at SwiftNine in Lahore.',
+  description: 'Lead Unreal Engine 5 developer. Seven years in engine, ten shipped titles across five studios. Currently leading engineering at SwiftNine in Lahore.',
   alternates:  { canonical: 'https://msarib.dev/about' },
   openGraph: {
     type:        'website',
     url:         'https://msarib.dev/about',
     title:       'About · Sarib',
-    description: 'Lead UE5 developer. Seven years in engine, ten shipped titles across six studios. Leading engineering at SwiftNine in Lahore.',
+    description: 'Lead UE5 developer. Seven years in engine, ten shipped titles across five studios. Leading engineering at SwiftNine in Lahore.',
     images: [{ url: '/og?title=About&eyebrow=Muhammad+Sarib', width: 1200, height: 630, alt: 'About · Sarib' }],
   },
   twitter: {
     card:        'summary_large_image',
     title:       'About · Sarib',
-    description: 'Lead UE5 developer. Seven years in engine, ten shipped titles across six studios. Leading engineering at SwiftNine in Lahore.',
+    description: 'Lead UE5 developer. Seven years in engine, ten shipped titles across five studios. Leading engineering at SwiftNine in Lahore.',
     images:      ['/og?title=About&eyebrow=Muhammad+Sarib'],
   },
 }

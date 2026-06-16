@@ -2,7 +2,7 @@ import Link from 'next/link'
 import dynamic        from 'next/dynamic'
 import { SLogo }       from '@/components/SLogo'
 
-// Lazy-load the clock — it lives in the footer (below the fold),
+// Lazy-load the clock, it lives in the footer (below the fold),
 // runs setInterval, and contributes ~1KB of JS that would otherwise
 // land in the per-route critical bundle on every page.
 const LahoreClock = dynamic(
@@ -43,7 +43,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Col 3: Pages — heading is h3 to stay sequential after the
+        {/* Col 3: Pages, heading is h3 to stay sequential after the
             page's h2 (page content sits semantically above the footer). */}
         <div className="footer-col">
           <h3>Pages</h3>

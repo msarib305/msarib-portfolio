@@ -30,7 +30,7 @@ export async function GET() {
 
   const body = `# Muhammad Sarib (Sarib)
 
-> Lead Unreal Engine 5 developer with seven years in engine and ten shipped titles across six studios. Focus on PC and Steam game development: C++, Blueprints, Gameplay Ability System, multiplayer replication, and performance optimization.
+> Lead Unreal Engine 5 developer with seven years in engine and ten shipped titles across five studios. Focus on PC and Steam game development: C++, Blueprints, Gameplay Ability System, multiplayer replication, and performance optimization.
 
 Sarib leads engineering at SwiftNine LLC in Lahore, Pakistan. He has shipped on every Unreal Engine 5 version from 5.0 to 5.7 and on Unreal Engine 4 from 4.22 to 4.27. The portfolio includes a Steam release, a Tokyo Game Show 2024 floor demo, six live UEFN titles, and an NVIDIA-powered in-engine AI assistant. He is open to senior and lead engineering roles at studios in Germany and Japan, and to freelance contracts worldwide.
 

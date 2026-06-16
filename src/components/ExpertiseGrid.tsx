@@ -10,7 +10,7 @@ export function ExpertiseGrid() {
         </h2>
         <p>
           The full range of UE5 disciplines, sharpened over seven years across
-          six studios. These are categories I have shipped to production, not
+          five studios. These are categories I have shipped to production, not
           buzzwords on a resume.
         </p>
       </div>

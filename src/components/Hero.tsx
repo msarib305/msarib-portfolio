@@ -22,7 +22,7 @@ const LINE_1 = annotate(HEADLINE_LINE_1, 0)
 const LINE_2 = annotate(HEADLINE_LINE_2, LINE_1.next)
 
 const SUBHEAD =
-  'Seven years of C++, Blueprints, GAS, AI, and multiplayer from Lahore. ' +
+  'Seven years of C++, Blueprints, GAS, AI, and multiplayer. ' +
   'Currently leading engineering at SwiftNine. ' +
   'Open to studio roles in Germany and Japan, and freelance contracts worldwide.'
 

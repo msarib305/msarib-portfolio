@@ -14,7 +14,7 @@ export function AboutHero() {
       <div className="about-hero-grid">
         <div>
           <p className="eyebrow">About</p>
-          <h1 className="about-h1">Lead UE5 developer from Lahore.</h1>
+          <h1 className="about-h1">Lead UE5 developer.</h1>
           <p className="about-lede">
             Seven years in engine. Five studios. Ten shipped titles. Currently leading engineering at SwiftNine.
           </p>

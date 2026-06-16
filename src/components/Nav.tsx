@@ -52,7 +52,7 @@ export function Nav() {
     <>
       <header className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
         {/* Column 1: logo */}
-        <SLogo ariaLabel="Sarib — go to home" />
+        <SLogo ariaLabel="Sarib, go to home" />
 
         {/* Column 2: desktop links */}
         <nav aria-label="Main navigation">

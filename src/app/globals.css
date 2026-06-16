@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 /* ============================================================
-   @font-face — must live outside @theme
+   @font-face, must live outside @theme
    font-display: swap on every declaration
    ============================================================ */
 
-/* PP Right Grotesk — display family.
+/* PP Right Grotesk, display family.
    font-display strategy:
-   – Preloaded weights (900 hero, 400 body) use swap: the file is
+   - Preloaded weights (900 hero, 400 body) use swap: the file is
      ready before paint, so no CLS, no fallback flash.
-   – Non-preloaded weights use optional: if the file arrives in
+   - Non-preloaded weights use optional: if the file arrives in
      ~100ms it is used; otherwise the system fallback is used for
      the page lifetime, avoiding swap-induced layout shifts. */
 @font-face {
@@ -34,7 +34,7 @@
   font-display: optional;
 }
 
-/* PP Right Grotesk Text — body family */
+/* PP Right Grotesk Text, body family */
 @font-face {
   font-family: 'PP Right Grotesk Text';
   src: url('/fonts/PPRightGroteskText-Regular.woff2') format('woff2');
@@ -71,12 +71,12 @@
 }
 
 /* ============================================================
-   @theme — Tailwind v4 design tokens
+   @theme, Tailwind v4 design tokens
    Only CSS custom properties live here.
    Namespace resets first, then custom values.
    ============================================================ */
 @theme {
-  /* Namespace resets — removes Tailwind defaults in each namespace */
+  /* Namespace resets, removes Tailwind defaults in each namespace */
   --color-*: initial;
   --font-*: initial;
   --radius-*: initial;
@@ -264,7 +264,7 @@
 }
 
 /* ============================================================
-   @layer base — structural resets (mirrors v15 base styles)
+   @layer base, structural resets (mirrors v15 base styles)
    ============================================================ */
 @layer base {
   *, *::before, *::after {
@@ -369,7 +369,7 @@
 }
 
 /* ============================================================
-   App-specific custom properties — not in @theme (no Tailwind
+   App-specific custom properties, not in @theme (no Tailwind
    utility needed), not in @layer base (must stay unlayered so
    body[data-font] override, also unlayered, wins cleanly).
    ============================================================ */
@@ -423,7 +423,7 @@
 @media (max-width: 768px)  { :root { --section-gutter: 16px; } }
 
 /* ============================================================
-   @layer components — design-system primitives (Phase 3)
+   @layer components, design-system primitives (Phase 3)
    All values are var() references to @theme or :root tokens.
    The only rgba() literals are the badge/cursor shadow layers,
    which are visual-signature values, not theme values.
@@ -1267,7 +1267,7 @@
     animation: hero-char-up 400ms var(--ease-out) both;
   }
 
-  /* SUBHEAD — single block reveal. */
+  /* SUBHEAD, single block reveal. */
   .hero-subhead {
     font-size: 16px;
     line-height: 1.55;
@@ -1745,7 +1745,7 @@
      .exp-tint blends against the grayscale image, producing
      the colourised-BW effect. isolation: isolate on .exp-card
      contains the blend within the card's stacking context.
-     Avoid will-change on .exp-card or its ancestors — it creates
+     Avoid will-change on .exp-card or its ancestors, it creates
      a compositing layer that breaks mix-blend-mode visually.
      ---------------------------------------------------------- */
   .expertise-section {
@@ -2105,7 +2105,7 @@
     justify-content: center;
   }
 
-  /* RESPONSIVE BREAKPOINTS — Phase 7 */
+  /* RESPONSIVE BREAKPOINTS, Phase 7 */
 
   @media (max-width: 900px) {
     .wib-grid {
@@ -2144,7 +2144,7 @@
 
 
   /* ----------------------------------------------------------
-     WORK INDEX — /work page
+     WORK INDEX, /work page
      .work-index-hero: two-column page header (heading + meta stats)
      .work-index-cards: cards wrapper below the hero
      Re-uses existing .work-grid and .work-card for the card grid.
@@ -2204,7 +2204,7 @@
   }
 
   /* ----------------------------------------------------------
-     CASE STUDY — /projects/[slug]
+     CASE STUDY, /projects/[slug]
      ---------------------------------------------------------- */
 
   .case-hero {
@@ -2255,7 +2255,7 @@
     max-width: 620px;
   }
 
-  /* Specs column — vertical flex with key/value rows */
+  /* Specs column, vertical flex with key/value rows */
   .case-specs {
     display: flex;
     flex-direction: column;
@@ -2374,7 +2374,7 @@
     max-width: 780px;
   }
 
-  /* Numbered list — CSS counter ordinals in teal, matching v15 */
+  /* Numbered list, CSS counter ordinals in teal, matching v15 */
   .case-list {
     list-style: none;
     padding: 0;
@@ -2412,7 +2412,7 @@
     margin-bottom: 0;
   }
 
-  /* Credits sections (ul only — ol is "What I built", unaffected) */
+  /* Credits sections (ul only, ol is "What I built", unaffected) */
   ul.case-list .case-list-item p a {
     color: var(--color-accent);
     text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
@@ -2529,7 +2529,7 @@
     text-align: right;
   }
 
-  /* Placeholder pages — /about, /writings, /contact */
+  /* Placeholder pages, /about, /writings, /contact */
   .placeholder-page {
     padding: 152px 32px 96px;
     max-width: var(--container-max);
@@ -2553,7 +2553,7 @@
     margin-bottom: 32px;
   }
 
-  /* RESPONSIVE — Phase 8 */
+  /* RESPONSIVE, Phase 8 */
 
   @media (max-width: 1200px) {
     .work-index-hero-grid {
@@ -2625,7 +2625,7 @@
 
 
   /* ----------------------------------------------------------
-     ABOUT PAGE — Phase 9
+     ABOUT PAGE, Phase 9
      ---------------------------------------------------------- */
 
   /* Hero */
@@ -3013,7 +3013,7 @@
   }
 
   /* ----------------------------------------------------------
-     RESPONSIVE — Phase 9
+     RESPONSIVE, Phase 9
      ---------------------------------------------------------- */
   @media (max-width: 1200px) {
     .exp-row {
@@ -3077,7 +3077,7 @@
 
 
   /* ----------------------------------------------------------
-     WRITINGS — Phase 11
+     WRITINGS, Phase 11
      ---------------------------------------------------------- */
 
   /* Index hero */
@@ -3422,7 +3422,7 @@
     line-height: 1.3;
   }
 
-  /* Responsive — Writings */
+  /* Responsive, Writings */
   @media (max-width: 768px) {
     .writings-hero-grid {
       grid-template-columns: 1fr;
@@ -3459,7 +3459,7 @@
   }
 
   /* ----------------------------------------------------------
-     CONTACT PAGE — Phase 12
+     CONTACT PAGE, Phase 12
      ---------------------------------------------------------- */
 
   /* Hero */
@@ -3736,9 +3736,9 @@
   /* ----------------------------------------------------------
      GLOBAL ASPECT-RATIO TUNING
      Handle the long-tail of device shapes:
-     – super-tall portrait phones (foldables, modern iPhones in portrait)
-     – landscape phones (foldables rotated, iPhone landscape)
-     – super-wide ultrawides and pillarboxed displays
+     - super-tall portrait phones (foldables, modern iPhones in portrait)
+     - landscape phones (foldables rotated, iPhone landscape)
+     - super-wide ultrawides and pillarboxed displays
      ---------------------------------------------------------- */
 
   /* Super-tall portrait (≤ 9:20 aspect ratio).
@@ -3757,7 +3757,7 @@
   }
 
   /* Landscape phones (very short height, wide).
-     The standard < 900px stack hides the showreel below text — on
+     The standard < 900px stack hides the showreel below text, on
      a landscape phone that pushes the showreel completely off
      screen until the user scrolls. Reduce vertical padding and let
      the hero grid take less than 70dvh. */
@@ -3818,7 +3818,7 @@
   /* mix-blend-mode: legacy fallback.
      The blob blooms are intentional decoration. If blend isn't
      supported (rare; gated only on very old WebViews) the blobs
-     still render — just without additive lift. Acceptable. */
+     still render, just without additive lift. Acceptable. */
 
   /* ----------------------------------------------------------
      PRINT STYLES
@@ -4047,8 +4047,8 @@
      ATMOSPHERIC GRADIENT (Phase 19.3)
      Reusable SVG color-wash effect used on "What I bring" and
      "How I think about the work". Three layers:
-       (1) .atm-blobs  — 5 teal SVG circles, CSS keyframe animated
-       (2) .atm-blur   — backdrop-filter converts circles into a
+       (1) .atm-blobs, 5 teal SVG circles, CSS keyframe animated
+       (2) .atm-blur, backdrop-filter converts circles into a
                          diffuse atmospheric wash
      Vertical mask fades the effect into the page at top/bottom.
      Both sections parent element carries isolation: isolate, so
@@ -4141,7 +4141,7 @@
   }
 
   /* ============================================================
-     Gallery (Phase 19.6.1) — interactive case-study media gallery
+     Gallery (Phase 19.6.1), interactive case-study media gallery
      ============================================================ */
 
   .gallery-root {

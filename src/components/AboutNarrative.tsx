@@ -4,7 +4,7 @@ export function AboutNarrative() {
       <h2>The short version.</h2>
       <p>
         I started in mobile games at 22, picked up Unreal Engine because it was the right tool for
-        the harder problems, and never went back. Six studios later, I have shipped on Steam, mobile,
+        the harder problems, and never went back. Five studios later, I have shipped on Steam, mobile,
         Meta Quest, UEFN, and pixel-streamed web. The work I am proudest of is not on a screenshot
         reel, it is the codebases I left behind that the next engineer could read.
       </p>

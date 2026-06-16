@@ -127,7 +127,7 @@ export function ShowreelGlow({
           loop
           playsInline
           preload="metadata"
-          aria-label="Showreel — selected project highlights"
+          aria-label="Showreel, selected project highlights"
         />
         <div className="reel-label" aria-hidden="true">
           <span className="reel-label-dot" />

@@ -41,7 +41,7 @@ export const whatIBring: WhatIBringItem[] = [
     tone:     'grad-3',
     label:    'Shipped products',
     headline: 'Real titles, real scope, real polish.',
-    body:     'Ten projects across six studios. A Steam release. A Tokyo Game Show 2024 anime title where I owned the gameplay layer. Six UEFN titles. NVIDIA Omniverse integrations. Production, not demos.',
+    body:     'Ten titles across five studios. A Steam release. A Tokyo Game Show 2024 anime title where I owned the gameplay layer. Six UEFN titles. NVIDIA Omniverse integrations. Production, not demos.',
     details:  [
       'Steam release · TGS 2024 floor',
       'Six UEFN titles with Verse',
