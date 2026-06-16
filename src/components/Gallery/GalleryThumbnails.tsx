@@ -10,8 +10,19 @@ export function GalleryThumbnails() {
   const reduced  = usePrefersReducedMotion()
   const stripRef = useRef<HTMLDivElement>(null)
 
-  // Keep the active thumbnail in view as the index changes.
+  // Keep the active thumbnail in view as the index changes. This must NOT run on
+  // mount: the effect fires on mount with the initial currentIndex (0), and
+  // scrollIntoView would scroll the page down to the thumbnail strip (which sits
+  // at the bottom of every case study), overriding the scroll-to-top on
+  // navigation. Guard by comparing the previous index, not a first-render flag:
+  // React Strict Mode double-invokes effects in dev, which flips a one-shot flag
+  // on the first run so the second run would still scroll. Comparing the value
+  // skips both the mount run and the Strict-Mode re-run, and only scrolls on an
+  // actual user-driven index change.
+  const prevIndexRef = useRef(state.currentIndex)
   useEffect(() => {
+    if (prevIndexRef.current === state.currentIndex) return
+    prevIndexRef.current = state.currentIndex
     const strip = stripRef.current
     if (!strip) return
     const activeEl = strip.querySelector<HTMLElement>('.gallery-thumbnail--active')
