@@ -3,6 +3,20 @@
 Tracked items intentionally left for a later pass, so a future reader seeing them knows they are
 logged, not overlooked. Created during Phase 19.7 (2026-06-11).
 
+## Resolved in Phase 22 (2026-06-16)
+
+- **Item 1** (global-error.tsx em-dash) RESOLVED 22.1 (sentence split).
+- **Items 2 and 3** (studio/title count copy) RESOLVED 22.1, but in the OPPOSITE direction: the canonical
+  was changed to 5 studios / 6 engagements / 10 titles, so visible copy went to "five studios" (not "six").
+  See DEC-085.
+- **Item 4** (anime mdoc role) RESOLVED 22.1 (Vmmersion to "Lead Software Developer").
+- **Item 6** (pre-existing em-dash sweep) RESOLVED 22.1 (all 45 em-dashes swept; 5 en-dashes too).
+- **Item 7** (images.qualities warnings) RESOLVED 22.5 (`[40, 55, 75]`).
+- Also resolved in 22.1: Work H1 "2019 to present" trim; About H1 and Home Hero "from Lahore" trims.
+- Resolved in 22.5: nested-`<main>` bug in `writings/[slug]/page.tsx` (found during the markup audit).
+
+Item 5 (WSL Lighthouse Chrome path) remains pending below.
+
 ---
 
 ## Copy editorial pass (post-19.7)
@@ -69,6 +83,28 @@ Phase 21 resolved none of the items above; all remain pending. Two new items sur
    FeatureShowcase glow and `quality={55}` on the expertise cards. Fix: add 40 and 55 to the array,
    `images: { qualities: [40, 55, 75] }`. Two-line config change. Dev-only warning; production renders
    correctly. Predates Phase 21.
+
+---
+
+## Deferred (added or confirmed Phase 22, 2026-06-16)
+
+8. **FIND ME button platform icons (Phase 23).** Add LinkedIn / YouTube / Upwork / Fiverr brand marks plus
+   an envelope icon for the email link, applied to all 5 FIND ME buttons on `/contact`. Scope creep
+   relative to 22.7's "same styling as the existing 4" brief, but aligns with the 22.3 case-study pill icon
+   work (same recruiter-scanning recognition logic). The `platformIconForUrl()` helper and the inline
+   Simple Icons marks from 22.3 can be reused.
+9. **Legacy `gallery` field + `CaseStudyGallery` removal.** (Phase 24.)
+10. **DMARC upgrade.** Time-pinned (June 20+). (Phase 24.)
+11. **CSP enforcement flip** (report-only to enforce). The report-only CSP console notice is the only
+    standing console error site-wide. (Phase 24.)
+12. **GitHub README rewrite.** Separate effort.
+13. **Full device matrix testing.** Separate effort.
+
+### Planned post-Phase-22 action (sequenced, not a deferred fix)
+
+After Sarib toggles the GitHub repo private, a small follow-up commit removes `/docs/MASTER_CONTEXT.md` and
+`/docs/PROFESSIONAL_HISTORY.md` from `.gitignore` and `git add`s both, tracking the canonical context docs
+for cross-machine backup without public exposure. See DEC-085.
 
 ---
 

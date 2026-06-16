@@ -115,6 +115,8 @@ Examples:
 
 Do not store media files in the repo. Reference Cloudinary public IDs in MDX frontmatter. The `next-cloudinary` package (added Phase 14) handles image rendering and transformation.
 
+Version-pinning for cache busting (Phase 22): the free tier has no CDN invalidation, so re-uploading to an existing public_id keeps serving the cached old asset. When an asset is re-uploaded to a public_id already referenced in code, insert or bump the `/v<timestamp>/` segment in the delivery URL (between the transforms and the public_id) to force a fresh CDN path. Example: `.../w_1200/v1781608059/SystemsOtherEngineersWillInherit_mbk5yw`. See DEC-085.
+
 ---
 
 ## YouTube workflow
@@ -174,9 +176,30 @@ Console errors are a hard fail. No change ships with red text in DevTools. Hydra
 
 ---
 
+## Component and CSS patterns (Phase 22)
+
+Full rationale in DEC-085. Reuse these rather than reinventing.
+
+- **Canonical counts**: 5 studios / 6 engagements / 10 titles (replaced Phase 19.7's "six studios"; do not re-litigate). "Six UEFN titles" is a separate count. Vmmersion role is "Lead Software Developer".
+- **Scroll restoration**: `data-scroll-behavior="smooth"` on `<html>` (Next.js 16). No `usePathname` scroll-to-top handler (it fires on POP and breaks back/forward restore).
+- **One `<main>` per document**: `layout.tsx` owns the `<main>`; page components return fragments. Never nest a second `<main>`.
+- **Interactive-but-disguised tint**: low-alpha accent inset box-shadow wash on an intentionally obscured-but-interactive element (the NSFW blur), fading on reveal. Not a `::before` (stacks above text), not a gradient background (does not animate).
+- **CSS Grid interactive items**: explicit `justify-self` on focusable/clickable grid children, or the hit/focus box stretches to the column (the S-logo bug).
+- **Clickable image grid**: `ImageGrid` optional `href`, threaded through the Keystatic schema and `normalizeImageGridItems`, rendered as an `<a target="_blank" rel="noopener noreferrer">` wrapper.
+- **External link pills**: `platformIconForUrl()` + inline Simple Icons path data in `PlatformIcon.tsx` (no `simple-icons` dependency).
+- **Overlay text on video**: heavy multi-layer `text-shadow` for legibility on bright frames; do not downgrade.
+- **Reading mode**: `<article>` + schema.org microdata on case studies (CreativeWork) and writings (BlogPosting); JSON-LD scripts and prev/next nav stay outside the `<article>`.
+
+---
+
 ## Future work
 
 This section is a queue of intentionally deferred items. Each item is scoped work that Sarib decides when (or whether) to pick up.
+
+**Phase 23 and post-Phase-22**
+
+- FIND ME button platform and envelope icons on `/contact` (Phase 23).
+- After repo privatization: un-ignore and track `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Both stay gitignored while the repo is public (private content). See DEC-085.
 
 **Performance**
 

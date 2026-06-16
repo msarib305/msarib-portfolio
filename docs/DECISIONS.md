@@ -1758,3 +1758,165 @@ pre-existing `heading-order`), BP 96 site-wide (pre-existing `errors-in-console`
 notice, tied to the deferred CSP-flip item), Performance home 96 / anime 98 / about 87 (pre-existing
 about-portrait LCP). The showreel swap did not regress Performance. None of the Lighthouse gaps trace to
 Phase 21.
+
+---
+
+## DEC-085 -- Phase 22: editorial cleanup, functional fixes, credits, NSFW rework, reading mode
+
+Seven commits (22.1 editorial, 22.2 functional, 22.3 credits/links, 22.4 NSFW, 22.5 reading mode,
+22.7 home/contact, 22.6 docs). Each sub-phase independently revertable and verified in production
+before the next. Shipped 2026-06-16.
+
+### Count cascade: 5 studios / 6 engagements / 10 titles (22.1)
+
+This REVERSES Phase 19.7's "six studios" framing. Canonical going forward is 5 companies/studios
+(SwiftNine, Vmmersion, Exarta, Ideofuzion, HashTech), 6 engagements (Exarta counts twice), 10 shipped
+titles. Future work must not re-litigate this; the prior DEFERRED_FIXES items 2 and 3 (written to push
+visible copy toward "six studios") were resolved in the opposite direction. Swept every "six studios" to
+"five studios" across `ExpertiseGrid`, `AboutNarrative`, `what-i-bring.ts`, the `/`, `/about`, `/work`
+meta descriptions, `llms.txt`, `llms-full.txt`, and `docs/MASTER_CONTEXT.md`. `WorkIndex` prose went to
+"Ten titles across five studios", its stat block to "10 titles" / "06 engagements". `AboutHero` and the
+home `Hero` stat were already "Five studios" (no change). "projects" normalized to "titles" in the
+shipped-count context only; "Six UEFN titles" (a separate accurate count) preserved.
+
+### Vmmersion role canonicalized to "Lead Software Developer" (22.1)
+
+Only the anime case study mdoc was stale (summary, frontmatter role, and two body lines); `experience.ts`,
+`PROFESSIONAL_HISTORY.md`, and `llms-full.txt` already carried the canonical title. TRESverse, Exarta, and
+NVIDIA roles stay "Senior Unreal Engine Developer" (different engagements, untouched).
+
+### Em-dash and en-dash sweep (22.1)
+
+Swept all 45 em-dashes (U+2014): the one user-visible instance in `global-error.tsx` became a sentence
+split; alt-text and aria-labels became commas (appositive pause preserved); comments became commas. Swept
+5 en-dashes (U+2013), all `globals.css` comment bullet markers, to hyphens. The en-dash in
+`MASTER_CONTEXT.md` is the style-rule example itself (kept intentionally). The right-arrow `->` at
+`exarta-metaverse/index.mdoc:11` ("Unreal Engine Developer (First Engagement) -> Senior Unreal Engine
+Developer (Senior Return)") is NOT on the dash blocklist and is preserved as a semantic progression
+indicator for the two engagements.
+
+### Scroll restoration: `data-scroll-behavior="smooth"` on `<html>` (22.2)
+
+Root cause: Next.js 16 stopped overriding CSS `scroll-behavior: smooth` during SPA route transitions by
+default. With `html { scroll-behavior: smooth }` present, every client navigation animated the
+scroll-to-top, reading as "lands mid-page / kept the old position." Fix is the official Next.js 16 upgrade-
+guide mechanism: the `data-scroll-behavior="smooth"` attribute on `<html>` restores the transition override
+(instant scroll-to-top on forward nav, native browser restore on back/forward) while anchor links keep
+smooth scroll. A custom `usePathname` + `useEffect` scroll-to-top handler was considered and rejected:
+`usePathname` fires on POP events too, so it would force scroll-to-top on browser back/forward and break
+the restoration we want preserved. No Lenis, no client JS. Playwright confirmed forward nav -> top (0) and
+back -> restored (2000).
+
+### S-logo full interaction audit: `justify-self: start` (22.2)
+
+The bug was not the focus ring, it was the hit box. `.nav` is `display: grid` with
+`grid-template-columns: minmax(0,1fr) auto minmax(0,1fr)`, and a grid item defaults to
+`justify-self: stretch`, so the `.s-logo` link stretched across the entire left ~590px column while the
+32px mark sat at its left edge. Click, focus, and (via the oversized box) the perceived target all spanned
+the column. Fix: `justify-self: start` pins the link to its content (32px). The focus ring was moved onto
+`.s-logo-mark` (circular, via the mark's `border-radius: 50%`), and hover/spin were already mark-scoped.
+Architectural lesson: set explicit `justify-self` on interactive grid items, or they stretch and become an
+oversized invisible hit/focus target.
+
+### Instagram embed: `max-height: 70vh` (22.2)
+
+Added `max-height: 70vh` + `width: auto` to `.gallery-ig-embed .instagram-media`, keeping `max-width:
+480px`. Viewport-relative so it scales across laptop/desktop/mobile heights. No `aspect-ratio` override:
+Instagram's `embed.js` manages the internal 9:16 / 1:1 ratio.
+
+### Skip-link visual indicator (22.2)
+
+Brief inset accent pulse (`skip-target-pulse`, 1s) on `main[tabindex="-1"]:focus` so sighted keyboard
+users see the focus jump to the content region. The global reduced-motion override collapses it to instant.
+
+### Arslan Saleem credits (22.3)
+
+Added to NVIDIA AI Assistant ("Designed the HUD UI for the wearable helmet and the UI") and Exarta
+Metaverse / Valayt ("Designed the in-world and on-screen UI and player-facing interface for Valayt."),
+matching the existing bulleted credit format (he was already credited on TRESverse). Asad Rehman's anime
+credit was audited and left unchanged (correct Vmmersion context).
+
+### ImageGrid optional `href` (22.3)
+
+`ImageGridItem` gained an optional `href`, threaded through the Keystatic block schema +
+`normalizeImageGridItems` + an `<a target="_blank" rel="noopener noreferrer">` wrapper with a subtle hover
+(accent border + `scale(1.02)`). The four TRESverse press images now link to their source articles
+(BeautyMatter, Happi, ParlayMe, IGN); Retail Tech stays a frontmatter pill only (no grid image).
+
+### External link pill enhancement + `platformIconForUrl()` (22.3)
+
+`.case-link-pill` padding 6px/14px -> 10px/16px, font-weight 600, plus a leading 16px platform icon. New
+inline Simple Icons brand marks (LinkedIn, X, Discord, OpenSea, Fortnite) added to `PlatformIcon.tsx`
+alongside the existing YouTube/Instagram; a generic external-link glyph (Heroicons "arrow-top-right-on-
+square", MIT) is the fallback. `platformIconForUrl(url)` selects by hostname. Applied to the 6 case
+studies with links; nvidia and character-creator stay pill-less (no links to populate, none manufactured).
+
+### NSFW link UX rework + "interactive-but-disguised" tint (22.4)
+
+Swapped the text positions so the instruction "NSFW project. Hover to reveal the Steam link." is always
+visible (was buried inside the blur) and "View on Steam (NSFW age gate)" is the revealed clickable link.
+Added a teal wash to the blurred pill at rest: `box-shadow: inset 0 0 0 100px rgba(0,217,196,0.08)`, fading
+to transparent over 250ms on reveal. Inset box-shadow (not a `::before` overlay, which stacks above the
+text and would dim it; not a gradient background, which does not animate). The reduced-motion override
+makes the flip instant. `.spoiler-warning` bumped from 12px/muted to 13px/`--color-text-secondary` so the
+now-load-bearing instruction reads as a call-to-action. Pattern named "interactive-but-disguised tint":
+when an element is intentionally obscured (blur) but must read as interactive, a low-alpha accent wash
+separates it from neutral surfaces.
+
+### Reading-mode markup: `<article>` + microdata; nested-`<main>` fix (22.5)
+
+Case-study content wrapped in `<article itemscope itemtype="https://schema.org/CreativeWork">` (itemprop
+name/description/dateCreated/author), giving Edge Immersive Reader and Chrome Reading Mode a clean content
+root; JSON-LD scripts and prev/next nav stay outside it. Writings posts gained BlogPosting microdata on
+their existing `<article>`. Bug found and fixed during the audit: `writings/[slug]/page.tsx` wrapped its
+content in its own `<main>` while `layout.tsx` already renders `<main id="main-content">`, producing two
+`<main>` elements per document (invalid HTML, harmful to screen readers and reading modes). Fix: outer
+`<main>` -> fragment. The case-study page was already using a fragment, so no fix there. No production
+impact (content/writings is empty). `next.config.ts` `images.qualities` `[75]` -> `[40, 55, 75]`,
+eliminating the dev-only quality-prop warnings (quality=40 glow, quality=55 expertise cards).
+
+### Home + contact updates (22.7)
+
+- Showreel highlights text -> 5 titles (Samurai Saga, NVIDIA, Valayt, TRESverse, Character Creator).
+- Showreel eyebrow gained a 2-layer text-shadow. The heading and items already carried a deliberately
+  heavier 3-layer shadow (tight + mid + wide) for legibility over bright video frames; those were
+  preserved and documented in a code comment so they are not "fixed" down to a 2-layer drop later.
+- Expertise card rest state softened: `.exp-img` `grayscale(1)` -> `grayscale(0.7)` (~30% colour),
+  `.exp-tint` opacity `0.85` -> `0.25`; hover unchanged; the reduced-motion block re-pinned to the new
+  rest values. Less rest-vs-hover contrast than Phase 21.3.
+- Contact: `contact@msarib.dev` added as a 5th FIND ME link (mailto), Upwork and Fiverr URLs corrected,
+  YouTube label simplified to "YouTube".
+- Engineering-leadership image version-pinned: `.../w_1200/v1781608059/SystemsOtherEngineersWillInherit...`.
+  Pattern: Cloudinary's free tier has no CDN invalidation, so a re-upload to the same public_id keeps
+  serving the cached old image. Inserting the version segment into the codebase URL forces a fresh CDN
+  path. Bump the version whenever an asset is re-uploaded to an existing public_id.
+
+### docs/MASTER_CONTEXT.md kept out of the public repo (22.1)
+
+Considered for git tracking (cross-machine backup), rejected while the repo is public. The file holds
+content redacted from all external surfaces (the NSFW Vmmersion title name, a personal phone number,
+recruiter/salary/gap strategy), and public git history is irreversible (forks, caches, code-search persist
+even after later privatization). Added to `.gitignore` alongside the already-ignored
+`docs/PROFESSIONAL_HISTORY.md`. Future-Claude reads it from the local filesystem regardless of tracking, so
+no session loses context. The redundant root-level `MASTER_CONTEXT.md` (byte-identical duplicate, not
+imported anywhere) was deleted.
+
+### Planned post-Phase-22 actions (not in scope)
+
+1. Sarib manually toggles the GitHub repo to private.
+2. A small follow-up commit removes `/docs/MASTER_CONTEXT.md` and `/docs/PROFESSIONAL_HISTORY.md` from
+   `.gitignore` and tracks both (backup objective met without public exposure).
+
+### Deferred to Phase 23
+
+FIND ME button platform icons: add LinkedIn / YouTube / Upwork / Fiverr brand marks + an envelope icon for
+email, applied consistently to all 5 buttons. Scope creep relative to 22.7's "same styling as the existing
+4" brief, but aligns with the 22.3 case-study pill icon work (same recruiter-scanning recognition logic).
+
+### Verification
+
+Every sub-phase: `pnpm typecheck` / `lint` / `build` green, em-dash and en-dash grep clean, Playwright
+checks on the touched flow, and production smoke after each Vercel deploy. CSP enforcement flip remains
+deferred (Phase 24); the report-only CSP console notice is the only standing console error. Lighthouse was
+not run locally (the WSL Chrome-path issue, still deferred); production Lighthouse and real-device Pixel 8
+Pro checks are Sarib's manual pass.

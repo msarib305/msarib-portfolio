@@ -69,6 +69,8 @@ Training data for Next.js 15 and earlier is not reliable for this project. Use C
 - Caching is opt-in. Everything is dynamic by default. Use `next: { revalidate: N }` or the `use cache` directive where caching is wanted.
 - `next lint` is removed in Next.js 16. The lint script calls `eslint` directly.
 - Import from `motion/react`, never from `framer-motion`. They are not interchangeable.
+- Scroll restoration: Next.js 16 no longer overrides CSS `scroll-behavior: smooth` during route transitions by default. With smooth-scroll on `<html>`, set `data-scroll-behavior="smooth"` on `<html>` to restore instant scroll-to-top on forward nav while keeping native back/forward restore and anchor smooth-scroll. Do NOT add a `usePathname` scroll-to-top handler: it fires on POP and breaks back/forward restoration (DEC-085).
+- One `<main>` per document: `layout.tsx` renders `<main id="main-content">` around all children, so page components return a fragment and never their own `<main>`. A nested `<main>` is invalid HTML (caught in writings, DEC-085).
 
 ---
 
@@ -94,9 +96,25 @@ Full-bleed elements (atmospheric washes, edge-to-edge gradients, banded backgrou
 
 ---
 
+## Phase 22 patterns
+
+- **Canonical counts (do not re-litigate)**: 5 studios / 6 engagements / 10 titles. This replaced Phase 19.7's "six studios" framing. "Six UEFN titles" is a separate, correct count. Vmmersion role is "Lead Software Developer" everywhere. (DEC-085)
+- **Interactive-but-disguised tint**: when an element is intentionally obscured (e.g. the NSFW blur) but must read as interactive, apply a low-alpha accent wash via `box-shadow: inset 0 0 0 100px rgba(0,217,196,0.08)` that fades on reveal. Inset box-shadow, not a `::before` (it stacks above the text) and not a gradient background (it does not animate).
+- **CSS Grid interactive items**: set explicit `justify-self` on a focusable/clickable grid child, or it defaults to `stretch` and the hit/focus box silently expands to the whole column (the S-logo bug, DEC-085).
+- **Clickable image grid**: `ImageGrid` items take an optional `href`; the image wraps in `<a target="_blank" rel="noopener noreferrer">` with an accent-border + `scale(1.02)` hover. Thread any new item field through BOTH the Keystatic block schema and `normalizeImageGridItems`.
+- **External link pills**: use `platformIconForUrl()` (hostname to brand icon, generic external-link fallback) for any new case-study link. Inline Simple Icons path data in `PlatformIcon.tsx`; do not add the `simple-icons` dependency.
+- **Cloudinary version-pinning**: the free tier has no CDN invalidation. After re-uploading to an existing public_id, insert or bump the `/v<timestamp>/` segment in the codebase URL to force a fresh CDN path.
+- **Overlay text on video**: text over the showreel video needs a heavy multi-layer `text-shadow` (the credits use a 3-layer tight+mid+wide drop) for legibility on bright frames. Do not downgrade it to a single or 2-layer drop.
+- **Reading mode**: case-study and writings prose are wrapped in `<article>` with schema.org microdata; keep JSON-LD scripts and prev/next nav OUTSIDE the `<article>`.
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
+
+- **FIND ME button icons (Phase 23)**: add platform + envelope icons to the 5 `/contact` FIND ME buttons (DEC-085).
+- **Repo privatization (post-Phase-22)**: after Sarib toggles the GitHub repo private, a follow-up commit un-ignores and tracks `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Until then both stay gitignored (private content, public repo).
 
 - **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.
 - **Lighthouse CI**: `lighthouserc.js` + GitHub Actions. Catches performance regressions on PRs. Deferred from Phase 14.

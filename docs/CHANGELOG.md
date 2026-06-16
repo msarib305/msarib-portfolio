@@ -2,6 +2,57 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-16
+### Phase 22 -- editorial cleanup, functional fixes, credits, NSFW rework, reading mode
+
+Seven commits, all shipped to production, each verified before the next. Full rationale in DEC-085.
+
+**22.1 -- `fix(content): Phase 22.1 editorial sweep, count cascade, role correction, em/en-dash, trims`**
+Count cascade to the canonical 5 studios / 6 engagements / 10 titles (REVERSES Phase 19.7's "six studios"):
+swept "six studios" -> "five studios" across components, meta descriptions, `llms.txt`, `llms-full.txt`,
+`MASTER_CONTEXT.md`; `WorkIndex` to "Ten titles across five studios" / "10 titles" / "06 engagements".
+Vmmersion role -> "Lead Software Developer" (anime mdoc, the only stale surface). Em-dash sweep (45:
+global-error sentence split, alt/aria/comments to commas) and en-dash sweep (5 CSS comment bullets).
+Work/About H1 and Home Hero subhead trims ("2019 to present", "from Lahore"). Root duplicate
+`MASTER_CONTEXT.md` deleted; `docs/MASTER_CONTEXT.md` gitignored (private content, public repo).
+
+**22.2 -- `fix(layout): Phase 22.2 scroll restoration, Instagram embed cap, S-logo scope, skip-link indicator`**
+`data-scroll-behavior="smooth"` on `<html>` (Next.js 16 official fix; a custom usePathname handler was
+rejected because it fires on POP and breaks back/forward restore). S-logo `justify-self: start` so the link
+hit box is the 32px mark, not the ~590px nav grid column; circular focus ring on the mark. Instagram embed
+`max-height: 70vh`. Skip-link inset accent pulse on `main:focus`. Files: `layout.tsx`, `globals.css`.
+
+**22.3 -- `feat(case-studies): Phase 22.3 credits, clickable press images, external link pills`**
+Arslan Saleem credits on NVIDIA + Exarta Metaverse. TRESverse 4 press images clickable via a new optional
+`ImageGrid` href (Keystatic schema + normalize + `<a>` wrapper). External link pills enlarged (10px/16px,
+weight 600) with leading platform icons; new Simple Icons marks (LinkedIn, X, Discord, OpenSea, Fortnite) +
+generic external-link fallback, selected by `platformIconForUrl()`. Applied to 6 case studies; nvidia and
+character-creator stay pill-less.
+
+**22.4 -- `feat(case-studies): Phase 22.4 NSFW link UX rework with teal tint`**
+Instruction "NSFW project. Hover to reveal the Steam link." now always visible; "View on Steam (NSFW age
+gate)" is the revealed link. Teal wash (`inset 0 0 0 100px rgba(0,217,196,0.08)`) on the blurred pill,
+fading over 250ms; reduced-motion instant. `.spoiler-warning` 13px/standard colour.
+
+**22.5 -- `fix(html): Phase 22.5 reading-mode article markup and images.qualities config`**
+`<article>` + schema.org CreativeWork microdata on case studies, BlogPosting microdata on writings. Fixed a
+nested-`<main>` bug in `writings/[slug]/page.tsx` (layout already provides `<main>`). `images.qualities`
+`[75]` -> `[40, 55, 75]`. Files: `next.config.ts`, `CaseStudyHeader.tsx`, `projects/[slug]/page.tsx`,
+`writings/[slug]/page.tsx`.
+
+**22.7 -- `feat(home/contact): Phase 22.7 home and contact page updates`**
+Showreel 5-title text + eyebrow text-shadow (heading/items already had stronger 3-layer shadows, kept).
+Expertise rest state softened (`grayscale(0.7)`, tint `0.25`; reduced-motion re-pinned). Leadership image
+version-pinned (`v1781608059`, Cloudinary CDN cache bust). Contact: `contact@msarib.dev` mailto as a 5th
+FIND ME link, Upwork/Fiverr URLs corrected, YouTube label simplified.
+
+**22.6 -- `docs: Phase 22 DEC-085 + CHANGELOG + DEFERRED_FIXES + AGENTS/CLAUDE updates`**
+This entry, DEC-085, DEFERRED_FIXES resolutions, and the AGENTS.md / CLAUDE.md pattern additions.
+
+Verification: `pnpm typecheck` / `lint` / `build` green on every sub-phase; em-dash and en-dash grep clean;
+Playwright on each touched flow; production smoke after each deploy. Standing console error is the
+report-only CSP notice only (CSP flip deferred to Phase 24).
+
 ## 2026-06-15
 ### Phase 21 -- content swaps, WIB mobile scroll fix, gradient retune
 
