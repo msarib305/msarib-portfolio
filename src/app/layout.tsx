@@ -92,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={jetbrainsMono.variable} style={{ colorScheme: 'dark' }}>
+    <html lang="en" data-scroll-behavior="smooth" className={jetbrainsMono.variable} style={{ colorScheme: 'dark' }}>
       <head>
         {/* Opt out of Dark Reader: the site is already dark-mode native.
             Letting DR re-style it produces inverted colours that break the

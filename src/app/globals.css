@@ -351,9 +351,19 @@
     border-radius: var(--radius-8);
   }
 
-  /* Skip link activates <main tabindex="-1"> programmatically;
-     outline is suppressed because focus is intentional, not keyboard-driven. */
-  main[tabindex="-1"]:focus { outline: none; }
+  /* Skip link activates <main tabindex="-1"> programmatically. The outline
+     is suppressed (focus is intentional, not keyboard-driven), but sighted
+     keyboard users get a brief inset accent pulse so the focus jump to the
+     content region is visible. Under prefers-reduced-motion the global
+     animation-duration override collapses this to an instant flash. */
+  main[tabindex="-1"]:focus {
+    outline: none;
+    animation: skip-target-pulse 1s var(--ease-base);
+  }
+  @keyframes skip-target-pulse {
+    0%   { box-shadow: inset 0 0 0 3px var(--color-accent); }
+    100% { box-shadow: inset 0 0 0 3px transparent; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -596,6 +606,20 @@
     color: inherit;
     position: relative;
     text-decoration: none;
+    /* In the nav grid (minmax(0,1fr) auto minmax(0,1fr)) a grid item
+       defaults to justify-self: stretch, which expanded this link's click
+       and focus box across the entire left column. Pin it to its content
+       so only the mark (or mark + text in the footer) is the target. */
+    justify-self: start;
+  }
+
+  /* Focus highlights only the circular mark, not a rectangle around the
+     whole link. The mark's border-radius: 50% renders the outline as a
+     circle in modern browsers. */
+  .s-logo:focus-visible { outline: none; }
+  .s-logo:focus-visible .s-logo-mark {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
   }
 
   .s-logo-mark {
@@ -4346,7 +4370,9 @@
      stage width. The flex parent centers it; embed.js manages the
      internal aspect (9:16 reels, 1:1 posts), so no aspect override. */
   .gallery-ig-embed .instagram-media {
+    max-height: 70vh;
     max-width: 480px;
+    width: auto;
     margin-inline: auto;
   }
   .gallery-embed-fallback {
