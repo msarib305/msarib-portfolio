@@ -4059,8 +4059,8 @@
   }
 
   .spoiler-warning {
-    font-size: 12px;
-    color: var(--color-text-muted);
+    font-size: 13px;
+    color: var(--color-text-secondary);
   }
 
   .spoiler-url {
@@ -4075,7 +4075,13 @@
     color: var(--color-text-secondary);
     text-decoration: none;
     filter: blur(4px);
-    transition: filter 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+    /* Teal wash at rest so the blurred pill reads as interactive rather than a
+       neutral site surface. The inset shadow paints over the background but
+       under the text, and fades to transparent as the link is revealed. Under
+       prefers-reduced-motion the global override collapses the fade to instant. */
+    box-shadow: inset 0 0 0 100px rgba(0, 217, 196, 0.08);
+    transition: filter 250ms ease, border-color 250ms ease, color 250ms ease,
+                background 250ms ease, box-shadow 250ms ease;
     white-space: nowrap;
     cursor: pointer;
   }
@@ -4086,6 +4092,7 @@
     border-color: var(--color-border-default);
     color: var(--color-text-primary);
     background: var(--color-bg-high);
+    box-shadow: inset 0 0 0 100px rgba(0, 217, 196, 0);
   }
 
 
