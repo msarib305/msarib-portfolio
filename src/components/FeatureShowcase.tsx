@@ -3,7 +3,9 @@ import { PillButton } from '@/components/PillButton'
 
 // Phase 21.1: real systems-section art on Sarib's ddgwzcrim cloud. Same delivery
 // transform as the prior placeholder (f_auto serves WebP/AVIF, c_fill,g_auto crops).
-const SHOWCASE_IMG    = 'https://res.cloudinary.com/ddgwzcrim/image/upload/f_auto,q_auto,c_fill,g_auto,w_1200/SystemsOtherEngineersWillInherit_mbk5yw'
+// Phase 22.7: version-pinned (v1781608059) to bust Cloudinary's CDN cache after a
+// re-upload to the same public_id (free tier has no explicit invalidation).
+const SHOWCASE_IMG    = 'https://res.cloudinary.com/ddgwzcrim/image/upload/f_auto,q_auto,c_fill,g_auto,w_1200/v1781608059/SystemsOtherEngineersWillInherit_mbk5yw'
 const SHOWCASE_ALT    = 'Anime Action, TGS 2024 floor demo, Vmmersion'
 const SHOWCASE_CREDIT = 'Anime Action · TGS 2024 · Vmmersion'
 

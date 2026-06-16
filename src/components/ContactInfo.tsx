@@ -34,15 +34,19 @@ export function ContactInfo() {
           />
           <InfoLink
             href="https://youtube.com/@msarib305"
-            label="YouTube · @msarib305"
+            label="YouTube"
           />
           <InfoLink
-            href="https://www.upwork.com/freelancers/93d28b4e"
+            href="https://www.upwork.com/freelancers/~0125a6700e2e34789a"
             label="Upwork"
           />
           <InfoLink
-            href="https://www.fiverr.com/sellers/sarib16"
+            href="https://www.fiverr.com/sarib16"
             label="Fiverr"
+          />
+          <InfoLink
+            href="mailto:contact@msarib.dev"
+            label="contact@msarib.dev"
           />
         </ul>
       </div>

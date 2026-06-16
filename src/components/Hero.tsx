@@ -103,7 +103,7 @@ export function Hero() {
           poster={SHOWREEL_POSTER}
           reelLabel="SHOWREEL · 2026"
           creditsTitle="Selected highlights"
-          creditsBody="Samurai Saga · TGS 2024 · NVIDIA · Cesium"
+          creditsBody="Samurai Saga · NVIDIA · Valayt · TRESverse · Character Creator"
         />
 
       </div>
