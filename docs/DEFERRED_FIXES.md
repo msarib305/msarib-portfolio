@@ -17,6 +17,13 @@ logged, not overlooked. Created during Phase 19.7 (2026-06-11).
 
 Item 5 (WSL Lighthouse Chrome path) remains pending below.
 
+**Scroll-on-load (Phase 22.8a, 2026-06-17):** Phase 22.2's `data-scroll-behavior="smooth"` fix was CORRECT
+for Next.js 16's transition behavior but did NOT address all scroll-on-load sources. A separate
+`GalleryThumbnails` `scrollIntoView`-on-mount source scrolled case studies down to the bottom-of-page
+thumbnail strip; fully resolved in 22.8a with a `prevIndexRef` guard (see DEC-086). Lesson for future
+regression hunts: check BOTH the framework scroll mechanism AND any component-level `useEffect`s that call
+`scrollIntoView` / `scrollTo` / `focus`.
+
 ---
 
 ## Copy editorial pass (post-19.7)

@@ -1920,3 +1920,64 @@ checks on the touched flow, and production smoke after each Vercel deploy. CSP e
 deferred (Phase 24); the report-only CSP console notice is the only standing console error. Lighthouse was
 not run locally (the WSL Chrome-path issue, still deferred); production Lighthouse and real-device Pixel 8
 Pro checks are Sarib's manual pass.
+
+---
+
+## DEC-086 -- Phase 22.8: gallery scrollIntoView regression and expertise card retune
+
+Two regressions surfaced after Phase 22 closed. Three commits (22.8a critical fix, 22.8b visual, 22.8c
+docs). Shipped 2026-06-17.
+
+### Gallery scrollIntoView regression (22.8a)
+
+Symptom: every case study with more than one gallery item loaded scrolled down to the gallery, not at the
+top. Phase 22.2's `data-scroll-behavior="smooth"` was correct for Next.js 16's transition behavior, but
+there was a SECOND, independent scroll source downstream of it.
+
+Root cause: `GalleryThumbnails` ran `scrollIntoView({ block: 'nearest' })` in a `useEffect` keyed on
+`[state.currentIndex, reduced]`. The effect fires on mount with the initial `currentIndex` (0), and the
+thumbnail strip sits at the bottom of every case study, so the mount run scrolled the document down after
+hydration, overriding Next.js's scroll-to-top.
+
+Why Phase 22.2's Playwright tests missed it: they measured `scrollY` right after the navigation event,
+before all React effects had run. The gallery effect fires later in the lifecycle (after the Gallery
+mounts/hydrates). Test-pattern lesson: scroll-related tests must wait for the latest-mounting component's
+DOM (here, `.gallery-thumbnail--active`) to be present, not just for navigation to resolve.
+
+Fix and a deviation from the plan: the plan specified an `isInitialMount` one-shot ref flag. That works in
+production but FAILS in dev, because React Strict Mode double-invokes effects in dev (run, cleanup, run
+again on the same instance): the flag flips to false on run 1, so run 2 still scrolls. Since the
+verification runs on local dev, the specified fix could not pass it. Switched to a previous-index
+comparison (`prevIndexRef`): on mount and on the Strict-Mode re-run, `prev === current` so it skips; it
+only scrolls when the index actually changes from a user action. Verified scrollY 0 across all 8 gallery
+case studies in a fresh dev build (Strict Mode active) AND the production build, with the intended
+horizontal strip-scroll on user-driven thumbnail changes preserved (far thumbnail scrolled the strip
++264px; adjacent in-view thumbnail caused no movement).
+
+Strict Mode lesson for future-Claude: one-shot "first render" flags (`isInitialMount`) are defeated by
+Strict Mode's dev double-invoke. Use a previous-value comparison, or move the side effect into the event
+handler that changes the value, instead.
+
+Anime sub-pixel finding (known, acceptable): in isolated production runs the anime case study landed at
+scrollY 0/13/59 (and 45 in the full sweep). This is two orders of magnitude smaller than the ~4000px
+gallery bug, is not user-visible at typical viewport scales, and is plausibly lazy-image hydration shifting
+page height after the initial scroll-to-top fires. Documented as acceptable noise, not the gallery bug and
+not a regression.
+
+### Expertise card retune (22.8b)
+
+Replaced Phase 22.7's "muted colour at rest, full colour on hover" with "full colour at rest, tint on/off"
+per Sarib's preference. `.exp-img` filter is `grayscale(0) brightness(1)` at rest and hover (full colour
+always); `.exp-tint` opacity `0.375` at rest (+50% from 0.25), `0` on hover (fades fully away). The
+reduced-motion block pins hover to the new rest values, so reduced-motion users see no hover change. Touch
+devices (no hover) show the full-colour + 0.375 tint state permanently, an improvement over the previous
+permanent-muted state. The rest-vs-hover delta is intentionally gentle; tuning levers if it reads too
+subtle in production: raise the rest tint (0.375 -> 0.45), drop rest brightness (1 -> 0.9) for a hover
+"lift", or add a small image scale on hover (reduced-motion-safe). Stale "BW"/"colourised-BW" comments were
+rewritten to the new design.
+
+### Verification
+
+`pnpm typecheck` / `lint` / `build` green on both code commits. Scroll fix verified in dev and production
+(all 8 case studies at top). Expertise values verified in production (all cards full colour, tint 0.375).
+Standing console error is the report-only CSP notice only.

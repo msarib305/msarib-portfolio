@@ -2,6 +2,30 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-17
+### Phase 22.8 -- post-Phase-22 regression fixes
+
+Three commits, all shipped to production. Full rationale in DEC-086.
+
+**22.8a -- `fix(gallery): Phase 22.8a skip thumbnail scrollIntoView on initial mount`**
+Critical fix. `GalleryThumbnails` ran `scrollIntoView` in a `useEffect` that fired on mount with
+`currentIndex` 0, scrolling the page down to the bottom-of-page thumbnail strip after hydration. This was an
+independent scroll source downstream of Phase 22.2's Next.js 16 fix. Guarded the effect with a
+previous-index comparison (`prevIndexRef`), not a one-shot `isInitialMount` flag: React Strict Mode
+double-invokes effects in dev, which defeats a one-shot flag (the specified fix worked in prod but failed
+the dev verification). Verified scrollY 0 across all 8 gallery case studies in dev and production; intended
+horizontal strip-scroll on thumbnail change preserved. File: `GalleryThumbnails.tsx`.
+
+**22.8b -- `feat(home): Phase 22.8b expertise cards full-colour at rest, tint on/off hover`**
+Replaced the Phase 22.7 "muted at rest" design with "full colour at rest, tint fades on hover":
+`.exp-img grayscale(0) brightness(1)`, `.exp-tint` opacity `0.375` rest / `0` hover, reduced-motion pinned
+to the new rest values. File: `globals.css`.
+
+**22.8c -- `docs: Phase 22.8 DEC-086 + CHANGELOG + DEFERRED_FIXES + AGENTS/CLAUDE`**
+This entry, DEC-086, the DEFERRED_FIXES note that 22.2's scroll fix was partial (fully resolved in 22.8a),
+and AGENTS.md / CLAUDE.md pattern guidance on useEffect-with-scroll-on-mount, the Strict Mode one-shot-flag
+gotcha, and scroll-test timing.
+
 ## 2026-06-16
 ### Phase 22 -- editorial cleanup, functional fixes, credits, NSFW rework, reading mode
 

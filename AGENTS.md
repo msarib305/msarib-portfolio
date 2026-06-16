@@ -190,6 +190,27 @@ Full rationale in DEC-085. Reuse these rather than reinventing.
 - **Overlay text on video**: heavy multi-layer `text-shadow` for legibility on bright frames; do not downgrade.
 - **Reading mode**: `<article>` + schema.org microdata on case studies (CreativeWork) and writings (BlogPosting); JSON-LD scripts and prev/next nav stay outside the `<article>`.
 
+### useEffect scroll/focus on mount (Phase 22.8, DEC-086)
+
+A `useEffect` that calls `scrollIntoView`, `scrollTo`, or `focus` on a value with a deterministic initial
+state ALSO fires on mount with that initial value, which can cause an unintended scroll/focus jump on page
+load. The Phase 22.8a gallery bug: a thumbnail `scrollIntoView` keyed on `currentIndex` fired on mount
+(index 0) and scrolled the page down to the bottom-of-page strip.
+
+Guard one of three ways:
+- **Previous-value comparison** (preferred): `if (prevRef.current === value) return; prevRef.current = value`. Skips the mount run.
+- Move the side effect into the event handler that changes the value (so it runs on the change, not on mount).
+- A sentinel initial value the user can never set first.
+
+Do NOT use a one-shot `isInitialMount` ref flag: React Strict Mode double-invokes effects in dev (run,
+cleanup, run again on the same instance), which flips the flag on run 1 so run 2 still fires. It works in
+production but fails dev verification.
+
+Test pattern: scroll/focus Playwright checks must wait for the latest-mounting component's DOM to be present
+(e.g. the gallery's `.gallery-thumbnail--active`), not just for navigation to resolve, or they miss effects
+that fire later in the lifecycle. This is directly relevant to Phase 23 (reading progress bar, back-to-top,
+keyboard shortcuts).
+
 ---
 
 ## Future work
