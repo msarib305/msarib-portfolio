@@ -1,7 +1,7 @@
 import { createReader } from '@keystatic/core/reader'
 import type { Node as MarkdocNode } from '@markdoc/markdoc'
 import keystaticConfig from '../../keystatic.config'
-import { readingTimeMinutes } from '@/lib/text'
+import { readingTimeMinutes, extractHeadings, type Heading } from '@/lib/text'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 
@@ -16,6 +16,7 @@ export interface WritingItem {
   featured:           boolean
   body:               { node: MarkdocNode }
   readingTimeMinutes: number
+  headings:           Heading[]
 }
 
 async function readAll(): Promise<WritingItem[]> {
@@ -33,6 +34,7 @@ async function readAll(): Promise<WritingItem[]> {
       featured:           e.entry.featured,
       body,
       readingTimeMinutes: readingTimeMinutes(body.node),
+      headings:           extractHeadings(body.node),
     }
   }).sort((a, b) => b.published.localeCompare(a.published))
 }

@@ -10,6 +10,7 @@ import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
 import { ReadingProgress }  from '@/components/ReadingProgress'
 import { ReadingTime }       from '@/components/ReadingTime'
+import { TableOfContents }   from '@/components/TableOfContents'
 import { platformIconForUrl } from '@/icons/PlatformIcon'
 
 // Per-slug VideoGame typing (Phase 19.7, DEC-082). The four game projects render
@@ -178,7 +179,10 @@ export default async function ProjectPage({
           </div>
         )}
 
-        <ProjectBody body={project.body} />
+        <div className="toc-layout">
+          <TableOfContents headings={project.headings} />
+          <ProjectBody body={project.body} />
+        </div>
       </article>
 
       <CaseStudyNav prev={nav.prev} next={nav.next} />

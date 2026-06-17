@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import Markdoc from '@markdoc/markdoc'
 import type { Node as MarkdocNode, Config } from '@markdoc/markdoc'
 import Image from 'next/image'
+import { createHeadingSlugger, headingMarkdocNode } from '@/lib/text'
 
 const markdocConfig: Config = {
   nodes: {
@@ -61,7 +62,12 @@ interface WritingBodyProps {
 }
 
 export function WritingBody({ body }: WritingBodyProps) {
-  const renderable = Markdoc.transform(body.node, markdocConfig)
+  const slug = createHeadingSlugger()
+  const config: Config = {
+    ...markdocConfig,
+    nodes: { ...markdocConfig.nodes, heading: headingMarkdocNode(slug) },
+  }
+  const renderable = Markdoc.transform(body.node, config)
   return (
     <div className="post-body">
       {Markdoc.renderers.react(renderable, { createElement, Fragment }, { components })}

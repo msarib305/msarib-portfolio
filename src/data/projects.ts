@@ -1,7 +1,7 @@
 import { createReader } from '@keystatic/core/reader'
 import type { Node as MarkdocNode } from '@markdoc/markdoc'
 import keystaticConfig from '../../keystatic.config'
-import { readingTimeMinutes } from '@/lib/text'
+import { readingTimeMinutes, extractHeadings, type Heading } from '@/lib/text'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 
@@ -28,6 +28,7 @@ export interface ProjectItem {
   tintClass:    'wc-1' | 'wc-2' | 'wc-3' | 'wc-4'
   body:         { node: MarkdocNode }
   readingTimeMinutes: number
+  headings:     Heading[]
 }
 
 type RawConditional = { discriminant: string; value: Record<string, string | undefined> }
@@ -63,6 +64,7 @@ async function readAll(): Promise<ProjectItem[]> {
         tintClass:    e.entry.tintClass as ProjectItem['tintClass'],
         body,
         readingTimeMinutes: readingTimeMinutes(body.node),
+        headings:           extractHeadings(body.node),
       }
     })
     .sort((a, b) => a.displayOrder - b.displayOrder)

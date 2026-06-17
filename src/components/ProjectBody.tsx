@@ -8,6 +8,7 @@ import { InstagramEmbed } from './InstagramEmbed'
 import { Gallery } from '@/components/Gallery'
 import { normalizeGalleryItems } from '@/components/Gallery/normalize'
 import { ImageGrid, normalizeImageGridItems } from '@/components/ImageGrid'
+import { createHeadingSlugger, headingMarkdocNode } from '@/lib/text'
 
 const markdocConfig: Config = {
   nodes: {
@@ -127,7 +128,14 @@ interface ProjectBodyProps {
 }
 
 export function ProjectBody({ body }: ProjectBodyProps) {
-  const renderable = Markdoc.transform(body.node, markdocConfig)
+  // Fresh slugger per render so injected heading ids match the TOC slugs for
+  // this document (the slugger dedup counter is document-scoped).
+  const slug = createHeadingSlugger()
+  const config: Config = {
+    ...markdocConfig,
+    nodes: { ...markdocConfig.nodes, heading: headingMarkdocNode(slug) },
+  }
+  const renderable = Markdoc.transform(body.node, config)
   return (
     <div className="case-body">
       {Markdoc.renderers.react(renderable, { createElement, Fragment }, { components })}

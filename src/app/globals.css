@@ -890,6 +890,105 @@
   .reading-time svg { flex-shrink: 0; }
 
   /* ----------------------------------------------------------
+     TABLE OF CONTENTS (Phase 23.6)
+     Desktop (>=1280): sticky sidebar in a grid left of the body.
+     Below 1280: a collapsible "Contents" drawer above the body.
+     ---------------------------------------------------------- */
+  /* Anchor / TOC jumps land headings below the fixed nav, not under it. */
+  .case-body :is(h2, h3),
+  .post-body :is(h2, h3) {
+    scroll-margin-top: 90px;
+  }
+
+  .toc-heading {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin: 0 0 12px;
+  }
+  .table-of-contents ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 1px solid var(--color-border-faint);
+  }
+  .toc-item a {
+    display: block;
+    padding: 3px 0 3px 14px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: color 150ms var(--ease-base), border-color 150ms var(--ease-base);
+  }
+  .toc-item--l3 a { padding-left: 28px; font-size: 12px; }
+  .toc-item a:hover { color: var(--color-text-primary); }
+  .toc-item--active a {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+  }
+  .toc-toggle-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--color-bg-low);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .toc-toggle-mobile svg { transition: transform 200ms var(--ease-base); }
+  .toc-toggle-mobile[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+  /* Below 1280: drawer above the body. */
+  @media (max-width: 1279px) {
+    .toc { padding-inline: var(--section-gutter); margin-bottom: 8px; }
+    .table-of-contents { display: none; margin-top: 12px; }
+    .table-of-contents--open { display: block; }
+  }
+
+  /* 1280+: two-column grid, sticky TOC sidebar + body. The body sheds its own
+     centering/padding so it fills the grid column; the grid is centered. */
+  @media (min-width: 1280px) {
+    /* :has(> .toc) so a heading-less document (TableOfContents renders null)
+       does not reserve an empty sidebar column or strip the body's centering. */
+    .toc-layout:has(> .toc) {
+      display: grid;
+      grid-template-columns: 220px minmax(0, var(--container-article-md));
+      justify-content: center;
+      gap: 56px;
+      padding-inline: var(--section-gutter);
+    }
+    .toc-layout:has(> .toc) > .case-body,
+    .toc-layout:has(> .toc) > .post-body {
+      max-width: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+    .toc-toggle-mobile { display: none; }
+    /* The grid item itself sticks (align-self: start keeps it content-height so
+       sticky has room within the tall grid row). */
+    .toc {
+      position: sticky;
+      top: 100px;
+      align-self: start;
+    }
+    .table-of-contents {
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+    }
+  }
+
+  /* ----------------------------------------------------------
      BACK-TO-TOP BUTTON (Phase 23.3)
      Site-wide (except /keystatic). Appears after 500px scroll.
      ---------------------------------------------------------- */

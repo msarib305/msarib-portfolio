@@ -4,6 +4,7 @@ import { getAllPublishedSlugs, findWritingBySlug, getWritingNav } from '@/data/w
 import { WritingMeta } from '@/components/WritingMeta'
 import { WritingBody } from '@/components/WritingBody'
 import { WritingNav }  from '@/components/WritingNav'
+import { TableOfContents } from '@/components/TableOfContents'
 import { PillButton }  from '@/components/PillButton'
 import { JsonLd }      from '@/components/JsonLd'
 import { ReadingProgress } from '@/components/ReadingProgress'
@@ -102,7 +103,10 @@ export default async function WritingPage(
           </p>
           <p className="post-deck" itemProp="description">{writing.summary}</p>
         </header>
-        <WritingBody body={writing.body} />
+        <div className="toc-layout">
+          <TableOfContents headings={writing.headings} />
+          <WritingBody body={writing.body} />
+        </div>
       </article>
 
       <section className="post-cta">
