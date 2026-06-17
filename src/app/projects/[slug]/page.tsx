@@ -9,6 +9,7 @@ import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
 import { ReadingProgress }  from '@/components/ReadingProgress'
+import { ReadingTime }       from '@/components/ReadingTime'
 import { platformIconForUrl } from '@/icons/PlatformIcon'
 
 // Per-slug VideoGame typing (Phase 19.7, DEC-082). The four game projects render
@@ -132,6 +133,7 @@ export default async function ProjectPage({
           <CaseStudyHeader tags={project.tags} title={project.title} />
           <div className="case-summary">
             <p className="case-summary-text" itemProp="description">{project.summary}</p>
+            <ReadingTime minutes={project.readingTimeMinutes} />
             <CaseStudySpecs
               date={project.date}
               client={project.client}

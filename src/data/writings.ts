@@ -1,6 +1,7 @@
 import { createReader } from '@keystatic/core/reader'
 import type { Node as MarkdocNode } from '@markdoc/markdoc'
 import keystaticConfig from '../../keystatic.config'
+import { readingTimeMinutes } from '@/lib/text'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 
@@ -17,24 +18,6 @@ export interface WritingItem {
   readingTimeMinutes: number
 }
 
-function countWords(node: unknown): number {
-  if (typeof node === 'string') {
-    return node.split(/\s+/).filter(Boolean).length
-  }
-  if (!node || typeof node !== 'object') return 0
-  const obj = node as {
-    type?: string
-    attributes?: { content?: string }
-    children?: unknown[]
-  }
-  let count = 0
-  if (obj.type === 'text' && typeof obj.attributes?.content === 'string') {
-    count += obj.attributes.content.split(/\s+/).filter(Boolean).length
-  }
-  const children = obj.children ?? []
-  return count + children.reduce((sum: number, c) => sum + countWords(c), 0)
-}
-
 async function readAll(): Promise<WritingItem[]> {
   const entries = await reader.collections.writings.all({ resolveLinkedFiles: true })
   return entries.map(e => {
@@ -49,7 +32,7 @@ async function readAll(): Promise<WritingItem[]> {
       tags:               e.entry.tags,
       featured:           e.entry.featured,
       body,
-      readingTimeMinutes: Math.max(1, Math.round(countWords(body.node) / 200)),
+      readingTimeMinutes: readingTimeMinutes(body.node),
     }
   }).sort((a, b) => b.published.localeCompare(a.published))
 }

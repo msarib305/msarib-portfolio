@@ -877,6 +877,18 @@
     .reading-progress { transition: none; }
   }
 
+  /* "N min read" badge near the case-study specs (Phase 23.4). */
+  .reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    line-height: 1;
+    margin-top: 12px;
+  }
+  .reading-time svg { flex-shrink: 0; }
+
   /* ----------------------------------------------------------
      BACK-TO-TOP BUTTON (Phase 23.3)
      Site-wide (except /keystatic). Appears after 500px scroll.

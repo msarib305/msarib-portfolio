@@ -1,6 +1,7 @@
 import { createReader } from '@keystatic/core/reader'
 import type { Node as MarkdocNode } from '@markdoc/markdoc'
 import keystaticConfig from '../../keystatic.config'
+import { readingTimeMinutes } from '@/lib/text'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 
@@ -26,6 +27,7 @@ export interface ProjectItem {
   spoilerLinks: readonly { label: string; url: string; warning: string }[]
   tintClass:    'wc-1' | 'wc-2' | 'wc-3' | 'wc-4'
   body:         { node: MarkdocNode }
+  readingTimeMinutes: number
 }
 
 type RawConditional = { discriminant: string; value: Record<string, string | undefined> }
@@ -40,25 +42,29 @@ function normalizeCover(raw: RawConditional): ProjectCover {
 async function readAll(): Promise<ProjectItem[]> {
   const entries = await reader.collections.projects.all({ resolveLinkedFiles: true })
   return entries
-    .map(e => ({
-      slug:         e.slug,
-      title:        e.entry.title as string,
-      displayOrder: e.entry.displayOrder ?? 99,
-      summary:      e.entry.summary,
-      date:         e.entry.date,
-      status:       e.entry.status as ProjectItem['status'],
-      role:         e.entry.role,
-      engine:       e.entry.engine,
-      tags:         e.entry.tags,
-      client:       e.entry.client || null,
-      featured:     e.entry.featured,
-      thumbnail:    e.entry.thumbnail as { src: string; alt: string },
-      cover:        normalizeCover(e.entry.cover as RawConditional),
-      links:        e.entry.links as readonly { label: string; url: string }[],
-      spoilerLinks: e.entry.spoilerLinks as readonly { label: string; url: string; warning: string }[],
-      tintClass:    e.entry.tintClass as ProjectItem['tintClass'],
-      body:         e.entry.body as unknown as { node: MarkdocNode },
-    }))
+    .map(e => {
+      const body = e.entry.body as unknown as { node: MarkdocNode }
+      return {
+        slug:         e.slug,
+        title:        e.entry.title as string,
+        displayOrder: e.entry.displayOrder ?? 99,
+        summary:      e.entry.summary,
+        date:         e.entry.date,
+        status:       e.entry.status as ProjectItem['status'],
+        role:         e.entry.role,
+        engine:       e.entry.engine,
+        tags:         e.entry.tags,
+        client:       e.entry.client || null,
+        featured:     e.entry.featured,
+        thumbnail:    e.entry.thumbnail as { src: string; alt: string },
+        cover:        normalizeCover(e.entry.cover as RawConditional),
+        links:        e.entry.links as readonly { label: string; url: string }[],
+        spoilerLinks: e.entry.spoilerLinks as readonly { label: string; url: string; warning: string }[],
+        tintClass:    e.entry.tintClass as ProjectItem['tintClass'],
+        body,
+        readingTimeMinutes: readingTimeMinutes(body.node),
+      }
+    })
     .sort((a, b) => a.displayOrder - b.displayOrder)
 }
 
