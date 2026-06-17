@@ -213,13 +213,54 @@ keyboard shortcuts).
 
 ---
 
+## Component and CSS patterns (Phase 23)
+
+Full rationale in DEC-087. Reuse these rather than reinventing.
+
+- **Custom-event bridge for RSC -> Client**: a Server Component cannot use React context (client-only) to
+  trigger a Client Component action. Dispatch `window.dispatchEvent(new CustomEvent('name'))` from a small
+  client child and subscribe in the target listener (e.g. the Footer "Keyboard shortcuts" link ->
+  `KeyboardShortcuts`). Decoupled, respects the RSC boundary.
+- **Global key listener suppression**: a `window` `keydown` must bail when a modifier is held (`ctrlKey` /
+  `metaKey` / `altKey`, so browser/OS shortcuts pass through) AND when focus is on a text surface (INPUT /
+  TEXTAREA / SELECT / `isContentEditable`, so typing is not hijacked). `KeyboardShortcuts.tsx` is the
+  reference.
+- **Portal modal**: `createPortal` to `document.body`, `role="dialog" aria-modal`, reuse `useFocusTrap`
+  (`@/components/Gallery/hooks/useFocusTrap`, which handles initial focus + Tab wrap + focus restoration on
+  unmount), lock `document.body.style.overflow` in an effect, restore on cleanup. z-index 210 (above gallery
+  fullscreen 200). Respect `usePrefersReducedMotion` (no fade).
+- **Scroll-listener read vs jump (DEC-086 scope)**: a scroll/resize listener that only SYNCS state to the
+  current scroll position (reading progress bar) is exempt from the DEC-086 mount guard; the initial call is
+  a read, not a scroll side effect. Only listeners that CAUSE a scroll/focus jump need the guard.
+- **IntersectionObserver active state**: track the active section with an IO callback plus a `prevActiveRef`
+  guard (DEC-086), `rootMargin` tuned to bias toward the heading near the top of the viewport.
+- **`scroll-margin-top` for fixed-nav anchors**: hash jumps under the fixed nav land beneath it; set
+  `scroll-margin-top: 90px` on the jump targets (`.case-body / .post-body :is(h2, h3)`).
+- **Sticky inside a grid needs `align-self: start`** on the sticky element itself (not `align-items: start`
+  on the container); a stretched grid item leaves a sticky child no room to travel.
+- **`:has()` guard for conditional grid columns**: `.toc-layout:has(> .toc)` applies the two-column grid only
+  when the optional child is present, so an absent TOC reserves no empty column.
+- **Extend, do not duplicate, `@media` blocks**: add rules to the existing `@media print` (and other media)
+  block rather than opening a second one; two blocks both apply with last-wins cascade and drift apart.
+- **Verify class names against the stylesheet**: grep `globals.css` for the real selector before writing a
+  rule against it (the plan's `.case-study-nav` was actually `.case-nav`).
+- **Keystatic strict reader**: removing a schema field is not enough; `createReader` rejects orphaned
+  frontmatter (`Key ... not allowed`). Grep the content files and strip the key from frontmatter in the same
+  commit as the schema deletion.
+
+---
+
 ## Future work
 
 This section is a queue of intentionally deferred items. Each item is scoped work that Sarib decides when (or whether) to pick up.
 
-**Phase 23 and post-Phase-22**
+**Post-Phase-23**
 
-- FIND ME button platform and envelope icons on `/contact` (Phase 23).
+- FIND ME button platform and envelope icons on `/contact` (carried past Phase 23; not picked up there).
+- Code-block copy buttons on `<pre>` blocks in case-study and writings prose (future).
+- Blog content: `content/writings` is empty; the route + reading time + progress bar + TOC are live and wait on posts (Phase 26).
+- DMARC staged rollout (`p=none` -> `quarantine` on/after 2026-06-17 -> `reject` once clean); manual Cloudflare DNS by Sarib. See `docs/DNS_CONFIGURATION.md`.
+- CSP enforcement flip (report-only -> enforce); the report-only notice is the only standing first-party console error (Phase 24).
 - After repo privatization: un-ignore and track `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Both stay gitignored while the repo is public (private content). See DEC-085.
 
 **Performance**

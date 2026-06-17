@@ -24,6 +24,17 @@ thumbnail strip; fully resolved in 22.8a with a `prevIndexRef` guard (see DEC-08
 regression hunts: check BOTH the framework scroll mechanism AND any component-level `useEffect`s that call
 `scrollIntoView` / `scrollTo` / `focus`.
 
+## Resolved in Phase 23 (2026-06-17)
+
+- **Item 9** (legacy `gallery` field + `CaseStudyGallery` removal) RESOLVED 23.1. The chain was wired but
+  carried only empty arrays in all 8 mdocs; removed end to end (the empty `gallery: []` frontmatter had to
+  be stripped from every mdoc too, since Keystatic's strict reader rejects orphaned keys). It had been
+  pencilled for Phase 24; pulled forward into Phase 23's hygiene step. See DEC-087.
+
+Phase 23 also delivered five QoL features + a table of contents (reading progress bar, back-to-top, reading
+time on case studies, print stylesheet, TOC, keyboard shortcuts + modal). These were planned features, not
+items from this list. None of the other pending items below were resolved by Phase 23.
+
 ---
 
 ## Copy editorial pass (post-19.7)
@@ -95,17 +106,25 @@ Phase 21 resolved none of the items above; all remain pending. Two new items sur
 
 ## Deferred (added or confirmed Phase 22, 2026-06-16)
 
-8. **FIND ME button platform icons (Phase 23).** Add LinkedIn / YouTube / Upwork / Fiverr brand marks plus
+8. **FIND ME button platform icons (future).** Add LinkedIn / YouTube / Upwork / Fiverr brand marks plus
    an envelope icon for the email link, applied to all 5 FIND ME buttons on `/contact`. Scope creep
    relative to 22.7's "same styling as the existing 4" brief, but aligns with the 22.3 case-study pill icon
    work (same recruiter-scanning recognition logic). The `platformIconForUrl()` helper and the inline
-   Simple Icons marks from 22.3 can be reused.
-9. **Legacy `gallery` field + `CaseStudyGallery` removal.** (Phase 24.)
-10. **DMARC upgrade.** Time-pinned (June 20+). (Phase 24.)
+   Simple Icons marks from 22.3 can be reused. (Carried past Phase 23; not picked up there.)
+9. ~~**Legacy `gallery` field + `CaseStudyGallery` removal.**~~ RESOLVED 23.1 (see above; was pencilled for
+   Phase 24, pulled forward).
+10. **DMARC upgrade (manual, Sarib, Cloudflare DNS).** Current policy is `p=none` (monitor only). Staged
+    rollout once the `none` reports show clean alignment: move to `p=quarantine` on or after 2026-06-17,
+    then to `p=reject` once `quarantine` runs clean for a reporting window. Manual Cloudflare DNS TXT edit
+    by Sarib; not a code change. See `docs/DNS_CONFIGURATION.md`.
 11. **CSP enforcement flip** (report-only to enforce). The report-only CSP console notice is the only
-    standing console error site-wide. (Phase 24.)
+    standing first-party console error site-wide. (Phase 24, per Sarib.)
 12. **GitHub README rewrite.** Separate effort.
 13. **Full device matrix testing.** Separate effort.
+14. **Code-block copy buttons (future).** A click-to-copy affordance on `<pre>` code blocks in case-study
+    and writings prose. Not in Phase 23 scope.
+15. **Blog content (Phase 26).** `content/writings` is currently empty; the writings detail route, reading
+    time, progress bar, and TOC are all live and waiting on actual posts.
 
 ### Planned post-Phase-22 action (sequenced, not a deferred fix)
 

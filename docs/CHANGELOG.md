@@ -3,6 +3,59 @@
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
 ## 2026-06-17
+### Phase 23 -- QoL features, accessibility, hygiene
+
+Eight commits, each independently revertable, HALT at every pre-commit, all shipped to production. Full
+rationale in DEC-087. Content confirmed Keystatic + Markdoc (the plan's Velite assumption was corrected at
+Step 0); real design tokens used throughout.
+
+**23.1 -- `chore(hygiene): Phase 23.1 remove legacy gallery field and CaseStudyGallery`**
+Removed the wired-but-empty legacy `gallery` chain (`page.tsx`, `projects.ts`, `keystatic.config.ts`,
+`CaseStudyGallery.tsx`, three `globals.css` selectors). Keystatic's strict reader rejected the orphaned
+`gallery: []` frontmatter once the schema field was gone, so the key was stripped from all 8 mdocs in the
+same commit (required). Kept the separate in-use `Gallery` Markdoc block.
+
+**23.2 -- `feat(reading): Phase 23.2 reading progress bar on case studies and writings`**
+3px teal top bar tracking scroll progress, case studies + writings only. `role="progressbar"` /
+`aria-valuenow`; reduced-motion drops the transition. The initial `onScroll()` is a read (no scroll side
+effect), so no DEC-086 mount guard needed.
+
+**23.3 -- `feat(navigation): Phase 23.3 back-to-top button site-wide except Keystatic admin`**
+Fixed bottom-right button appearing past 500px; smooth (or instant under reduced-motion) scroll to top.
+Mounted site-wide via `BackToTopMount`, which returns null on `/keystatic/*`. Hidden state is out of the
+focus order (`tabIndex -1`, `pointer-events: none`).
+
+**23.4 -- `feat(reading): Phase 23.4 reading time estimates on case studies`**
+Extracted `countWords` + `readingTimeMinutes` (200 wpm, floor 1) into shared `src/lib/text.ts`; refactored
+`writings.ts` to import them. Added `readingTimeMinutes` to `ProjectItem`; new `<ReadingTime>` server
+component renders an "N min read" badge near `CaseStudySpecs`. Writings already showed reading time.
+
+**23.5 -- `feat(print): Phase 23.5 print stylesheet for case studies and writings`**
+Extended the existing `@media print` block (not a second one): hides interactive chrome, shows link URLs
+after the text (skipping `#` / `mailto:` / `tel:`), full-width article, 11pt body, page-break + orphan/widow
+control. Used the real `.case-nav` class (the plan's `.case-study-nav` does not exist).
+
+**23.6 -- `feat(navigation): Phase 23.6 table of contents on case studies and writings`**
+Auto-generated h2/h3 TOC. `createHeadingSlugger` + `extractHeadings` in `text.ts`; `ProjectBody` /
+`WritingBody` inject matching slug `id`s into rendered headings via the same slugger (verified zero
+unmatched across 8 case studies). Sticky desktop sidebar / mobile drawer, `IntersectionObserver` active
+state (DEC-086 guard), smooth scroll + `replaceState` hash. Locked: `scroll-margin-top` for fixed-nav jumps,
+`align-self: start` for sticky-in-grid, `:has()` guard for the conditional column. Separate screenshot
+review (desktop + mobile, short + long, active mid-scroll); signed off.
+
+**23.7 -- `feat(navigation): Phase 23.7 keyboard shortcuts with discoverable modal`**
+Global `keydown` listener: g-sequences (`g h/w/a/r/c`), `?` opens a help modal, `Esc` closes, 1.5s reset.
+Suppresses on input focus and modifier keys. Modal portals to body (z 210), reuses `useFocusTrap`, locks
+body scroll, reduced-motion no fade. Footer "Keyboard shortcuts" link opens it via a `CustomEvent` bridge
+(RSC Footer cannot use React context). Verified on production: all sequences, both suppression paths, three
+close paths, focus trap, reduced-motion.
+
+**23.8 -- `docs: Phase 23 DEC-087 + CHANGELOG + DEFERRED_FIXES + AGENTS/CLAUDE updates`**
+This entry, DEC-087, the DEFERRED_FIXES resolutions, the AGENTS.md / CLAUDE.md pattern additions, and a
+print-list micro-fix (added `.keyboard-shortcuts-modal` alongside the already-present `-backdrop` so the
+rule is self-documenting; the backdrop ancestor already hid the modal subtree on print).
+
+## 2026-06-17
 ### Phase 22.8 -- post-Phase-22 regression fixes
 
 Three commits, all shipped to production. Full rationale in DEC-086.

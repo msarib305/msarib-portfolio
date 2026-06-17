@@ -4178,7 +4178,9 @@
     .case-nav, .case-links, .case-link-pill, .case-spoiler-links,
     .gallery-thumbnails-wrap, .gallery-chevron,
     .table-of-contents, .toc-toggle-mobile,
-    .keyboard-shortcuts-modal-backdrop { display: none !important; }
+    /* Backdrop is the portal root; hiding it hides the modal subtree. The
+       content selector is listed too so the rule is self-documenting. */
+    .keyboard-shortcuts-modal-backdrop, .keyboard-shortcuts-modal { display: none !important; }
     main { padding-top: 0 !important; }
     a { color: #000 !important; text-decoration: underline; }
 

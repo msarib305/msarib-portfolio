@@ -1981,3 +1981,130 @@ rewritten to the new design.
 `pnpm typecheck` / `lint` / `build` green on both code commits. Scroll fix verified in dev and production
 (all 8 case studies at top). Expertise values verified in production (all cards full colour, tint 0.375).
 Standing console error is the report-only CSP notice only.
+
+## DEC-087 -- Phase 23: QoL features, accessibility, hygiene
+
+Eight commits, each independently revertable, HALT at every pre-commit, shipped to production over
+2026-06-17. Content is Keystatic + Markdoc (the plan's Velite assumption was wrong; corrected at Step 0).
+Five user-facing QoL features, one structural feature (TOC, given a separate screenshot review), one
+hygiene cleanup, one docs commit. All used the REAL design tokens (the plan proposed `--color-fg-*` /
+`--color-surface-1`, which do not exist; mapped to `--color-text-*` / `--color-bg-*`). Z-index budget:
+reading progress 150, back-to-top 150, shortcuts modal 210 (above gallery fullscreen 200).
+
+### 23.1 -- Legacy gallery removal (`08e64b7`)
+
+The legacy `gallery` field was wired through `page.tsx`, `projects.ts`, `keystatic.config.ts`,
+`CaseStudyGallery.tsx`, and three `globals.css` selectors, but all 8 case-study mdocs carried empty arrays
+and the chain rendered nothing in production. Removed the full chain. The `Gallery` Markdoc block (a
+separate, in-use component rendered inline within prose via `ProjectBody`) was kept; do not confuse the two.
+
+Gotcha (Keystatic strict reader): removing the schema field is not enough. Keystatic's `createReader`
+rejects orphaned frontmatter once the schema field is gone (`Key "gallery" not allowed`), failing the
+build. The now-empty `gallery: []` key had to be stripped from all 8 mdocs in the same commit (required,
+not optional). Rule for future schema removals: grep the content files for the field and strip it from
+frontmatter in the same commit as the schema deletion.
+
+### 23.2 -- Reading progress bar (`fcf8e65`)
+
+Client component on case studies and writings only. Passive `scroll` + `resize` listeners set a 0-100 width
+from `scrollY / (scrollHeight - innerHeight)`. `role="progressbar"` with `aria-valuenow`. Reduced-motion
+removes the width transition. DEC-086 note: the initial `onScroll()` call on mount is a READ (it sets state
+from the current scroll position), not a scroll side effect, so the DEC-086 mount guard does NOT apply.
+Listeners that merely SYNC state to current scroll are exempt; only listeners that CAUSE a scroll/focus jump
+need the guard.
+
+### 23.3 -- Back-to-top button (`4eb27da`)
+
+Client component mounted site-wide via `BackToTopMount`, which returns null on `/keystatic/*` so it does not
+overlap the CMS admin. Scroll listener toggles visibility past 500px; click scrolls to top (smooth, or
+instant under `usePrefersReducedMotion`). Hidden state uses `opacity` + `pointer-events: none` + `tabIndex
+-1` to stay out of the focus order.
+
+### 23.4 -- Reading time (`f53d10e`)
+
+Extracted `countWords` + `readingTimeMinutes` (200 wpm, floor 1 minute) from `writings.ts` into shared
+`src/lib/text.ts`; refactored `writings.ts` to import them (DRY, behavior unchanged). Added
+`readingTimeMinutes` to `ProjectItem`, computed in the reader. New `<ReadingTime>` server component renders
+an "N min read" badge near `CaseStudySpecs`. Writings already displayed reading time via `WritingMeta`
+(the plan's claim that case studies needed it was correct; writings did not).
+
+### 23.5 -- Print stylesheet (`0b1128d`)
+
+EXTENDED the existing `@media print` block rather than adding a second one (two `@media print` blocks would
+both apply with last-wins cascade and is a maintenance trap). Hides interactive chrome, shows link URLs
+after the text (skipping `#` / `mailto:` / `tel:`), resets the article to full page width, 11pt body,
+page-break control on images/code/tables/figures/blockquotes, orphan/widow control.
+
+Class-name discipline: the plan said `.case-study-nav`; the real class is `.case-nav`. Grepped
+`globals.css` for the actual selector before writing the rule. Always verify a class name against the
+stylesheet before referencing it in a new rule.
+
+### 23.6 -- Table of contents (`9d3802f`, separate screenshot review)
+
+Auto-generated from h2/h3 headings in the Markdoc body. The load-bearing detail: rendered headings carry NO
+`id`s, so TOC anchors would not resolve. `src/lib/text.ts` gained `createHeadingSlugger()` (a deterministic
+per-document dedup slugger) + `extractHeadings()`; `ProjectBody` / `WritingBody` build a per-render Markdoc
+config that injects matching slug `id`s into rendered headings via the SAME slugger, so every link resolves
+(verified zero unmatched across all 8 case studies). `TableOfContents` is a sticky desktop sidebar and a
+collapsible mobile drawer; active section tracked via `IntersectionObserver` with a `prevActiveRef` guard
+(DEC-086); click smooth-scrolls (instant under reduced-motion) and updates the hash via `replaceState`.
+
+Three CSS patterns locked here:
+- **`scroll-margin-top` for fixed-nav anchor jumps**: a hash jump under a fixed nav lands the heading
+  beneath the nav. `scroll-margin-top: 90px` on `.case-body / .post-body :is(h2, h3)` makes the jump clear
+  the nav. Verified clicks land at `top: 90`.
+- **Sticky-inside-grid needs `align-self: start`**: a grid item defaults to `stretch`, filling the row
+  height, which leaves a `position: sticky` child no room to travel (it pinned at `-4006px`). The sticky
+  element itself must be content-height: set `align-self: start` on it, NOT `align-items: start` on the
+  container (which collapsed the item the other way).
+- **`:has()` guard for a conditional grid column**: `.toc-layout:has(> .toc)` applies the two-column grid
+  only when a TOC is actually present, so a heading-less document reserves no empty 220px column.
+
+### 23.7 -- Keyboard shortcuts + modal (`702e029`)
+
+Global `keydown` listener mounted in `layout.tsx`. g-prefix navigation sequences (`g h/w/a/r/c`; `r` for
+writings/reading, per Sarib's lock, NOT `g s`), `?` opens a help modal, `Esc` closes, 1.5s sequence reset.
+Modal portals to body (z 210), `role="dialog" aria-modal`, reuses `useFocusTrap` (initial focus + Tab wrap +
+restore), locks body scroll, respects reduced-motion (no fade). Footer "Keyboard shortcuts" link opens it.
+
+Three patterns locked here:
+- **(a) Custom-event bridge for RSC -> Client communication**: the Footer is a Server Component and cannot
+  use React context (a client-only feature) to talk to the client `KeyboardShortcuts` listener. A small
+  client child dispatches `window.dispatchEvent(new CustomEvent('open-keyboard-shortcuts'))`; the listener
+  subscribes. A decoupled channel that respects the RSC boundary. Reference for any future
+  Server-Component-triggers-client-action need (open modal, fire animation).
+- **(b) Modifier-key + input-focus suppression for global key listeners**: a global `keydown` must suppress
+  in two cases, or it hijacks the browser and the user's typing. (1) Modifier held (`ctrlKey` / `metaKey` /
+  `altKey`) -> bail, so browser/OS shortcuts work. (2) Focus on a text surface (INPUT / TEXTAREA / SELECT /
+  `isContentEditable`) -> bail, so the user can type. `KeyboardShortcuts.tsx` is the reference
+  implementation.
+- **(c) Sequence-reset timeout vs automated tests**: the 1.5s sequence reset means Playwright presses split
+  across separate MCP round-trips (each > 1.5s) reset the sequence and "fail" navigation while the feature
+  is working as designed. Batch both keys inside a single Playwright call (`page.keyboard.press` back to
+  back), and on production wait ~1s after `goto` for hydration so the global listener has attached before
+  pressing. Verified all 5 sequences once batched + hydrated.
+
+Print micro-fix (folded into 23.8): the 23.5 print hide list already carried `.keyboard-shortcuts-modal-backdrop`
+(the portal root, whose `display: none` hides the whole modal subtree), and did NOT carry the content
+selector `.keyboard-shortcuts-modal` (the reverse of what was assumed). Coverage was already complete via
+the ancestor; added the content selector alongside it for a self-documenting rule, not for behavior.
+
+Pattern locked: print-stylesheet hide rules favour defensive completeness over minimal redundancy. When a
+feature has a class-name hierarchy (a `-backdrop` wrapper around `-modal` content), list BOTH selectors in
+the print hide list, with a comment, even when one is the ancestor of the other. Trade-off: 1-2 extra
+selectors of CSS. Benefit: future-Claude reading the print block sees exactly what is hidden without tracing
+DOM hierarchies. The pattern was set in 23.5 (`.table-of-contents` + `.toc-toggle-mobile` +
+`.keyboard-shortcuts-modal-backdrop` listed preemptively) and is applied symmetrically here.
+
+### 23.8 -- Docs (this entry)
+
+DEC-087, the CHANGELOG Phase 23 entry, DEFERRED_FIXES resolutions, and the AGENTS.md / CLAUDE.md pattern
+additions, plus the print-list micro-fix above.
+
+### Verification
+
+`pnpm typecheck` / `lint` / `build` green on every code commit. Each feature verified on its touched flow in
+dev and again on production after deploy (23.6 with the mandatory screenshot review; 23.7 with the full
+sequence / suppression / focus-trap / reduced-motion matrix). Standing console errors on production are the
+report-only CSP notice (site-wide, deferred), a pre-existing RSC-prefetch 404 on the footer's `resume.pdf`
+download link, and Cloudflare Turnstile noise on `/contact`; none introduced by Phase 23.

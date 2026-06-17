@@ -110,11 +110,32 @@ Full-bleed elements (atmospheric washes, edge-to-edge gradients, banded backgrou
 
 ---
 
+## Phase 23 patterns
+
+Full rationale in DEC-087.
+
+- **Custom-event bridge (RSC -> Client)**: a Server Component can't use React context (client-only) to trigger a client action. Dispatch `window.dispatchEvent(new CustomEvent('open-keyboard-shortcuts'))` from a small client child; subscribe in the listener. Reference: Footer "Keyboard shortcuts" link -> `KeyboardShortcuts`.
+- **Global key listener suppression**: a `window` `keydown` must bail when a modifier is held (`ctrlKey`/`metaKey`/`altKey`) AND when focus is on a text surface (INPUT/TEXTAREA/SELECT/`isContentEditable`). `KeyboardShortcuts.tsx` is the reference; do not regress either branch.
+- **Portal modal**: `createPortal` to body, `role="dialog" aria-modal`, reuse `useFocusTrap` (initial focus + Tab wrap + restore), lock `body.style.overflow` and restore on cleanup, z-index 210 (above gallery fullscreen 200), reduced-motion no fade.
+- **Scroll-listener read vs jump (DEC-086 scope)**: a listener that only SYNCS state to current scroll (reading progress bar) is exempt from the DEC-086 mount guard; the initial call is a read. Only listeners that CAUSE a scroll/focus jump need the guard.
+- **`scroll-margin-top` for fixed-nav anchors**: 90px on `.case-body / .post-body :is(h2,h3)` so hash jumps clear the fixed nav.
+- **Sticky-in-grid**: set `align-self: start` on the sticky element itself, not `align-items: start` on the container, or a stretched grid item leaves the sticky child no travel room (pinned at `-4006px`).
+- **`:has()` conditional grid**: `.toc-layout:has(> .toc)` applies the two-column grid only when the TOC is present, so an absent TOC reserves no empty column.
+- **Extend, don't duplicate, `@media` blocks**: add to the existing `@media print` block, never open a second.
+- **Verify class names against `globals.css`** before writing a rule (the plan's `.case-study-nav` was really `.case-nav`).
+- **Keystatic strict reader**: removing a schema field also requires stripping the orphaned frontmatter key from every content file in the same commit (`createReader` rejects `Key ... not allowed`).
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
 
-- **FIND ME button icons (Phase 23)**: add platform + envelope icons to the 5 `/contact` FIND ME buttons (DEC-085).
+- **FIND ME button icons (future)**: add platform + envelope icons to the 5 `/contact` FIND ME buttons (DEC-085). Carried past Phase 23.
+- **Code-block copy buttons (future)**: click-to-copy on `<pre>` blocks in case-study and writings prose.
+- **Blog content (Phase 26)**: `content/writings` is empty; route + reading time + progress bar + TOC are live, waiting on posts.
+- **DMARC staged rollout**: `p=none` -> `quarantine` (on/after 2026-06-17) -> `reject` once clean; manual Cloudflare DNS by Sarib (`docs/DNS_CONFIGURATION.md`).
+- **CSP enforcement flip (Phase 24)**: report-only -> enforce; the report-only notice is the only standing first-party console error.
 - **Repo privatization (post-Phase-22)**: after Sarib toggles the GitHub repo private, a follow-up commit un-ignores and tracks `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Until then both stay gitignored (private content, public repo).
 
 - **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.
