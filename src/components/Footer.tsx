@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import dynamic        from 'next/dynamic'
 import { SLogo }       from '@/components/SLogo'
+import { KeyboardShortcutsLink } from '@/components/KeyboardShortcutsLink'
 
 // Lazy-load the clock, it lives in the footer (below the fold),
 // runs setInterval, and contributes ~1KB of JS that would otherwise
@@ -75,6 +76,7 @@ export function Footer() {
           <ul>
             <li><a href="/feed.xml">RSS</a></li>
             <li><a href="/resume.pdf" download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf">Resume (PDF)</a></li>
+            <li><KeyboardShortcutsLink /></li>
           </ul>
         </div>
 

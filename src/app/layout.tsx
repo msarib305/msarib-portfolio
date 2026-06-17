@@ -6,6 +6,7 @@ import { Nav }           from '@/components/Nav'
 import { Footer }        from '@/components/Footer'
 import { CursorMount }  from '@/components/CursorMount'
 import { BackToTopMount } from '@/components/BackToTopMount'
+import { KeyboardShortcuts } from '@/components/KeyboardShortcuts'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets:  ['latin'],
@@ -144,6 +145,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <BackToTopMount />
+        <KeyboardShortcuts />
       </body>
     </html>
   )
