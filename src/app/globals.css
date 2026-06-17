@@ -3989,26 +3989,6 @@
     line-height: 1.4;
   }
 
-  /* ─── Case study: gallery grid ─── */
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
-
-  .gallery-item {
-    border-radius: var(--radius-12);
-    overflow: hidden;
-    background: var(--color-bg-low);
-    border: 1px solid var(--color-border-subtle);
-  }
-
-  .gallery-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-  }
 
   /* ─── Case study: external links bar ─── */
   .case-links {

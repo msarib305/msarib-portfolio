@@ -4,7 +4,6 @@ import { getProjects, findProjectBySlug, getProjectNav } from '@/data/projects'
 import { CaseStudyHeader }  from '@/components/CaseStudyHeader'
 import { CaseStudySpecs }   from '@/components/CaseStudySpecs'
 import { CaseStudyCover }   from '@/components/CaseStudyCover'
-import { CaseStudyGallery } from '@/components/CaseStudyGallery'
 import { ProjectBody }      from '@/components/ProjectBody'
 import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
@@ -176,12 +175,6 @@ export default async function ProjectPage({
         )}
 
         <ProjectBody body={project.body} />
-
-        {project.gallery.length > 0 && (
-          <section aria-label="Project gallery">
-            <CaseStudyGallery items={project.gallery} />
-          </section>
-        )}
       </article>
 
       <CaseStudyNav prev={nav.prev} next={nav.next} />

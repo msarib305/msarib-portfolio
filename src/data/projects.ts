@@ -8,11 +8,6 @@ export type ProjectCover =
   | { type: 'image'; src: string; alt: string }
   | { type: 'video'; youtubeId: string; title: string }
 
-export type ProjectGalleryItem =
-  | { type: 'image'; src: string; alt: string }
-  | { type: 'video'; youtubeId: string; title: string }
-  | { type: 'instagram'; permalink: string; title: string }
-
 export interface ProjectItem {
   slug:         string
   title:        string
@@ -27,7 +22,6 @@ export interface ProjectItem {
   featured:     boolean
   thumbnail:    { src: string; alt: string }
   cover:        ProjectCover
-  gallery:      readonly ProjectGalleryItem[]
   links:        readonly { label: string; url: string }[]
   spoilerLinks: readonly { label: string; url: string; warning: string }[]
   tintClass:    'wc-1' | 'wc-2' | 'wc-3' | 'wc-4'
@@ -39,16 +33,6 @@ type RawConditional = { discriminant: string; value: Record<string, string | und
 function normalizeCover(raw: RawConditional): ProjectCover {
   if (raw.discriminant === 'image') {
     return { type: 'image', src: raw.value.src ?? '', alt: raw.value.alt ?? '' }
-  }
-  return { type: 'video', youtubeId: raw.value.youtubeId ?? '', title: raw.value.title ?? '' }
-}
-
-function normalizeGalleryItem(raw: RawConditional): ProjectGalleryItem {
-  if (raw.discriminant === 'image') {
-    return { type: 'image', src: raw.value.src ?? '', alt: raw.value.alt ?? '' }
-  }
-  if (raw.discriminant === 'instagram') {
-    return { type: 'instagram', permalink: raw.value.permalink ?? '', title: raw.value.title ?? '' }
   }
   return { type: 'video', youtubeId: raw.value.youtubeId ?? '', title: raw.value.title ?? '' }
 }
@@ -70,7 +54,6 @@ async function readAll(): Promise<ProjectItem[]> {
       featured:     e.entry.featured,
       thumbnail:    e.entry.thumbnail as { src: string; alt: string },
       cover:        normalizeCover(e.entry.cover as RawConditional),
-      gallery:      (e.entry.gallery as unknown as RawConditional[]).map(normalizeGalleryItem),
       links:        e.entry.links as readonly { label: string; url: string }[],
       spoilerLinks: e.entry.spoilerLinks as readonly { label: string; url: string; warning: string }[],
       tintClass:    e.entry.tintClass as ProjectItem['tintClass'],

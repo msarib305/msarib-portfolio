@@ -121,37 +121,6 @@ export default config({
           }
         ),
 
-        // Array of typed gallery items. Stored per item as
-        // { discriminant: 'image'|'video'|'instagram', value: { ... } }.
-        gallery: fields.array(
-          fields.conditional(
-            fields.select({
-              label: 'Item type',
-              options: [
-                { label: 'Image',     value: 'image'     },
-                { label: 'YouTube',   value: 'video'     },
-                { label: 'Instagram', value: 'instagram' },
-              ],
-              defaultValue: 'image',
-            }),
-            {
-              image: fields.object({
-                src: fields.text({ label: 'Image URL (Cloudinary)' }),
-                alt: fields.text({ label: 'Alt text' }),
-              }),
-              video: fields.object({
-                youtubeId: fields.text({ label: 'YouTube ID (11 chars)' }),
-                title:     fields.text({ label: 'Video title' }),
-              }),
-              instagram: fields.object({
-                permalink: fields.text({ label: 'Instagram permalink (full URL)' }),
-                title:     fields.text({ label: 'Descriptive title' }),
-              }),
-            }
-          ),
-          { label: 'Gallery' }
-        ),
-
         // href renamed to url. Shape otherwise identical to Phase 10.
         links: fields.array(
           fields.object({
