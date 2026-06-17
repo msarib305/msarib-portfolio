@@ -859,6 +859,25 @@
   .skip-link:focus { top: 16px; }
 
   /* ----------------------------------------------------------
+     READING PROGRESS BAR (Phase 23.2)
+     Long-form pages only (case studies, writings). Fixed 3px teal
+     bar at the very top, above nav (z 100), below the modal (z 210).
+     ---------------------------------------------------------- */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--color-accent);
+    z-index: 150;
+    transition: width 50ms linear;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress { transition: none; }
+  }
+
+  /* ----------------------------------------------------------
      NAV
      Fixed top bar. Three-column grid centres links in the
      viewport: minmax(0,1fr) [logo] | auto [links] | minmax(0,1fr) [actions].

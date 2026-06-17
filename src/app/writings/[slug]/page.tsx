@@ -6,6 +6,7 @@ import { WritingBody } from '@/components/WritingBody'
 import { WritingNav }  from '@/components/WritingNav'
 import { PillButton }  from '@/components/PillButton'
 import { JsonLd }      from '@/components/JsonLd'
+import { ReadingProgress } from '@/components/ReadingProgress'
 
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs()
@@ -83,6 +84,7 @@ export default async function WritingPage(
 
   return (
     <>
+      <ReadingProgress />
       <JsonLd schema={writingSchema} />
       <article itemScope itemType="https://schema.org/BlogPosting">
         <meta itemProp="author" content="Muhammad Sarib" />

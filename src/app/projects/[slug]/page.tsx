@@ -8,6 +8,7 @@ import { ProjectBody }      from '@/components/ProjectBody'
 import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
+import { ReadingProgress }  from '@/components/ReadingProgress'
 import { platformIconForUrl } from '@/icons/PlatformIcon'
 
 // Per-slug VideoGame typing (Phase 19.7, DEC-082). The four game projects render
@@ -115,6 +116,7 @@ export default async function ProjectPage({
 
   return (
     <>
+      <ReadingProgress />
       <JsonLd schema={projectSchema} />
       <JsonLd schema={breadcrumbSchema} />
 
