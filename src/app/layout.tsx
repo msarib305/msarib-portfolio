@@ -5,6 +5,7 @@ import { SkipToContent } from '@/components/SkipToContent'
 import { Nav }           from '@/components/Nav'
 import { Footer }        from '@/components/Footer'
 import { CursorMount }  from '@/components/CursorMount'
+import { BackToTopMount } from '@/components/BackToTopMount'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets:  ['latin'],
@@ -142,6 +143,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <BackToTopMount />
       </body>
     </html>
   )
