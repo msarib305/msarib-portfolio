@@ -1072,7 +1072,9 @@
      BACK-TO-TOP BUTTON (Phase 23.3)
      Site-wide (except /keystatic). Appears after 500px scroll.
      ---------------------------------------------------------- */
-  .back-to-top {
+  /* Class prefixed `msarib-` so ad-blocker cosmetic filters (uBlock Origin)
+     do not hide a generic `.back-to-top` element (Phase 24.1, DEC-088). */
+  .msarib-back-to-top {
     position: fixed;
     bottom: 24px;
     right: 24px;
@@ -1097,29 +1099,31 @@
     pointer-events: none;
   }
 
-  .back-to-top--visible {
+  .msarib-back-to-top--visible {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
 
-  .back-to-top:hover {
+  .msarib-back-to-top:hover {
     background: rgba(0, 217, 196, 0.15);
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
 
   @media (max-width: 600px) {
-    .back-to-top {
-      bottom: 16px;
-      right: 16px;
-      width: 40px;
-      height: 40px;
+    /* 44x44 min touch target (WCAG 2.5.5); safe-area insets so the gesture nav
+       bar / notch does not crowd it against the edge (Phase 24.1). */
+    .msarib-back-to-top {
+      width: 44px;
+      height: 44px;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      right: max(16px, env(safe-area-inset-right));
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .back-to-top {
+    .msarib-back-to-top {
       transition: opacity 0.01ms, transform 0.01ms;
     }
   }
@@ -4174,7 +4178,7 @@
     .reel-label, .reel-credits,
     .about-portrait-glow,
     /* Phase 23.5: the rest of the interactive chrome. */
-    .reading-progress, .back-to-top, .skip-link,
+    .reading-progress, .msarib-back-to-top, .skip-link,
     .case-nav, .case-links, .case-link-pill, .case-spoiler-links,
     .gallery-thumbnails-wrap, .gallery-chevron,
     .table-of-contents, .toc-toggle-mobile,
