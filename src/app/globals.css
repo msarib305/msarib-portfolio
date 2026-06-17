@@ -3970,14 +3970,56 @@
       text-shadow: none !important;
       box-shadow: none !important;
     }
-    html, body { background: #fff !important; color: #000 !important; }
-    .nav, .footer, .mobile-menu, .mobile-menu-backdrop,
+    html, body {
+      background: #fff !important;
+      color: #000 !important;
+      font-size: 11pt;
+      line-height: 1.5;
+    }
+    .nav, .footer, .mobile-menu, .mobile-menu-backdrop, .nav-burger,
     .cursor-gradient, .cursor-dot,
     .atm-wrapper, .showreel-glow-canvas,
     .reel-label, .reel-credits,
-    .about-portrait-glow { display: none !important; }
+    .about-portrait-glow,
+    /* Phase 23.5: the rest of the interactive chrome. */
+    .reading-progress, .back-to-top, .skip-link,
+    .case-nav, .case-links, .case-link-pill, .case-spoiler-links,
+    .gallery-thumbnails-wrap, .gallery-chevron,
+    .table-of-contents, .toc-toggle-mobile,
+    .keyboard-shortcuts-modal-backdrop { display: none !important; }
     main { padding-top: 0 !important; }
     a { color: #000 !important; text-decoration: underline; }
+
+    /* Show link targets for paper readers (skip in-page anchors, mail, tel). */
+    a[href]::after {
+      content: " (" attr(href) ")";
+      font-size: 9pt;
+      color: #555 !important;
+      word-break: break-all;
+    }
+    a[href^="#"]::after,
+    a[href^="mailto:"]::after,
+    a[href^="tel:"]::after { content: ""; }
+
+    /* Article fills the page. */
+    article { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+
+    /* Keep headings with the content that follows. */
+    h1, h2, h3, h4, h5, h6 { page-break-after: avoid; break-after: avoid; }
+
+    /* Do not split media, code, tables, or quotes across pages. */
+    img, pre, code, table, figure, blockquote {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    img { max-width: 100% !important; }
+    pre, code {
+      background: #f5f5f5 !important;
+      border: 1px solid #ddd;
+    }
+
+    /* Orphan / widow control. */
+    p { orphans: 3; widows: 3; }
   }
 
 
