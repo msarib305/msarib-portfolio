@@ -127,6 +127,19 @@ Full rationale in DEC-087.
 
 ---
 
+## Phase 24 patterns
+
+Full rationale in DEC-088.
+
+- **`msarib-` prefix on ALL new public CSS classes (LOCKED from 24.1)**: generic names (`.back-to-top`, `.share-buttons`, `.cookie-notice`) collide with ad-blocker cosmetic filter lists (uBlock Origin, AdBlock Plus, AdGuard) and get `display: none`'d in user browsers. Prefix every new class `msarib-`. Tailwind utilities and framework classes (Keystatic) are exempt. Phase 25 retroactively audits existing classes.
+- **Cross-platform verification**: local Linux Playwright Chromium does NOT cover Windows browsers, browsers with extensions, or mobile/tablet. A green Playwright run is necessary, not sufficient; real-device verification is required for production-grade features (the 24.1 back-to-top bug was an ad-blocker hiding a correctly-rendered element, invisible locally).
+- **rAF polling for scroll tracking**: track scroll position with a `requestAnimationFrame` loop reading `scrollY` each frame, not a `scroll` listener (which misses native middle-click autoscroll). Lerp the displayed value toward the true position (`LERP_FACTOR` 0.15, or 1 under reduced-motion). The loop only READS scroll, so it is DEC-086 exempt. Reference: `ReadingProgress.tsx`.
+- **Strip-at-display, not at extraction**: when content needs different representations per context (heading periods in the body, none in the TOC), adapt at the consuming component (`h.text.replace(/\.$/, '')`), not the data layer.
+- **Grid padding on the parent with a sticky child**: in a CSS Grid with a sticky element, put top padding on the grid parent and zero the children's `padding-top` so they align with the sticky sibling (24.2). When restructuring DOM, sibling margins carry intent forward; container margins may need re-anchoring (24.5 `.case-meta-row` `margin-bottom` preserved tags-to-title spacing automatically).
+- **Never run `pnpm build` against a live dev server's `.next`**: both read/write the same `.next`, so the dev server serves stale assets (a false Playwright failure bit twice in Phase 24). For Playwright verification, restart the dev server fresh (terminate the task, `pnpm dev`, wait for ready); no parallel builds.
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
@@ -135,7 +148,9 @@ Intentionally deferred items. Full details in AGENTS.md under the same heading.
 - **Code-block copy buttons (future)**: click-to-copy on `<pre>` blocks in case-study and writings prose.
 - **Blog content (Phase 26)**: `content/writings` is empty; route + reading time + progress bar + TOC are live, waiting on posts.
 - **DMARC staged rollout**: `p=none` -> `quarantine` (on/after 2026-06-17) -> `reject` once clean; manual Cloudflare DNS by Sarib (`docs/DNS_CONFIGURATION.md`).
-- **CSP enforcement flip (Phase 24)**: report-only -> enforce; the report-only notice is the only standing first-party console error.
+- **CSP enforcement flip**: report-only -> enforce; the report-only notice is the only standing first-party console error. Not taken in Phase 24; deferred to the end of the resilience arc, per Sarib.
+- **Mobile keyboard shortcuts visibility (Issue 6b)**: hide the shortcuts modal/affordance on touch-only devices via `(hover: none)` + `(pointer: coarse)`. Deferred from Phase 24 (DEC-088).
+- **Phase 25 (Cross-Environment Resilience Pass, immediate next)**: retroactive `msarib-` prefix audit of existing classes, extension-category defensive patterns (Dark Reader, translate, password managers, privacy), browser/OS edge cases (Windows Forced Colors, `prefers-reduced-data`, no-JS, iOS Safari, hybrid), and a real-device test matrix. Est. 8 to 12 hours. Full scope in `docs/DEFERRED_FIXES.md`.
 - **Repo privatization (post-Phase-22)**: after Sarib toggles the GitHub repo private, a follow-up commit un-ignores and tracks `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Until then both stay gitignored (private content, public repo).
 
 - **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.

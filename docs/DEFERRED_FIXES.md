@@ -35,6 +35,25 @@ Phase 23 also delivered five QoL features + a table of contents (reading progres
 time on case studies, print stylesheet, TOC, keyboard shortcuts + modal). These were planned features, not
 items from this list. None of the other pending items below were resolved by Phase 23.
 
+## Resolved in Phase 24 (2026-06-18)
+
+Five fixes, all regression / polish on Phase 23 features. Full rationale in DEC-088.
+
+- **Back-to-top Windows regression** RESOLVED 24.1. uBlock Origin's cosmetic filter matched the generic
+  `.back-to-top` class; renamed to `.msarib-back-to-top` and locked the `msarib-` prefix convention for all
+  new CSS. Android touch target 44x44px + safe-area-inset padding.
+- **TOC sidebar 64px gap** RESOLVED 24.2. Moved `padding-top` from the body to the grid parent so sidebar and
+  body share one baseline.
+- **Case study heading periods** RESOLVED 24.3. 65 headings got a trailing period; the TOC strips it at
+  display.
+- **Reading progress jumpy + middle-click miss** RESOLVED 24.4. rAF polling loop + lerp replaces the scroll
+  listener and CSS transition.
+- **Case study hero layout rework** RESOLVED 24.5. Two-column title/specs grid; reading time moved into the
+  specs; `CaseStudyHeader` split into `CaseStudyTags` + `CaseStudyTitle`; orphaned `ReadingTime` deleted.
+
+New deferred item surfaced (mobile keyboard shortcuts visibility, Issue 6b) is listed below; Phase 25 scope
+is captured in its own section.
+
 ---
 
 ## Copy editorial pass (post-19.7)
@@ -118,13 +137,33 @@ Phase 21 resolved none of the items above; all remain pending. Two new items sur
     then to `p=reject` once `quarantine` runs clean for a reporting window. Manual Cloudflare DNS TXT edit
     by Sarib; not a code change. See `docs/DNS_CONFIGURATION.md`.
 11. **CSP enforcement flip** (report-only to enforce). The report-only CSP console notice is the only
-    standing first-party console error site-wide. (Phase 24, per Sarib.)
+    standing first-party console error site-wide. Not taken in Phase 24; deferred to the end of the
+    resilience arc, per Sarib.
 12. **GitHub README rewrite.** Separate effort.
 13. **Full device matrix testing.** Separate effort.
 14. **Code-block copy buttons (future).** A click-to-copy affordance on `<pre>` code blocks in case-study
     and writings prose. Not in Phase 23 scope.
 15. **Blog content (Phase 26).** `content/writings` is currently empty; the writings detail route, reading
     time, progress bar, and TOC are all live and waiting on actual posts.
+16. **Mobile keyboard shortcuts visibility (Issue 6b, deferred from Phase 24).** The keyboard-shortcuts modal
+    and its discoverable affordance stay visible on all devices. A keyboard-only feature has little value on
+    touch-only devices. Future consideration: detect `(hover: none)` and `(pointer: coarse)` to hide it on
+    touch-only devices. See DEC-088.
+
+## Phase 25 scope -- Cross-Environment Resilience Pass (immediately next)
+
+The largest resilience pass since the site foundation, queued to start right after Phase 24. Estimated 8 to
+12 hours. Scope:
+
+- **Filter-list immunity audit.** Retroactively apply the `msarib-` prefix to existing at-risk public-facing
+  CSS classes (the convention was locked in 24.1 for NEW classes; this sweeps the back catalogue). See
+  DEC-088.
+- **Extension category defensive patterns.** Dark Reader, page-translate, password managers, and privacy
+  extensions: audit for breakage and add defensive patterns.
+- **Browser / OS edge cases.** Windows Forced Colors mode, `prefers-reduced-data`, no-JS, iOS Safari, and
+  hybrid (touch + pointer) devices.
+- **Real-device test matrix.** A defined matrix of browser / OS / device combinations the local Linux
+  Playwright Chromium cannot cover (the cross-platform gap documented in DEC-088).
 
 ### Planned post-Phase-22 action (sequenced, not a deferred fix)
 

@@ -2,6 +2,51 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-18
+### Phase 24 -- post-Phase-23 regression fixes and case study header rework
+
+Six commits spanning 2026-06-17 (24.1) to 2026-06-18 (24.2 to 24.6), each independently revertable, HALT at
+every pre-commit, all shipped to production. Full rationale in DEC-088. The `msarib-` class-prefix convention
+is locked from 24.1 forward for all new CSS classes. Phase 25 (Cross-Environment Resilience Pass) is queued
+as the immediate next phase.
+
+**24.1 -- `fix(navigation): Phase 24.1 prefix back-to-top class to dodge ad-blocker cosmetic filters + Android sizing`**
+The Phase 23.3 back-to-top button was invisible for some Windows users (Chrome / Edge) with no console error.
+Root cause (confirmed via an instrumented deploy, `201b768`): uBlock Origin's cosmetic filter matched the
+generic `.back-to-top` class and injected `display: none`. Fix: rename to `.msarib-back-to-top` (component +
+three `globals.css` selectors + print hide list), immune to filter lists. Android: 44x44px touch target (WCAG
+2.5.5) and `max(16px, env(safe-area-inset-*))` edge padding. Locked the `msarib-` prefix convention for all
+new CSS classes.
+
+**24.2 -- `fix(layout): Phase 24.2 align TOC sidebar with body first heading`**
+At 1280px+, a 64px gap sat between the TOC sidebar top and the body's first heading. Moved the body's
+`padding-top: 64px` from `.case-body` / `.post-body` onto the shared grid parent `.toc-layout:has(> .toc)` and
+zeroed the children, so the sidebar and body share one baseline (delta 0px). Scoped to 1280px+; mobile
+untouched.
+
+**24.3 -- `feat(content): Phase 24.3 trailing periods on case-study section headings`**
+Added a trailing period to 65 h2/h3 headings (plus the h4 sub-headings in `exarta-uefn-portfolio`); the 6
+title-name h3s there stay period-less (proper nouns). `TableOfContents` strips the period at display
+(`h.text.replace(/\.$/, '')`) so entries read "The brief", not "The brief.". Slugs and anchors unaffected
+(the slugger already strips non-word characters).
+
+**24.4 -- `fix(navigation): Phase 24.4 reading progress bar rAF lerp + cross-input coverage`**
+Replaced the `scroll`-event listener with a `requestAnimationFrame` polling loop that lerps the bar width
+toward the true scroll position. Polling covers inputs that do not fire `scroll` (middle-click autoscroll,
+programmatic / smooth-scroll); the lerp replaces the 50ms CSS transition. `LERP_FACTOR` 0.15, or 1 under
+reduced-motion. Class renamed to `.msarib-reading-progress`. Verified at 61fps.
+
+**24.5 -- `feat(case-studies): Phase 24.5 hero layout rework with side-by-side title and specs`**
+Two-column hero: title + summary left (`1fr`), `CaseStudySpecs` right (`320px`), single column at 900px.
+Reading time moved into the specs as a new "Time" row. Tags hoisted above the grid as a full-width row so the
+title and specs share the same vertical baseline (delta 0px across all 8 case studies). `CaseStudyHeader`
+split into `CaseStudyTags` + `CaseStudyTitle`; `ReadingTime.tsx` and `.reading-time` CSS deleted (orphaned;
+writings use `WritingMeta`).
+
+**24.6 -- `docs: Phase 24 DEC-088 + CHANGELOG + DEFERRED_FIXES + AGENTS/CLAUDE updates`**
+This entry, DEC-088, the DEFERRED_FIXES resolutions + Phase 25 scope, and the AGENTS.md / CLAUDE.md pattern
+additions.
+
 ## 2026-06-17
 ### Phase 23 -- QoL features, accessibility, hygiene
 

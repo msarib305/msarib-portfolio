@@ -2108,3 +2108,148 @@ dev and again on production after deploy (23.6 with the mandatory screenshot rev
 sequence / suppression / focus-trap / reduced-motion matrix). Standing console errors on production are the
 report-only CSP notice (site-wide, deferred), a pre-existing RSC-prefetch 404 on the footer's `resume.pdf`
 download link, and Cloudflare Turnstile noise on `/contact`; none introduced by Phase 23.
+
+## DEC-088 -- Phase 24: post-Phase-23 regression fixes and case study header rework
+
+Six commits over 2026-06-17 (24.1) to 2026-06-18 (24.2 to 24.6), each independently revertable, HALT at
+every pre-commit, all shipped to production. Two regression fixes (back-to-top, reading progress), one
+content pass (heading periods), two layout reworks (TOC alignment, case study hero), one docs commit (this
+entry). The phase locks the `msarib-` class-prefix convention for all new CSS, and queues Phase 25 (the
+Cross-Environment Resilience Pass) as the immediate next phase.
+
+### 24.1 -- Back-to-top class rename for ad-blocker immunity + Android sizing (`2166a37`, instrumented in `201b768`)
+
+Bug: the Phase 23.3 back-to-top button was invisible for some users on Windows (Chrome and Edge), with no
+console error and a correctly mounted, correctly positioned element. Root cause (confirmed by an instrumented
+deploy): uBlock Origin's cosmetic filter lists match the generic class name `.back-to-top` and inject
+`display: none` into the page. The component rendered fine; the ad-blocker hid it.
+
+Diagnosis pattern: when a feature works locally but a user reports it missing in an environment we cannot
+reproduce, deploy temporary instrumentation (a `console.log` of the render + state, plus a `data-debug`
+attribute on the element) rather than guessing. `201b768` shipped the instrumentation, `2166a37` shipped the
+fix and removed it. The instrumentation confirmed the element mounted and the effect ran, ruling out render /
+hydration / scroll / backdrop-filter causes and isolating it to a CSS rule injected from outside our code.
+
+Fix: rename `.back-to-top` (and `--visible` modifier) to `.msarib-back-to-top` in the component, the three
+`globals.css` selectors, and the print hide list. A site-specific prefix does not match filter-list rules, so
+it is immune. Android sizing was also corrected: 44x44px minimum touch target (WCAG 2.5.5) and
+`max(16px, env(safe-area-inset-*))` edge padding so gesture-nav bars and notches do not crowd the button.
+
+Locked convention: ALL new public-facing CSS classes use the `msarib-` prefix from 24.1 forward. Generic
+names (`.back-to-top`, `.share-buttons`, `.cookie-notice`) collide with ad-blocker cosmetic filter lists
+(uBlock Origin, AdBlock Plus, AdGuard) and get `display: none`'d in user browsers. Tailwind utilities and
+framework classes (Keystatic) are exempt; they do not collide in practice. Phase 25 will retroactively audit
+and prefix existing at-risk classes.
+
+Cross-platform testing gap documented: the local test environment (Linux Playwright Chromium) does not cover
+Windows browsers, browsers with common extensions, or mobile/tablet devices. This bug did not and could not
+reproduce locally. Real-device verification is required for production-grade features; a green Playwright run
+is necessary, not sufficient.
+
+### 24.2 -- TOC sidebar alignment with body first heading (`e8e9649`)
+
+Bug: at 1280px and up, a 64px gap sat between the top of the TOC sidebar ("On this page") and the body's
+first heading, so the two columns started at different baselines. Cause: the body's own `padding-top: 64px`
+pushed the first heading down while the sidebar started at the grid top.
+
+Fix: move the `64px` top padding off `.case-body` / `.post-body` and onto the shared grid parent
+`.toc-layout:has(> .toc)`, then zero the children's `padding-top`. Now the sidebar and the body content share
+the same vertical baseline (verified: delta 0px), and the offset is no longer coupled to the body's own
+padding. Scoped to the 1280px+ breakpoint; mobile and non-TOC pages are untouched.
+
+Pattern: when a CSS Grid layout includes a sticky element, top padding usually belongs on the grid parent,
+not the children. Children inside a sticky-eligible grid should have their `padding-top` zeroed so they align
+with the sticky sibling.
+
+### 24.3 -- Trailing periods on case study headings, stripped from TOC display (`087e72d`)
+
+Added a trailing period to 65 case study section headings (every h2/h3, plus the h4 sub-headings in
+`exarta-uefn-portfolio` for in-document consistency) for editorial voice matching the prose. The 6 title-name
+h3s in `exarta-uefn-portfolio` (Enigmara, Clumsy Champions, Exarta HQ, Sands of Glory, Frightmare, CR-ICE-IS)
+were left period-less per Sarib's call: they read as proper nouns, not section labels.
+
+`TableOfContents` strips the trailing period at display time via `h.text.replace(/\.$/, '')`, so TOC entries
+read "The brief", not "The brief.". Slugs and anchors are unaffected: the heading slugger already strips
+non-word characters (`replace(/[^\w\s-]/g, '')`), so `id`s and `#hash` links are unchanged (verified: DOM
+`id="the-brief"` still matches the TOC `href="#the-brief"`).
+
+Pattern (strip-at-display): when content needs different representations in different contexts (period in the
+body, none in the TOC), adapt at the consuming component, not at the data layer. The heading text stays
+semantically accurate (matches the rendered DOM); each consumer adapts its own presentation.
+
+### 24.4 -- Reading progress bar rAF lerp + cross-input coverage (`4dbe818`)
+
+Replaced the Phase 23.2 `scroll`-event listener in `ReadingProgress` with a `requestAnimationFrame` polling
+loop that reads `scrollY` every frame and lerps the rendered width toward the true scroll position. Two bugs
+fixed: (1) middle-click autoscroll (and some programmatic / smooth-scroll animations) does not reliably fire
+`scroll` events, so the bar stalled; per-frame polling covers every input (wheel, scrollbar, keyboard, touch,
+middle-click drag, programmatic). (2) the old 50ms CSS width transition was too coarse; the lerp is the
+smoothing now (the CSS transition and its reduced-motion override were removed).
+
+`LERP_FACTOR` is 0.15 (smooth, slight lag); reduced-motion sets it to 1 so the bar tracks instantly while
+keeping the loop for cross-input coverage. The loop only READS `scrollY` (it never scrolls or focuses), so it
+is exempt from the DEC-086 mount guard. It runs continuously by design; once the bar snaps to the target,
+`setProgress` is called with an unchanged value and React bails the re-render. Verified at 61fps, converging
+to 50% / 100% / 0% at mid / bottom / top. Class renamed to `.msarib-reading-progress` per the 24.1 rule.
+
+Known limitation: native middle-click autoscroll cannot be reliably simulated by Playwright/CDP, so it is a
+manual check. The rAF design covers it structurally (polling, not event-driven).
+
+Pattern: rAF polling is the robust pattern for continuously tracking scroll position for UI feedback
+(progress bars, scroll-driven animation). Event listeners alone miss native middle-click autoscroll on some
+platforms. Combine with a lerp to smooth the displayed value toward the true scroll position.
+
+### 24.5 -- Case study hero layout rework with side-by-side title and specs (`945e295`)
+
+Restructured the case study hero from stacked (title, summary, reading-time badge, specs) to a two-column
+grid: title and summary on the left (`1fr`), `CaseStudySpecs` on the right (`320px`), gap 64px,
+`align-items: start`, collapsing to a single column at `max-width: 900px` (gap 32px). The bottom separator
+(`border-bottom` + `padding-bottom: 64px`, carried over from the former `.case-summary` wrapper) now sits on
+the grid. Reading time moved INTO `CaseStudySpecs` as a new "Time" row (Date, Client, Role, Engine, Status,
+Time).
+
+Structural correction (applied before commit): the tag row was first placed inside the grid's left column,
+which dropped the title below the specs baseline. Corrected by hoisting `CaseStudyTags` above the grid as its
+own full-width row, so the title and the first spec row share the same vertical baseline (verified: delta
+0px across all 8 case studies). `CaseStudyHeader.tsx` was split into `CaseStudyTags` (the chip row, with an
+empty-array guard) and `CaseStudyTitle` (the `<h1>`, preserving `itemProp="name"` for the schema.org
+CreativeWork microdata); both are server components. `ReadingTime.tsx` and the `.reading-time` CSS were
+deleted (orphaned once the standalone badge was removed; writings use `WritingMeta`, a separate path).
+
+Pattern: when restructuring DOM, margins attached to siblings usually carry their intent forward; margins
+attached to containers may need re-anchoring. The `.case-meta-row` `margin-bottom: 24px` preserved the
+tags-to-title spacing automatically after the restructure (it now sits between the tags and the grid, and the
+title is at the grid's content-top), so no spacing fix was needed.
+
+### 24.6 -- Docs (this entry)
+
+DEC-088, the CHANGELOG Phase 24 entry, the DEFERRED_FIXES resolutions + Phase 25 scope, and the AGENTS.md /
+CLAUDE.md pattern additions.
+
+### Dropped sub-phase and deferred item
+
+- **Keyboard shortcuts (was pencilled as a 24.x sub-phase): dropped.** Re-investigated after an early report
+  and found the shortcuts work site-wide as designed. The likely cause of the original report was a timing
+  issue: keys pressed before React hydration completed (so the global listener was not attached yet) or focus
+  on a hidden element. Known limitation: keyboard shortcuts depend on hydration completing before keypresses
+  register; presses during initial page load may not fire. Acceptable for normal use; no code change.
+- **Issue 6b -- mobile keyboard shortcuts visibility: deferred.** The shortcuts modal stays visible on all
+  devices for now. Future consideration: detect `(hover: none)` and `(pointer: coarse)` to hide the
+  affordance on touch-only devices. Tracked in DEFERRED_FIXES.
+
+### Build-against-live-dev gotcha (bit twice in Phase 24 verification)
+
+Running `pnpm build` against a running dev server's `.next` directory makes the dev server serve stale CSS /
+JS: both processes write to and read from the same `.next`. In 24.5 this produced a false "the 900px collapse
+is broken" Playwright result; the CSS was correct all along, and clearing `.next` + restarting the dev server
+fixed it. Rule: do not run `pnpm build` against a live dev server. When verifying via Playwright, restart the
+dev server fresh (terminate the running task, `pnpm dev`, wait for ready) and do not run parallel builds.
+
+### Verification
+
+`pnpm typecheck` / `lint` / `build` green on every code commit. Each fix verified on its touched flow in dev
+(against a freshly restarted server) and intended for production verification at the end of the arc: 24.2
+TOC alignment (delta 0px), 24.3 heading periods (DOM carries the period, TOC strips it, anchors unchanged),
+24.4 reading progress (61fps, lerp convergence, reduced-motion instant), 24.5 hero (2-column desktop, single
+column at 900px, baseline alignment and 24px tags-to-title spacing across all 8 case studies, 3-viewport
+screenshots). Standing console error remains the report-only CSP notice; none introduced by Phase 24.

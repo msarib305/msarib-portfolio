@@ -250,6 +250,41 @@ Full rationale in DEC-087. Reuse these rather than reinventing.
 
 ---
 
+## Component and CSS patterns (Phase 24)
+
+Full rationale in DEC-088. Reuse these rather than reinventing.
+
+- **`msarib-` prefix on all new public CSS classes (LOCKED from 24.1)**: generic names like `.back-to-top`,
+  `.share-buttons`, `.cookie-notice` collide with ad-blocker cosmetic filter lists (uBlock Origin, AdBlock
+  Plus, AdGuard) and get `display: none`'d in user browsers with those extensions. Prefix every new class
+  `msarib-` to immunize it. Tailwind utilities and framework classes (Keystatic) are exempt; they do not
+  collide in practice. Phase 25 retroactively audits and prefixes existing at-risk classes.
+- **Cross-platform verification**: the local test environment (Linux Playwright Chromium) does NOT cover all
+  browser / OS / extension combinations. Bugs that do not reproduce locally may still exist on Windows
+  browsers, on browsers with common extensions, or on mobile / tablet. A green Playwright run is necessary,
+  not sufficient; real-device verification is required for production-grade features. (The 24.1 back-to-top
+  bug was an ad-blocker hiding a correctly-rendered element, invisible to local Chromium.)
+- **rAF polling for scroll-position tracking**: when continuously tracking scroll position for UI feedback
+  (progress bars, scroll-driven animation), use a `requestAnimationFrame` loop that reads `scrollY` every
+  frame, not a `scroll` event listener. Listeners miss native middle-click autoscroll on some platforms; rAF
+  polls regardless of input method. Combine with a lerp to smooth the displayed value toward the true scroll
+  position (`LERP_FACTOR` 0.15, or 1 under reduced-motion). The loop only READS scroll, so it is DEC-086
+  exempt. `ReadingProgress.tsx` is the reference.
+- **Strip-at-display, not at extraction**: when content needs different representations per context (heading
+  periods in the body, none in the TOC), adapt at the consuming component (`h.text.replace(/\.$/, '')`), not
+  at the data layer. The data stays semantically accurate; each consumer adapts its own presentation.
+- **Grid padding belongs on the parent when a sticky child is involved**: in a CSS Grid with a sticky
+  element, put top padding on the grid parent and zero the children's `padding-top` so they align with the
+  sticky sibling (the 24.2 TOC alignment fix). When restructuring DOM, margins on siblings carry their intent
+  forward; margins on containers may need re-anchoring (the 24.5 `.case-meta-row` `margin-bottom` preserved
+  tags-to-title spacing automatically after the hero restructure).
+- **Do not run `pnpm build` against a live dev server's `.next`**: the dev server and the production build
+  read and write the same `.next` directory, so building while dev is running serves stale assets (this
+  produced a false Playwright failure twice in Phase 24). When verifying via Playwright, restart the dev
+  server fresh (terminate the running task, `pnpm dev`, wait for ready) and do not run parallel builds.
+
+---
+
 ## Future work
 
 This section is a queue of intentionally deferred items. Each item is scoped work that Sarib decides when (or whether) to pick up.
@@ -260,8 +295,13 @@ This section is a queue of intentionally deferred items. Each item is scoped wor
 - Code-block copy buttons on `<pre>` blocks in case-study and writings prose (future).
 - Blog content: `content/writings` is empty; the route + reading time + progress bar + TOC are live and wait on posts (Phase 26).
 - DMARC staged rollout (`p=none` -> `quarantine` on/after 2026-06-17 -> `reject` once clean); manual Cloudflare DNS by Sarib. See `docs/DNS_CONFIGURATION.md`.
-- CSP enforcement flip (report-only -> enforce); the report-only notice is the only standing first-party console error (Phase 24).
+- CSP enforcement flip (report-only -> enforce); the report-only notice is the only standing first-party console error. Not taken in Phase 24; deferred to the end of the resilience arc, per Sarib.
 - After repo privatization: un-ignore and track `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Both stay gitignored while the repo is public (private content). See DEC-085.
+- Mobile keyboard shortcuts visibility (Issue 6b, deferred from Phase 24): hide the shortcuts modal / affordance on touch-only devices via `(hover: none)` + `(pointer: coarse)`. See DEC-088.
+
+**Phase 25 -- Cross-Environment Resilience Pass (immediate next phase)**
+
+The largest resilience pass since the site foundation (estimated 8 to 12 hours), queued right after Phase 24. Full scope in `docs/DEFERRED_FIXES.md`. Headline items: retroactive `msarib-` prefix audit of existing at-risk classes; extension-category defensive patterns (Dark Reader, translate, password managers, privacy extensions); browser / OS edge cases (Windows Forced Colors, `prefers-reduced-data`, no-JS, iOS Safari, hybrid devices); and a real-device test matrix to cover what local Linux Playwright Chromium cannot.
 
 **Performance**
 
