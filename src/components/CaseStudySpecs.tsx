@@ -4,6 +4,7 @@ interface CaseStudySpecsProps {
   role:   string
   engine: string
   status: 'released' | 'wip' | 'archived' | 'cancelled'
+  readingTimeMinutes: number
 }
 
 const statusLabel: Record<CaseStudySpecsProps['status'], string> = {
@@ -13,7 +14,7 @@ const statusLabel: Record<CaseStudySpecsProps['status'], string> = {
   cancelled: 'Cancelled',
 }
 
-export function CaseStudySpecs({ date, client, role, engine, status }: CaseStudySpecsProps) {
+export function CaseStudySpecs({ date, client, role, engine, status, readingTimeMinutes }: CaseStudySpecsProps) {
   return (
     <dl className="case-specs">
       <div className="case-spec-row">
@@ -38,6 +39,12 @@ export function CaseStudySpecs({ date, client, role, engine, status }: CaseStudy
         <dt className="case-spec-key">Status</dt>
         <dd className="case-spec-val">{statusLabel[status]}</dd>
       </div>
+      {readingTimeMinutes >= 1 && (
+        <div className="case-spec-row">
+          <dt className="case-spec-key">Time</dt>
+          <dd className="case-spec-val">{readingTimeMinutes} min</dd>
+        </div>
+      )}
     </dl>
   )
 }

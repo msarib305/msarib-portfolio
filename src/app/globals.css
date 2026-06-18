@@ -875,18 +875,6 @@
     pointer-events: none;
   }
 
-  /* "N min read" badge near the case-study specs (Phase 23.4). */
-  .reading-time {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    line-height: 1;
-    margin-top: 12px;
-  }
-  .reading-time svg { flex-shrink: 0; }
-
   /* ----------------------------------------------------------
      TABLE OF CONTENTS (Phase 23.6)
      Desktop (>=1280): sticky sidebar in a grid left of the body.
@@ -2561,13 +2549,22 @@
     max-width: 1100px;
   }
 
-  /* Two-column layout: summary text left, specs right */
-  .case-summary {
+  /* Two-column hero (Phase 24.5): title + summary on the left (1fr), specs on
+     the right (320px). align-items: start so the specs column tracks its own
+     content height instead of stretching to the taller left column. The bottom
+     separator (carried over from the former .case-summary wrapper) sits on the
+     grid so the rule spans both columns. */
+  .msarib-case-hero-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 48px;
+    grid-template-columns: 1fr 320px;
+    gap: 64px;
+    align-items: start;
     padding-bottom: 64px;
     border-bottom: 1px solid var(--color-border-faint);
+  }
+
+  /* Left column: tags + title + summary text. Reserved for future tuning. */
+  .msarib-case-hero-main {
   }
 
   .case-summary-text {
@@ -2906,7 +2903,7 @@
       align-items: flex-start;
     }
 
-    .case-summary {
+    .msarib-case-hero-grid {
       grid-template-columns: 1fr;
       gap: 32px;
     }

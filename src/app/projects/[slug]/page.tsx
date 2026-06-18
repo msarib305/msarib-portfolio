@@ -1,7 +1,8 @@
 import type { Metadata }  from 'next'
 import { notFound }        from 'next/navigation'
 import { getProjects, findProjectBySlug, getProjectNav } from '@/data/projects'
-import { CaseStudyHeader }  from '@/components/CaseStudyHeader'
+import { CaseStudyTags }    from '@/components/CaseStudyTags'
+import { CaseStudyTitle }   from '@/components/CaseStudyTitle'
 import { CaseStudySpecs }   from '@/components/CaseStudySpecs'
 import { CaseStudyCover }   from '@/components/CaseStudyCover'
 import { ProjectBody }      from '@/components/ProjectBody'
@@ -9,7 +10,6 @@ import { CaseStudyNav }     from '@/components/CaseStudyNav'
 import { SpoilerLink }      from '@/components/SpoilerLink'
 import { JsonLd }           from '@/components/JsonLd'
 import { ReadingProgress }  from '@/components/ReadingProgress'
-import { ReadingTime }       from '@/components/ReadingTime'
 import { TableOfContents }   from '@/components/TableOfContents'
 import { platformIconForUrl } from '@/icons/PlatformIcon'
 
@@ -131,16 +131,24 @@ export default async function ProjectPage({
         <meta itemProp="author" content="Muhammad Sarib" />
 
         <div className="case-hero section-container section-container--hero">
-          <CaseStudyHeader tags={project.tags} title={project.title} />
-          <div className="case-summary">
-            <p className="case-summary-text" itemProp="description">{project.summary}</p>
-            <ReadingTime minutes={project.readingTimeMinutes} />
+          {/* Two-column hero (Phase 24.5): the tag row sits full-width above the
+              grid, then title + summary on the left and CaseStudySpecs on the
+              right, so the title and the specs share the same vertical baseline.
+              Reading time lives inside the specs as a Time row, so there is no
+              standalone ReadingTime mount. */}
+          <CaseStudyTags tags={project.tags} />
+          <div className="msarib-case-hero-grid">
+            <div className="msarib-case-hero-main">
+              <CaseStudyTitle title={project.title} />
+              <p className="case-summary-text" itemProp="description">{project.summary}</p>
+            </div>
             <CaseStudySpecs
               date={project.date}
               client={project.client}
               role={project.role}
               engine={project.engine}
               status={project.status}
+              readingTimeMinutes={project.readingTimeMinutes}
             />
           </div>
         </div>
