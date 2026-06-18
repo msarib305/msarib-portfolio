@@ -863,18 +863,16 @@
      Long-form pages only (case studies, writings). Fixed 3px teal
      bar at the very top, above nav (z 100), below the modal (z 210).
      ---------------------------------------------------------- */
-  .reading-progress {
+  /* No CSS width transition: Phase 24.4 moved smoothing into the component's rAF
+     lerp, so reduced-motion is handled there (LERP_FACTOR = 1), not here. */
+  .msarib-reading-progress {
     position: fixed;
     top: 0;
     left: 0;
     height: 3px;
     background: var(--color-accent);
     z-index: 150;
-    transition: width 50ms linear;
     pointer-events: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .reading-progress { transition: none; }
   }
 
   /* "N min read" badge near the case-study specs (Phase 23.4). */
@@ -4184,7 +4182,7 @@
     .reel-label, .reel-credits,
     .about-portrait-glow,
     /* Phase 23.5: the rest of the interactive chrome. */
-    .reading-progress, .msarib-back-to-top, .skip-link,
+    .msarib-reading-progress, .msarib-back-to-top, .skip-link,
     .case-nav, .case-links, .case-link-pill, .case-spoiler-links,
     .gallery-thumbnails-wrap, .gallery-chevron,
     .table-of-contents, .toc-toggle-mobile,
