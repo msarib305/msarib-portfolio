@@ -8,6 +8,6 @@ interface CaseStudyTitleProps {
 // schema.org CreativeWork microdata. Server component (presentational).
 export function CaseStudyTitle({ title }: CaseStudyTitleProps) {
   return (
-    <h1 className="case-title" itemProp="name">{title}</h1>
+    <h1 className="case-title" itemProp="name" translate="no">{title}</h1>
   )
 }

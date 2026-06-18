@@ -130,9 +130,9 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
       </div>
 
       <div className="mm-info">
-        <span><strong>Sarib</strong> · Lead UE5 Developer</span>
+        <span><strong translate="no">Sarib</strong> · Lead UE5 Developer</span>
         <span>Lahore, Pakistan · PKT (UTC+5)</span>
-        <span><strong>contact@msarib.dev</strong></span>
+        <span><strong translate="no">contact@msarib.dev</strong></span>
       </div>
     </div>
     </>

@@ -24,7 +24,7 @@ export function CaseStudySpecs({ date, client, role, engine, status, readingTime
       {client && (
         <div className="case-spec-row">
           <dt className="case-spec-key">Client</dt>
-          <dd className="case-spec-val">{client}</dd>
+          <dd className="case-spec-val" translate="no">{client}</dd>
         </div>
       )}
       <div className="case-spec-row">
@@ -33,7 +33,7 @@ export function CaseStudySpecs({ date, client, role, engine, status, readingTime
       </div>
       <div className="case-spec-row">
         <dt className="case-spec-key">Engine</dt>
-        <dd className="case-spec-val">{engine}</dd>
+        <dd className="case-spec-val" translate="no">{engine}</dd>
       </div>
       <div className="case-spec-row">
         <dt className="case-spec-key">Status</dt>

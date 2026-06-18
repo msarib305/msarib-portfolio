@@ -77,7 +77,7 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
         <div className="form-warning-banner" role="status">
           <p>
             This is taking longer than expected. If it keeps failing, email me directly at{' '}
-            <a href="mailto:contact@msarib.dev">contact@msarib.dev</a>.
+            <a href="mailto:contact@msarib.dev" translate="no">contact@msarib.dev</a>.
           </p>
         </div>
       )}

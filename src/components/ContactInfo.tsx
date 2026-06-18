@@ -1,9 +1,12 @@
 interface InfoLinkProps {
   href:  string
   label: string
+  // Opt the label out of page-translate extensions (Google Translate etc.).
+  // Used for the email address; social brand labels stay translatable.
+  translateNo?: boolean
 }
 
-function InfoLink({ href, label }: InfoLinkProps) {
+function InfoLink({ href, label, translateNo }: InfoLinkProps) {
   return (
     <li>
       <a
@@ -12,7 +15,7 @@ function InfoLink({ href, label }: InfoLinkProps) {
         target="_blank"
         rel="noopener noreferrer me"
       >
-        <span>{label}</span>
+        <span {...(translateNo ? { translate: 'no' as const } : {})}>{label}</span>
         <span aria-hidden="true">&#8594;</span>
       </a>
     </li>
@@ -47,6 +50,7 @@ export function ContactInfo() {
           <InfoLink
             href="mailto:contact@msarib.dev"
             label="contact@msarib.dev"
+            translateNo
           />
         </ul>
       </div>

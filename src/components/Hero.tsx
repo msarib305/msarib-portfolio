@@ -93,7 +93,7 @@ export function Hero() {
             </div>
             <div className="hero-meta-item">
               <span className="hero-meta-label">Currently</span>
-              <span className="hero-meta-value">SwiftNine · Clutched</span>
+              <span className="hero-meta-value" translate="no">SwiftNine · Clutched</span>
             </div>
           </div>
         </div>

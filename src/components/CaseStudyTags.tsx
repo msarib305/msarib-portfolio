@@ -10,7 +10,7 @@ export function CaseStudyTags({ tags }: CaseStudyTagsProps) {
   return (
     <div className="case-meta-row" aria-label="Project tags">
       {tags.map((tag) => (
-        <span key={tag} className="case-chip">{tag}</span>
+        <span key={tag} className="case-chip" translate="no">{tag}</span>
       ))}
     </div>
   )

@@ -65,7 +65,7 @@ export function Footer() {
               </li>
             ))}
             <li>
-              <a href="mailto:contact@msarib.dev">contact@msarib.dev</a>
+              <a href="mailto:contact@msarib.dev" translate="no">contact@msarib.dev</a>
             </li>
           </ul>
         </div>
@@ -84,7 +84,7 @@ export function Footer() {
 
       <div className="footer-bottom">
         <span>
-          &copy; {new Date().getFullYear()} Muhammad Sarib. All rights reserved.
+          &copy; {new Date().getFullYear()} <span translate="no">Muhammad Sarib</span>. All rights reserved.
         </span>
         <span>Lahore, Pakistan</span>
       </div>
