@@ -732,6 +732,21 @@
     cursor: not-allowed;
   }
 
+  /* Phase 25.6.b: Windows Forced Colors mode (high-contrast accessibility).
+     Forced Colors strips author backgrounds, and .pill-btn carries border: none
+     and relies on its background fill for shape, so both the <a> and <button>
+     variants render as borderless text with no button affordance. Every other
+     interactive surface (inputs, case-link pills, FIND ME links, work cards)
+     already has an explicit border that the engine remaps, so only .pill-btn
+     needs help. ButtonText is the system color the engine assigns to button
+     foreground, so a ButtonText border reads as a button outline at the user's
+     chosen contrast. */
+  @media (forced-colors: active) {
+    .pill-btn {
+      border: 1px solid ButtonText;
+    }
+  }
+
   .pill-btn--primary {
     background: var(--color-accent);
     color: var(--color-accent-fg);
