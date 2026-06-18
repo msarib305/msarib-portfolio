@@ -858,6 +858,25 @@
   }
   .skip-link:focus { top: 16px; }
 
+  /* Visually hidden but available to screen readers. Supplies an accessible name
+     via text content instead of aria-label, which EasyList's "Other Annoyances"
+     list matches and hides (`##[aria-label="Back to top"]`) regardless of class
+     (Phase 25.1, DEC-089). Reusable for any icon-only control. Separate from the
+     gallery's `.gallery-aria-live` region (that one is a live region for state
+     announcements; this is a static accessible-name helper). */
+  .msarib-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* ----------------------------------------------------------
      READING PROGRESS BAR (Phase 23.2)
      Long-form pages only (case studies, writings). Fixed 3px teal
