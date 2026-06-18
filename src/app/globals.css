@@ -700,7 +700,13 @@
     font-size: 14px;
     font-weight: 500;
     border-radius: var(--radius-full);
-    white-space: nowrap;
+    /* Phase 25.4.b: wrap instead of nowrap so long translated CTA labels
+       (German "Kontakt aufnehmen", "Meine Arbeiten ansehen") wrap inside the
+       button rather than overflowing on narrow viewports. English labels are
+       too short to wrap above the 360px Tier 1 floor, so source rendering is
+       unaffected. */
+    overflow-wrap: break-word;
+    text-align: center;
     position: relative;
     cursor: pointer;
     text-decoration: none;
@@ -2625,6 +2631,12 @@
     font-size: 13px;
     font-weight: 500;
     text-align: right;
+    /* Phase 25.4.b: long translated compound values ("Veröffentlicht",
+       "Leitender Softwareentwickler") break cleanly in the 320px specs column
+       instead of forcing overflow. overflow-wrap is the language-agnostic
+       primary; hyphens adds proper breaks when lang is set correctly. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   /* Cover image */
@@ -4361,7 +4373,10 @@
     color: var(--color-text-secondary);
     text-decoration: none;
     transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
-    white-space: nowrap;
+    /* Phase 25.4.b: wrap translated link labels ("Auf Steam ansehen") inside
+       the pill instead of overflowing. Same rationale as .pill-btn. */
+    overflow-wrap: break-word;
+    text-align: center;
   }
 
   /* Leading platform icon (PlatformIcon.tsx). Inherits the pill's currentColor so
