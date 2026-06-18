@@ -5013,3 +5013,20 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Phase 25.6.a: no-JS fallback notice shown in place of the (JS-dependent)
+   contact form. Mirrors the warning-banner vocabulary. */
+.msarib-noscript-notice {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-12);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.msarib-noscript-notice a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

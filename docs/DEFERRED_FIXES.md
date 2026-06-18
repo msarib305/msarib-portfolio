@@ -173,6 +173,26 @@ for cross-machine backup without public exposure. See DEC-085.
 
 ---
 
+## Deferred from Phase 25.6
+
+### prefers-reduced-data implementation
+
+Skipped during Phase 25.6 due to poor browser support: Chrome only honors this via its data-saver mode;
+Firefox and Safari don't ship the media query at all. Real-world coverage is minimal even though Tier 1
+lists it conceptually. Revisit when Chromium-derived browsers and Safari ship native support, OR if user
+feedback indicates strong demand for data-conscious rendering (skip showreel autoplay, lower Cloudinary
+quality, drop decorative effects).
+
+### prefers-contrast: more implementation
+
+Skipped during Phase 25.6 because Phase 25.6's Forced Colors defense already addresses the strongest
+high-contrast case (Windows High Contrast / `forced-colors: active`). Adding `prefers-contrast: more` would
+provide marginal additional hardening on already-covered territory. Revisit if user feedback indicates need
+for softer high-contrast preferences (e.g., users who don't enable Forced Colors but increase system
+contrast).
+
+---
+
 ## Notes
 
 - These items were surfaced during the Phase 19.7 working-tree audit. The count discrepancies trace to

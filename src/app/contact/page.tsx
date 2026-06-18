@@ -72,6 +72,17 @@ export default function ContactPage() {
       </section>
 
       <div className="contact-grid section-container section-container--flush-top">
+        {/* The form needs JS (client-only Turnstile produces the token the server
+            action requires), so without JS it can only fail silently. Hide it and
+            point no-JS visitors at email instead. ContactInfo below still renders
+            all channels without JS. Phase 25.6.a. */}
+        <noscript>
+          <style>{`.contact-form { display: none }`}</style>
+          <p className="msarib-noscript-notice">
+            JavaScript is required to send this form. You can email me directly at{' '}
+            <a href="mailto:contact@msarib.dev" translate="no">contact@msarib.dev</a> instead.
+          </p>
+        </noscript>
         <ContactForm turnstileSiteKey={turnstileSiteKey} />
         <ContactInfo />
       </div>
