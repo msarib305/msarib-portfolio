@@ -142,6 +142,7 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
           className={state.errors?.company ? 'field-input is-error' : 'field-input'}
           data-1p-ignore=""
           data-lpignore="true"
+          data-bwignore=""
           data-form-type="other"
         />
         {state.errors?.company && (
@@ -168,6 +169,7 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
           autoComplete="off"
           data-1p-ignore=""
           data-lpignore="true"
+          data-bwignore=""
           data-form-type="other"
           suppressHydrationWarning
         />
