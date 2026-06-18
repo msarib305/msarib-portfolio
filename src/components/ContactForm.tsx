@@ -20,6 +20,12 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
   const [turnstileReady, setTurnstileReady] = useState(false)
   const [clientError, setClientError] = useState<string | null>(null)
   const [timeoutWarning, setTimeoutWarning] = useState(false)
+  // Turnstile failed to load (privacy extension blocking) or errored. Drives
+  // the proactive email fallback so users aren't dead-ended at the submit guard.
+  const [turnstileBlocked, setTurnstileBlocked] = useState(false)
+  // Latest turnstileReady, read inside the mount-timeout below without re-arming
+  // the timer each time the ready flag changes.
+  const turnstileReadyRef = useRef(turnstileReady)
 
   useEffect(() => {
     if (!state.errors?.turnstile_token) return
@@ -30,6 +36,22 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
     const id = setTimeout(() => setTurnstileReady(false), 0)
     return () => clearTimeout(id)
   }, [state.errors?.turnstile_token])
+
+  useEffect(() => {
+    turnstileReadyRef.current = turnstileReady
+  }, [turnstileReady])
+
+  // Mount-only 10s safety net: if Turnstile hasn't signalled ready by then,
+  // assume it was silently blocked (privacy extension never loaded the script)
+  // and surface the email fallback. onError covers the active-failure case; this
+  // covers silent blocking. DEC-086 exempt: this is a setState for a banner, not
+  // a scroll/focus jump, so the mount fire is intended.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!turnstileReadyRef.current) setTurnstileBlocked(true)
+    }, 10_000)
+    return () => clearTimeout(id)
+  }, [])
 
   // Show a fallback email CTA if the server action takes longer than 30 seconds.
   useEffect(() => {
@@ -77,6 +99,15 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
         <div className="form-warning-banner" role="status">
           <p>
             This is taking longer than expected. If it keeps failing, email me directly at{' '}
+            <a href="mailto:contact@msarib.dev" translate="no">contact@msarib.dev</a>.
+          </p>
+        </div>
+      )}
+
+      {turnstileBlocked && (
+        <div className="form-warning-banner" role="status">
+          <p>
+            Security check unavailable. You can email me directly at{' '}
             <a href="mailto:contact@msarib.dev" translate="no">contact@msarib.dev</a>.
           </p>
         </div>
@@ -183,8 +214,8 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
       <TurnstileWidget
         ref={turnstileRef}
         siteKey={turnstileSiteKey}
-        onSuccess={() => setTurnstileReady(true)}
-        onError={() => setTurnstileReady(false)}
+        onSuccess={() => { setTurnstileReady(true); setTurnstileBlocked(false) }}
+        onError={() => { setTurnstileReady(false); setTurnstileBlocked(true) }}
         onExpire={() => setTurnstileReady(false)}
       />
       {state.errors?.turnstile_token && (
@@ -197,7 +228,7 @@ export function ContactForm({ turnstileSiteKey }: ContactFormProps) {
         variant="primary"
         size="lg"
         type="submit"
-        disabled={isPending}
+        disabled={isPending || turnstileBlocked}
       >
         {isPending ? 'Sending...' : 'Send message'}
       </PillButton>

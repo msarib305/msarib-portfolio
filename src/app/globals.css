@@ -723,6 +723,15 @@
     transition-duration: 80ms;
   }
 
+  /* Phase 25.5.b: a real disabled affordance. The submit button is disabled
+     during isPending and (new in 25.5.b) while turnstileBlocked is true; without
+     this rule a disabled .pill-btn looked fully active, so users could click an
+     inert button with no feedback. Applies site-wide to any disabled .pill-btn. */
+  .pill-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .pill-btn--primary {
     background: var(--color-accent);
     color: var(--color-accent-fg);
