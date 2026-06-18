@@ -32,13 +32,13 @@ links: []
 spoilerLinks: []
 ---
 
-## The brief
+## The brief.
 
 A fixed-length tech demo built for Exarta. The player walks into an AR retail shop, talks to an AI sales assistant standing behind the counter, gets headset recommendations based on what they ask for, tries on a headset and sees its contextual overlays activate in the same scene, and either completes the purchase or hears the assistant suggest a cheaper alternative if the price is too high.
 
 The point was not the shop. The point was getting Llama 2, NVIDIA Riva, and NVIDIA Audio2Face running together with conversational latency low enough to feel real, on a stack that predated NVIDIA's official ACE plugin for Unreal Engine 5.
 
-## My role
+## My role.
 
 I handled the entire UE side end-to-end and helped set up the NVIDIA stack on the AI machine.
 
@@ -46,7 +46,7 @@ What I owned: a custom C++ plugin for microphone capture from the player's mic, 
 
 What I did not own: Llama 2 hosting, Riva and Audio2Face server-side deployment, model selection, prompt design. Exarta's ML team owned the AI machine. Ammad Khan, Head of Engineering, coordinated across the two sides and reviewed my UE-side work.
 
-## The hard part
+## The hard part.
 
 Two problems, both on the data plane between the two machines.
 
@@ -56,7 +56,7 @@ Two problems, both on the data plane between the two machines.
 
 Both problems were bounded by one product constraint: conversational pacing. Anything over two seconds of round trip felt like waiting on a slow website. The target was under two seconds end to end from the player finishing a sentence to the character beginning to speak. We hit it. Testing under throttled 4G network conditions, the round trip ran 1 to 1.5 seconds and felt natural.
 
-## What I built
+## What I built.
 
 1. **Custom C++ mic capture plugin.** Captured the player's microphone audio from inside the UE client, formatted for streaming over the WebSocket connection to the AI machine where Riva picked it up for speech to text.
 2. **Custom C++ WebSocket plugin.** Bidirectional streaming connection between UE and the AI machine. Carried player audio out, synthesized audio and control messages back in. Hand-rolled message framing for binary audio chunks and turn-state signals.
@@ -64,7 +64,7 @@ Both problems were bounded by one product constraint: conversational pacing. Any
 4. **NVIDIA stack setup on the AI machine.** Helped install and configure Riva for speech to text and text to speech, Audio2Face for facial animation, and the Live Link bridge between the AI machine and the UE machine. Llama 2 was system-prompted with the full headset catalog and the assistant persona by the ML team, so it could give grounded recommendations on any headset the player asked about.
 5. **AR-overlay demo scenario.** Fixed-length scene where the player enters an AR retail shop, talks to the assistant, picks up a headset, sees contextual UI cards layer onto the scene when wearing it, and completes a purchase flow. Same scene throughout, UI cards turning on as the AR layer.
 
-## Results
+## Results.
 
 - End-to-end latency under 2 seconds, target met
 - 1 to 1.5 seconds round trip under throttled 4G network simulation, still felt natural
@@ -74,7 +74,7 @@ Both problems were bounded by one product constraint: conversational pacing. Any
 {% Gallery
    items=[{discriminant: "instagram-reel", value: {postUrl: "https://www.instagram.com/reel/C3tHZnFsSlt", accessibleName: "Exarta official showcase of the AI assistant demo on Instagram", aspectRatio: "9/16"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_1_k8aziw.png", alt: "Image showing the AI assistant standing and greeting the user."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_2_yorwna.png", alt: "Image showing the AI assistant standing and telling the user about an AR headset."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_3_ep8pqo.png", alt: "Image showing the user wearing the headset and using it to get the description on an object in the world."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_4_zwsvam.png", alt: "Image showing the user wearing the headset and watching two people talk about AR."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Nvidia_AI_Assistant_5_sscwqw.png", alt: "Image showing the AI assistant standing and telling the user about the final price of the AR headset."}}] /%}
 
-## Tech stack
+## Tech stack.
 
 - Unreal Engine 5.3
 - C++ for the mic capture plugin and the WebSocket plugin
@@ -84,13 +84,13 @@ Both problems were bounded by one product constraint: conversational pacing. Any
 - Metahuman (UE-side character)
 - Animation Blueprint with custom Live Link facial animation pipeline
 
-## Lessons learned
+## Lessons learned.
 
 The audio bytes and control messages all went over a single custom C++ WebSocket plugin I wrote, with Live Link handling the facial animation on a separate channel. WebSocket worked, but I learned how much custom protocol work it forced me into. Every message type was hand-rolled: framing the binary audio chunks, distinguishing control signals from audio frames, deciding when a turn started and ended, parsing custom byte headers on both ends of the connection. Any change to the message shape meant updating the framing logic on both the UE plugin side and the server side, and any bug in the framing was a binary mess to debug.
 
 The lesson was that the protocol layer eats more time than the audio pipeline. If I built this again, gRPC with a bidirectional stream is the obvious shape: protobuf schemas for audio bytes, control signals, and animation metadata; HTTP/2 underneath for flow control and multiplexing; adding a new message type becomes one entry in a proto file. NVIDIA's later ACE plugin sits on gRPC, which validates the call in hindsight.
 
-## Credits
+## Credits.
 
 - **Ammad Khan** Head of Engineering\
   Reviewed the UE-side work and coordinated across the UE and ML teams.\

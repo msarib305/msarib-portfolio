@@ -34,23 +34,23 @@ links:
 spoilerLinks: []
 ---
 
-## The brief
+## The brief.
 
 Exarta needed a UEFN portfolio. Six concurrent titles across genres and seasonal themes, all live on `fortnite.com/@exarta`, with one flagship carrying the cinematic ambition (Enigmara) and the rest filling out a catalog of focused gameplay loops: parkour racing, class-based team combat, a COD-zombies-style survival mode, a Christmas variant of that mode, and a central hub that connected the rest. Most titles shipped in the second half of 2023. The seasonal ones hit their windows on time: Frightmare a week before Halloween 2023, CR-ICE-IS two weeks before Christmas 2023.
 
 UEFN itself had only launched in March 2023, and Verse was new. The portfolio was built on UEFN 5.1 through 5.3 over roughly a year of concurrent development.
 
-## My role
+## My role.
 
 Lead UEFN Developer. I owned the architecture and the Verse code across all six titles. Four named collaborators contributed to specific titles on environment art, animations, level design, and pre-tournament polish; their contributions are credited inline under each title's section below.
 
-## The hard part
+## The hard part.
 
 UEFN is not standalone Unreal Engine. It runs inside Fortnite's runtime under hard limits: textures capped at 2K, total memory budget around 2GB per island, asset size restrictions, no native plugins, no C++. Verse is the only custom scripting language. In 2023 Verse was new enough that documentation lagged, features you would expect to exist had to be hand-rolled, and a lot of architecture decisions came down to whether to use UEFN's built-in devices (the visual-scripting equivalents) or write Verse from scratch.
 
 My rule of thumb was to lean on devices wherever they covered the case, and write Verse where they hit their limit. The result was less Verse than I would have written in standalone UE, more reliance on devices than I would have used in Blueprint, and a faster iteration loop for the four straightforward titles. The flagship needed real Verse code: Enigmara's matchmaking and faction balancing across two factions and four capture points, with team-size enforcement and join-in-progress behavior, was the hardest single problem in the portfolio and the place where the devices were clearly not enough.
 
-## The titles
+## The titles.
 
 ### Enigmara
 
@@ -61,7 +61,7 @@ A Domination game. Two factions, Ashen Glades (a mystical forest) and Shadowshir
 
 Island code: `7143-0267-4469`. [Play on Fortnite](https://www.fortnite.com/@exarta/7143-0267-4469).
 
-#### The tournament
+#### The tournament.
 
 October 15, 2023. PKR 100,000 prize pool. Eight teams competing across multiple matches. The infrastructure was deliberately minimal: a Verse spectator mode I built, manual admin team-balancing at the start of each match, and Discord-driven live updates and leaderboard tracking.
 
@@ -70,7 +70,7 @@ How it worked. Two of the eight teams competed per match. The other six teams pl
 {% Gallery
    items=[{discriminant: "youtube", value: {videoId: "It2NGQe0xh0", accessibleName: "Enigmara tournament teaser"}}] /%}
 
-#### Credits (Enigmara)
+#### Credits (Enigmara).
 
 - **Ammad Khan** Head of Engineering\
   Collaborated on bug fixes and polishing in the lead-up to the tournament.\
@@ -88,7 +88,7 @@ A parkour race. Eight players cross 13 obstacles to reach the finish line: thin 
 
 Island code: `0115-3555-5368`. [Play on Fortnite](https://www.fortnite.com/@exarta/0115-3555-5368).
 
-#### Credits (Clumsy Champions)
+#### Credits (Clumsy Champions).
 
 - **Abdul Haadi** 3D Environment Artist\
   Helped with the obstacle course design.\
@@ -130,7 +130,7 @@ A Christmas crisis arena. Santa lost his presents in an area infected with ice z
 
 Island code: `5186-9834-3901`. [Play on Fortnite](https://www.fortnite.com/@exarta/5186-9834-3901).
 
-#### Credits (CR-ICE-IS)
+#### Credits (CR-ICE-IS).
 
 - **Muhammad Abdullah** 3D Generalist\
   Helped with the animations.\
@@ -139,7 +139,7 @@ Island code: `5186-9834-3901`. [Play on Fortnite](https://www.fortnite.com/@exar
   Helped with the environment design.\
   [Check out their LinkedIn](https://www.linkedin.com/in/muhmmad-hasnain-khan-b76385405/)
 
-## Results
+## Results.
 
 - Six concurrent UEFN titles shipped to `fortnite.com/@exarta`, all live and playable today
 - Enigmara at approximately 100 DAU steady state, peaks around 200 DAU per Epic's creator dashboard
@@ -147,7 +147,7 @@ Island code: `5186-9834-3901`. [Play on Fortnite](https://www.fortnite.com/@exar
 - Seasonal cadence hit on time: Frightmare a week before Halloween 2023, CR-ICE-IS two weeks before Christmas 2023
 - Verse architecture across all six titles, with strategic use of UEFN devices for the gameplay loops the devices could handle cleanly
 
-## Tech stack
+## Tech stack.
 
 - Unreal Editor for Fortnite (UEFN) versions 5.1 to 5.3
 - Verse for custom scripting and rules
@@ -155,7 +155,7 @@ Island code: `5186-9834-3901`. [Play on Fortnite](https://www.fortnite.com/@exar
 - Epic's creator dashboard for DAU and engagement metrics
 - Discord for tournament leaderboard and live updates
 
-## Lessons learned
+## Lessons learned.
 
 The Enigmara tournament infrastructure was deliberately minimal: a Verse spectator mode, manual team balancing per match, Discord for the leaderboard. That made sense for a one-off event on a tight timeline. If I were running a tournament series instead of one match day, I would build differently.
 

@@ -83,7 +83,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
               className={`toc-item toc-item--l${h.level}${activeId === h.id ? ' toc-item--active' : ''}`}
             >
               <a href={`#${h.id}`} onClick={(e) => handleClick(e, h.id)} aria-current={activeId === h.id ? 'location' : undefined}>
-                {h.text}
+                {/* Headings carry a trailing period in prose (Phase 24.3); the TOC
+                    strips it so entries read "The brief", not "The brief.". */}
+                {h.text.replace(/\.$/, '')}
               </a>
             </li>
           ))}

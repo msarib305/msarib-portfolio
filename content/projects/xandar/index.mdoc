@@ -36,23 +36,23 @@ links:
 spoilerLinks: []
 ---
 
-## The brief
+## The brief.
 
 Xandar is a turn-based combat game with NFT-linked roster management on Solana. ArgonTeq Inc hired me on a freelance contract to build the playable MVP from scratch and prove the concept end to end. The deliverable was a working demo with combat resolution, round state machine, roster system, and a trailer-ready visual polish; the timeline was three months.
 
-## My role
+## My role.
 
 Solo MVP developer under contract with ArgonTeq Inc, working parallel to my full-time Ideofuzion role. I built every system in Blueprints: round state machine, combat resolution, hero abilities, the unit placement layer, the roster management system, the NFT integration surface, and the UI. ArgonTeq's internal team supplied the character animations; I owned everything else.
 
 After I handed off the MVP, ArgonTeq's own engineers picked up the codebase and built on top of it. Two additional heroes were added on the framework I built as a base.
 
-## The hard part
+## The hard part.
 
 The round state machine. Turn-based combat with a fixed sequence of phases (placement, battle, post-battle resolution, next round) sounds simple until you have to make every transition deterministic and recoverable across edge cases. A hero ability that fires during a battle phase has to apply effects, update health, check for KOs, trigger animations, and resolve before the post-battle phase begins; the post-battle phase has to settle damage, check for win and loss conditions, advance the round counter, and reset the placement layer. Every state transition has its own validation gates, and any one of them being slightly wrong meant the next round started in a corrupted state.
 
 The fix was a single Blueprint state machine owning the full round lifecycle, with each phase as a discrete state that read only what it needed and wrote only to its own scope. Sub-state transitions inside each phase (ability resolution order, animation queue, damage accumulation) ran as their own deterministic sequences before yielding to the next top-level state. The shape is unremarkable in hindsight; getting there in the first build of an unfamiliar genre on a three-month MVP clock is what took the time.
 
-## What I built
+## What I built.
 
 1. **Round state machine.** Single Blueprint state machine owning placement, battle, post-battle, and next-round phases. Deterministic transitions, scoped reads and writes per phase, recovery paths for ability resolution edge cases.
 2. **Hero ability framework with inheritance.** 6 heroes in the MVP with 3 abilities each (18 abilities total). The ability logic stayed simple by design; the inheritance architecture meant additional heroes and richer ability behaviors could be added without rewriting the framework. ArgonTeq's post-MVP team validated that choice by extending the roster.
@@ -60,7 +60,7 @@ The fix was a single Blueprint state machine owning the full round lifecycle, wi
 4. **Combat resolution layer.** Auto-resolution of unit pathing, target selection, damage application, ability firing, and stable end-state detection. The demo had to look watchable without player input during battle phases, which meant tuning combat timing so matches finished at trailer pace.
 5. **Trailer-ready UI and polish.** Hero selection, roster view, placement controls, in-match HUD. Polished enough to carry the MVP trailer on the official YouTube channel.
 
-## Results
+## Results.
 
 - MVP shipped on schedule. Three months of solo development produced the playable demo and the official trailer.
 - The game is now live on GameSwift (linked above), with two additional heroes added on the inheritance framework I built.
@@ -69,12 +69,12 @@ The fix was a single Blueprint state machine owning the full round lifecycle, wi
 {% Gallery
    items=[{discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_12_auddp4.png", alt: "A scene showing 8 character gearing up to a fight on the opposite sides of the arena."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_11_zohc7q.png", alt: "A starting screen showing a show off between 2 characters."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_10_mhlwwy.png", alt: "An expanded view of the arena."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_7_gmbno2.jpg", alt: "A scene showing 2 characters fighting."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_5_m6bhvx.jpg", alt: "A scene showing 2 characters fighting."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_4_ywtc6w.jpg", alt: "A scene showing a team of 3 and a team of 2 characters running towards each other to fight."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Xandar_2_vfw99u.jpg", alt: "An arena showing multiple characters fight."}}] /%}
 
-## Tech stack
+## Tech stack.
 
 - Unreal Engine 4.27
 - Blueprint
 - Solana for NFT roster ownership (lookup mocked in the MVP, integration surface built for the post-MVP team to swap in the live call)
 
-## Lessons learned
+## Lessons learned.
 
 The Solana on-chain wallet lookup was mocked in the MVP build, not live. I built the NFT-linked roster system with a real integration surface and a stub data source behind it. That let the demo run reliably during the trailer shoot without depending on a Solana RPC endpoint, gas costs, or wallet-connect flows; it also gave the post-MVP team a clean swap point to replace the stub with a live call once the project moved past the demo window. The takeaway was that for MVP deliverables with a fixed demo window, mocking the slowest or most failure-prone external dependency while keeping the integration surface real saves the demo and does not cost the production build any architecture work.

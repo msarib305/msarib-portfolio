@@ -42,17 +42,17 @@ spoilerLinks:
     warning: NSFW project. Hover to reveal the Steam link.
 ---
 
-## The brief
+## The brief.
 
 An anime-stylized action title that showcased on the Tokyo Game Show 2024 floor and shipped on Steam. Twelve months at Vmmersion LLC, remote, as Lead Software Developer on a team of five UE engineers. UE 5.5 through the TGS 2024 demo build; migrated to UE 5.6 in Q1 2025 for the public release window.
 
-## My role
+## My role.
 
 Lead Software Developer on a team of five UE engineers. The creative director reviewed all engineering work across the team. I owned ten gameplay systems on this project: behavior trees, localization, abilities, Quick Time Events, AI navigation, combat state machines, minimap, objectives system, dialog system, settings menu, and game states. The AI pursuer (the antagonist who hunts the player through the level) was the single most engineering-heavy character on the project, with her own behavior tree, navigation pipeline, and movement-naturalness pass all running through systems I owned.
 
 The team is named at the bottom in Credits.
 
-## The hard part
+## The hard part.
 
 Navigation mesh tuning in a densely-collisioned level, paired with making the AI pursuer feel like she was actually moving through the space rather than sliding across it.
 
@@ -62,7 +62,7 @@ Getting unstuck. The fix was a level-wide collision authoring pass, not a navmes
 
 Looking natural. Even with the navmesh producing correct paths, the pursuer's movement looked artificial. She rotated her whole body in a single frame when changing direction. She slid across the floor when her animation didn't match her movement speed. Three coupled fixes solved this. First, a rotation lerp so her head turned toward the new direction first, with the body following over several frames. Second, animation-to-speed sync so her locomotion animation playback rate matched her actual ground speed and she didn't slide. Third, proper blendspace authoring for the pursuer's locomotion so transitions between idle, walk, and run blended naturally. None of the three on their own was enough; all three had to work together.
 
-## What I built
+## What I built.
 
 1. **AI pursuer behavior tree.** The antagonist's full decision-making logic. Patrol routes, awareness states, pursuit logic, search behavior when the player escaped line of sight, the full hostile-NPC stack.
 2. **AI navigation pipeline.** The navmesh tuning described above. NavLink Proxies, custom NavQueryFilters, per-mesh collision authoring across the entire level, custom collision queries. The work that made the pursuer move through the level correctly.
@@ -75,7 +75,7 @@ Looking natural. Even with the navmesh producing correct paths, the pursuer's mo
 9. **Objectives system.** The player-facing objective tracking, with state transitions for active, completed, and updated objectives.
 10. **Minimap, localization, and settings menu.** The minimap rendering pipeline, the multi-language localization integration, and the full settings menu with persistent user preferences.
 
-## Results
+## Results.
 
 - TGS 2024 floor demo locked at 60 FPS on mid-range PC hardware: i7-14700K + RTX 3060 8GB. The hardware target was deliberate; mid-range PC at a steady frame rate at TGS reads as a more disciplined engineering signal than any number on top-end hardware would.
 - The build started below 30 FPS in some scenes. Getting to a locked 60 was a full-pass optimization effort over the months before TGS.
@@ -86,7 +86,7 @@ Looking natural. Even with the navmesh producing correct paths, the pursuer's mo
 {% Gallery
    items=[{discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_9_ce4kp1.jpg", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_4_yvzfp0.jpg", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_5_mypg8c.jpg", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_3_hx8x0k.jpg", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_8_ujqcxi.png", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_6_pziyw7.png", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_7_dcj6gn.png", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_1_kwgxqc.png", alt: "Screenshot of the anime game's gameplay"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_9_elhdan.jpg", alt: "TGS 2024 floor photo, Vmmersion booth"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_11_xthkqq.jpg", alt: "TGS 2024 floor photo, attendee playing the demo"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Lily_10_pl4lvp.jpg", alt: "TGS 2024 floor photo, demo station"}}] /%}
 
-## Tech stack
+## Tech stack.
 
 - Unreal Engine 5.5 (TGS demo) → Unreal Engine 5.6 (public release)
 - Blueprint primary
@@ -96,13 +96,13 @@ Looking natural. Even with the navmesh producing correct paths, the pursuer's mo
 - Shader warmup at game launch (precompile during company logo splash, loading screen fallback if compilation extended past the logos)
 - Animation Blueprint with rotation lerp, animation-to-speed sync, and blendspace authoring for the AI pursuer
 
-## Lessons learned
+## Lessons learned.
 
 PSO caching is the under-documented UE5 optimization most projects ship without. We hit the predictable failure mode after launch: severe hitches in some scenes when a player encountered a shader the engine hadn't compiled yet, because that compilation was happening at runtime in the middle of gameplay instead of upfront. The fix was the standard PSO workflow done properly: capture the cache during playtesting via the `r.ShaderPipelineCache.SaveBoundPSOLog` workflow, ship the resulting cache with the build, and warm up the shaders at game launch behind the company-logo splash screens so the player never sees a compile stutter. The lesson was that the optimization isn't conceptually hard, it's procedurally expensive (the playtesting pass to capture the cache is real work), and the projects that ship without it are the ones that hotfix it post-launch under user complaints.
 
 Navmesh density is a collision-authoring problem, not a behavior tree problem. The AI pursuer's biggest behavioral failures (stuck on corners, suboptimal paths, snapping rotation in tight spaces) looked like BT design issues, and I spent days trying to fix them at the BT level before realizing the navmesh underneath was building from wrong collision data. Every mesh and actor in the level needed individual collision authoring before the navmesh produced paths that an AI could move through naturally. The lesson was that in densely-collisioned UE5 levels, the engineering time goes into per-asset collision tuning, not BT logic, and the BT only starts producing good results once the navmesh underneath is built from correct collision geometry.
 
-## Credits
+## Credits.
 
 - **Matthew Dong** Creative Director\
   Reviewed engineering work across the team and owned the creative direction.\

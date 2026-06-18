@@ -29,19 +29,19 @@ links: []
 spoilerLinks: []
 ---
 
-## The brief
+## The brief.
 
 Exarta's metaverse needed a player avatar configurator. Players entering the metaverse would use the system to build their avatar, and the resulting config replicated across the network so every other player in the session saw the same character.
 
 Two constraints set the architecture early. The system runs in the shipped game build, not the UE editor: every customization happens at runtime in the packaged client. And the customization subsystems had to be modular so future Exarta titles could inherit individual pieces (just the hair logic, just the body morphs, just the save and load) without dragging the whole creator along.
 
-## My role
+## My role.
 
 Sole engineer. Built every system end-to-end. The base meshes were Epic's Metahuman skeletons. Everything sitting on top of those meshes was mine: the modular subsystem architecture, the 34 blendshapes authored in Maya, three custom shaders (skin, hair groom, eye color), the UI designed in Photoshop and assembled in UMG, the save and load layer, and the replicated config struct that assembled the final avatar across connected clients.
 
 Two collaborators are credited at the bottom. Arsalan Saleem helped with the UI design. Ammad Khan reviewed the system and the broader Exarta Metaverse integration.
 
-## The hard part
+## The hard part.
 
 Three problems that turned out to be one problem.
 
@@ -53,7 +53,7 @@ Three problems that turned out to be one problem.
 
 The three problems fed each other. The modular architecture made the replication topology tractable, with each subsystem owning a defined slice of the config struct. The replication shape made the live morph pipeline necessary, since a non-host player dragging a slider had to apply locally and replicate authoritatively. And the live morph requirement made the modular architecture mandatory, because a monolithic state class would have rebuilt the entire character on every slider movement.
 
-## What I built
+## What I built.
 
 1. **Modular subsystem architecture.** Five customization subsystems (hair, body morphs, accessories, materials, lighting), each its own Blueprint class implementing a shared interface. Independent of each other. Each subsystem could be lifted out of the project and dropped into another Exarta title without modification.
 2. **Replicated avatar assembly.** Single config struct carrying every customization value. Replicates from server to all clients on join, mutations replicate to the rest of the session, late joiners receive the complete config in their initial state sync.
@@ -61,7 +61,7 @@ The three problems fed each other. The modular architecture made the replication
 4. **Three custom shaders.** Skin shader for color and tone variation. Hair groom shader for color plus per-strand white-hair count. Eye shader for iris color selection. Dynamic Material Instances managed centrally so they could be reused without leaking instances across long sessions.
 5. **Save, load, and UI.** Local serialization of the full config to disk. UI designed in Photoshop and built in UMG, exposing every customization parameter through preset selectors plus advanced sliders for fine adjustment.
 
-## Results
+## Results.
 
 Scope numbers from the shipped build:
 
@@ -76,7 +76,7 @@ Scope numbers from the shipped build:
 {% Gallery
    items=[{discriminant: "youtube", value: {videoId: "DgFPmKbyyos", accessibleName: "Walkthrough showing live blendshape sliders, hair groom selection, and color shaders in motion"}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_1_dhl0kd.png", alt: "A final render of one of the premade male characters."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_2_oxgpuj.png", alt: "Male premade character grid showing pickable premade male characters as a starting point."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_3_hzqgva.png", alt: "Customization panel showing nose selection grid with nine nose styles and a nose morph section at the top."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_4_axldd5.png", alt: "Customization panel showing lip morph sliders mid-drag on a male premade."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_5_f2h0wr.png", alt: "Customization panel showing torso selection grid with nine upper clothing styles and a color picker at the top."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_6_sqlbee.png", alt: "Customization panel showing hair selection grid with nine head hair styles and a color picker at the top."}}, {discriminant: "image", value: {cloudinaryId: "https://res.cloudinary.com/ddgwzcrim/image/upload/Character_Creator_7_rzbz20.png", alt: "Customization panel showing footwear selection grid with nine footwear styles and a color picker at the top."}}] /%}
 
-## Tech stack
+## Tech stack.
 
 - Unreal Engine 4.27
 - Blueprint primary, light C++
@@ -87,7 +87,7 @@ Scope numbers from the shipped build:
 - DataTables for tabular content libraries
 - Replicated struct for network sync of the full customization config
 
-## Lessons learned
+## Lessons learned.
 
 If I rebuilt this on UE 5.x, three things would change.
 
@@ -97,7 +97,7 @@ The tabular content libraries lived in DataTables. That worked for the flat row 
 
 The replicated struct also carried more data than it needed to. Probably 80 to 120 floats and references per player on every change. Slider values were 32-bit floats where 8-bit quantization would be perceptually identical on a 0 to 1 morph. Preset references were FNames where a uint8 index into the preset array would have worked. And the entire struct replicated on every change instead of just the diff. Cutting per-player bandwidth meaningfully would not have been hard; I never measured how much.
 
-## Credits
+## Credits.
 
 - **Arsalan Saleem** UI Designer\
   Helped with the UI design of the experience.\
