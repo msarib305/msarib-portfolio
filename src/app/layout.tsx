@@ -96,9 +96,13 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth" className={jetbrainsMono.variable} style={{ colorScheme: 'dark' }}>
       <head>
-        {/* Opt out of Dark Reader: the site is already dark-mode native.
-            Letting DR re-style it produces inverted colours that break the
-            blob blends and mix-blend-mode: screen layers. */}
+        {/* Dark Reader opt-out (official mechanism per Dark Reader's
+            CONTRIBUTING.md). Site is already dark-mode native; letting
+            DR re-style it produces inverted colours that break the blob
+            blends, mix-blend-mode: screen layers, glow effects (showreel
+            blur 80px, expertise card filters), and backdrop-filter blurs
+            throughout. Originally added in commit 2932904 (2026-05-21 QA
+            audit); cross-referenced in Phase 25.3 of DEC-089. */}
         <meta name="darkreader-lock" />
         <meta name="color-scheme" content="dark" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
