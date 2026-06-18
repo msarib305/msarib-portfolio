@@ -967,12 +967,18 @@
       justify-content: center;
       gap: 56px;
       padding-inline: var(--section-gutter);
+      /* The body's 64px top padding moves up to the shared grid parent so the
+         TOC sidebar and the body content start on the same line (Phase 24.2).
+         Putting it on the parent (not the TOC) keeps the two columns aligned
+         without coupling the TOC offset to the body's padding value. */
+      padding-top: 64px;
     }
     .toc-layout:has(> .toc) > .case-body,
     .toc-layout:has(> .toc) > .post-body {
       max-width: none;
       margin-inline: 0;
       padding-inline: 0;
+      padding-top: 0;
     }
     .toc-toggle-mobile { display: none; }
     /* The grid item itself sticks (align-self: start keeps it content-height so
