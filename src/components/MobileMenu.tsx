@@ -23,13 +23,12 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabi
 
 export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuProps) {
   const dialogRef  = useRef<HTMLDivElement>(null)
-  const closeBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
 
     document.body.style.overflow = 'hidden'
-    closeBtnRef.current?.focus()
+    dialogRef.current?.focus()
 
     const dialog = dialogRef.current
     const trigger = triggerRef.current
@@ -87,6 +86,7 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
     <div
       id="mobile-menu"
       ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="mobile-menu-heading"
@@ -94,18 +94,6 @@ export function MobileMenu({ open, onClose, triggerRef, pathname }: MobileMenuPr
       inert={!open ? true : undefined}
     >
       <h2 id="mobile-menu-heading" className="sr-only">Menu</h2>
-
-      <button
-        ref={closeBtnRef}
-        onClick={onClose}
-        aria-label="Close menu"
-        className="nav-burger nav-burger--open"
-        style={{ alignSelf: 'flex-end', marginBottom: '8px' }}
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </button>
 
       {MM_LINKS.map(({ label, href }) => {
         const active = isLinkActive(href)
