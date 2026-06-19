@@ -3030,6 +3030,29 @@
     /* spacing via .section-container.section-container--hero (Phase 20.3b) */
   }
 
+  /* Phase 25.7.b: mobile horizontal overflow guard mirroring the home hero
+     pattern at globals.css:1809. The decorative img.about-portrait-glow bleeds
+     ~27px past the left edge as a box plus ~80px of filter blur ink-overflow on
+     each side. On mobile (<=900px where .about-hero-grid stacks to single column
+     and the portrait goes full-width), this bleed pushes the visual viewport
+     sideways on mobile Safari and reads as "page zoomed in, pinch to zoom out."
+
+     Using overflow-x: clip (not hidden) per codebase convention at
+     globals.css:2478-2489: clip does not coerce overflow-y to auto or create a
+     scroll container, so it never becomes a sideways-panning touch surface.
+
+     Breakpoint is 900px (not the home pattern's 600px) because .about-hero-grid
+     stacks to one column at 900px per globals.css:3425. Above 900px the grid is
+     two-column and the glow halo stays near its column.
+
+     Clipping preserves the glow's full visual design (120% size, just clipped at
+     the hero edge). Shrinking the glow to fit within bounds was considered and
+     rejected because it would visibly alter the glow appearance; clipping
+     preserves design intent. */
+  @media (max-width: 900px) {
+    .about-hero { overflow-x: clip; }
+  }
+
   .about-hero-grid {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
