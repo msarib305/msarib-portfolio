@@ -73,6 +73,12 @@ restate it.
 | No-JS graceful degradation | `<noscript>` hides the JS-dependent contact form and surfaces an email fallback | `e764943` (25.6.a) |
 | Forced Colors mode | `@media (forced-colors: active)` border on `.pill-btn` (via `ButtonText`) so buttons keep their affordance when backgrounds are stripped | `d31002c` (25.6.b) |
 | Dark Reader opt-out | `<meta name="darkreader-lock">` (official mechanism); site is dark-native, so DR is fully bypassed. Added in the 2026-05-21 QA audit (`2932904`), cross-referenced in 25.3 | `f59d723` (25.3) |
+| Real-device hotfix (25.7) | Hero per-line reveal: replaces the per-character inline-block split that jumbled on iOS 18 Safari after a client-side route return; animation is opt-in under `prefers-reduced-motion: no-preference` | `5837af0` (25.7.a) |
+| Real-device hotfix (25.7) | About hero mobile overflow guard (`overflow-x: clip` at <=900px) for the `.about-portrait-glow` bleed that zoomed `/about` on mobile | `ed88f38` (25.7.b) |
+| Real-device hotfix (25.7) | Instagram reel inline height cap: portrait/square frames bounded to <=70vh and centered via the `.msarib-gallery-portrait` modifier | `793cf5a` (25.7.c) |
+| Real-device hotfix (25.7) | Nav drawer single X (removed the redundant in-drawer close button) + slide-close via delayed `visibility` transition | `4611270` (25.7.d) |
+| Real-device hotfix (25.7) | Footer 44px touch targets under `@media (pointer: coarse)` (WCAG 2.5.5), fixing the Resume/RSS mistap | `e492e57` (25.7.e) |
+| Real-device hotfix (25.7) | Safari card/glow cosmetics: time-boxed investigation, deferred to known limitations (Section 6) | 25.7.f (no code) |
 
 ---
 
@@ -93,6 +99,11 @@ Simulated is necessary but not sufficient; real-device Verified is the closing s
 | 25.5.b Turnstile fallback | Playwright route-abort | Simulated | 2026-06-18 | Pass (fallback shown) |
 | 25.6.a no-JS noscript | Playwright `javaScriptEnabled: false` | Simulated | 2026-06-18 | Pass (form hidden, notice shown) |
 | 25.6.b Forced Colors | Playwright `forced-colors: active` emulation | Simulated | 2026-06-18 | PENDING real Windows High Contrast |
+| 25.7.a hero per-line reveal | Playwright (Chromium): no per-char DOM, route-return integrity, reduced-motion opt-in | Simulated | 2026-06-19 | Pass; real-device PENDING (iPhone XR route-return) |
+| 25.7.b about overflow guard | Playwright scrollWidth + offender audit 360-430px; clip active <=900, desktop unaffected | Simulated | 2026-06-19 | Pass; DEC-088 no local repro; real-device PENDING |
+| 25.7.c reel height cap | Playwright on samurai-saga + nvidia: reel <=70vh centered; landscape + no-reel studies unchanged | Simulated | 2026-06-19 | Pass; real-device PENDING |
+| 25.7.d nav drawer | Playwright 393px: single X, slide-close visibility timing, focus trap, ESC / backdrop, scroll-lock | Simulated | 2026-06-19 | Pass; real-device PENDING |
+| 25.7.e footer touch targets | Playwright coarse-pointer context (393 + 1000): >=44px targets, no Resume/RSS overlap; fine-pointer unchanged | Simulated | 2026-06-19 | Pass; real-device PENDING |
 
 ---
 
@@ -120,23 +131,38 @@ verification. Run the full matrix as one ~2 hour session.
 - [ ] 25.1 back-to-top sizing (24.1 Android fix)
 - [ ] General responsive layout, 360px+ widths
 - [ ] German translate spot-check
+- [ ] 25.7.b `/about` loads unzoomed (no pinch-to-zoom-out)
+- [ ] 25.7.c Instagram reel gallery item is capped/centered (not towering)
+- [ ] 25.7.d nav drawer shows a single X and slides closed (no snap)
+- [ ] 25.7.e footer "Resume (PDF)" tap opens the resume, not the RSS feed
 
-### iPhone X (iOS 18 Safari)
+### iPhone X (iOS 18 Safari): covers iPhone XR (iOS 18.7), the device Sarib tested
 
 - [ ] safe-area insets (nav, back-to-top) correct on notched device
 - [ ] dvh viewport units, no 100vh jump
 - [ ] sticky nav + back-to-top behavior
 - [ ] home / contact / case study render pass
+- [ ] 25.7.a hero headline renders two clean lines after S-logo return (no per-character jumble)
+- [ ] 25.7.b `/about` loads unzoomed (no pinch-to-zoom-out)
+- [ ] 25.7.c Instagram reel gallery item is capped/centered (not towering)
+- [ ] 25.7.d nav drawer shows a single X and slides closed (no snap)
+- [ ] 25.7.e footer "Resume (PDF)" tap opens the resume, not the RSS feed
 
 ### iPhone 14 Plus (iOS 26 Safari)
 
 - [ ] Same iOS Safari checks as iPhone X on a newer OS
 - [ ] Contact form + Turnstile on mobile Safari
+- [ ] 25.7.a hero headline renders two clean lines after S-logo return (no per-character jumble)
+- [ ] 25.7.b `/about` loads unzoomed (no pinch-to-zoom-out)
+- [ ] 25.7.c Instagram reel gallery item is capped/centered (not towering)
+- [ ] 25.7.d nav drawer shows a single X and slides closed (no snap)
+- [ ] 25.7.e footer touch targets comfortable (no adjacent-link mistap)
 
 ### MacBook Pro M1 (macOS Safari)
 
 - [ ] General desktop Safari pass (layout, fonts, video)
 - [ ] reduced-motion honored (System Settings)
+- [ ] 25.7.f documented cosmetics (expertise-card corners on hover, WIB top-border on hover, gradient/glow edge): confirm acceptable, no regression. No fix expected (see Section 6)
 
 ---
 
@@ -169,6 +195,40 @@ This protocol applies to all real-device test cycles, not just Phase 25.
   WCAG-compliant.
 - **Tier 3 configurations are explicit non-goals:** Internet Explorer, KaiOS, UC Browser, browsers more
   than 5 majors behind, text-mode browsers, and screens below 320px wide are not tested or guaranteed.
+
+#### Safari cosmetics (Phase 25.7.f, investigated and deferred)
+
+- **Expertise card rounded corners flatten on hover (Safari only).** `.exp-card` (`overflow: hidden` +
+  `border-radius`) with a child `.exp-img` `transform: scale(1.06)` hits Safari's clip-during-child-transform
+  bug. The 25.7.f time-boxed investigation found a single-rule candidate (`transform: translateZ(0)` on
+  `.exp-card` to force a compositing layer), but it is not shipped: it cannot be verified without a real iOS
+  and macOS Safari, and it risks a `mix-blend-mode` regression on `.exp-tint`. Future real-device experiment:
+  apply the `translateZ(0)` candidate, confirm the corners clip AND the `.exp-tint` color blend is unchanged
+  on both Safari engines; ship in a future polish phase only if both hold.
+- **WIB card top border crops on hover (Safari only).** `.wib-card` (`backdrop-filter: blur(20px)` + `border`
+  + `border-radius`) with hover `transform: translateY(-4px)` causes Safari to mis-repaint the top border
+  edge. 25.7.f: no clean single-rule fix (the element is already layer-promoted by `backdrop-filter`;
+  remedies are multi-property hacks or change non-Safari rendering). Deferred.
+- **Gradient / showreel-glow edge cutoff (macOS Safari, Retina).** Large `filter: blur` (80-100px) +
+  `mask-image` + `overflow` on `.atm-wrapper` and `.showreel-glow-canvas` show a hard edge where the blur
+  kernel meets the mask boundary. 25.7.f: subtle, not screenshot-capturable, no local verification path, and
+  remedies are finicky and ratio-sensitive. Deferred.
+
+#### Performance and platform realities (Phase 25.7 real-device pass)
+
+- **iPhone XR (A12, 3GB) general slowness on this animation-heavy site.** Older-hardware platform reality,
+  not a fix candidate.
+- **"Site feels laggy after sustained use" across browsers.** Needs profiling; deferred to a future
+  investigation phase. Working hypothesis (from the 25.7 diagnostic pass): cumulative cost of multiple
+  always-running `requestAnimationFrame` loops (Cursor, ShowreelGlow canvas, Nav scroll) plus
+  `content-visibility` re-render on scroll plus the always-on atmospheric-gradient animations.
+- **Showreel autoplay requires a user gesture on iOS.** iOS power / autoplay policy; degrades gracefully
+  (poster + play button). Not a bug.
+- **Resume PDF 404.** Managed separately by Sarib; resolves when the new resume ships.
+- **Console preload-not-used warnings.** Cosmetic dev-tools output, not user-facing.
+- **Edge tracking-prevention console messages.** Edge-specific behavior, not breakage.
+- **CSP report-only warnings.** Expected until the end-of-arc CSP enforcement flip.
+
 - _(Real-device findings appended here as the matrix in section 5 is completed.)_
 
 ---
@@ -194,5 +254,9 @@ This protocol applies to all real-device test cycles, not just Phase 25.
 ## 8. Last verified
 
 - **Document scaffolded:** 2026-06-19, at commit `d31002c` (Phase 25.6.b).
-- **Real-device matrix (section 5):** not yet run. Target: within 48 hours of scaffolding. Datestamps land
-  per-cell as the session completes, then this line updates to the session date and the commit at that time.
+- **Real-device hotfix arc (25.7.a-e):** shipped 2026-06-19 (`5837af0`, `ed88f38`, `793cf5a`, `4611270`,
+  `e492e57`). 25.7.f investigated and deferred to Section 6.
+- **Real-device matrix (section 5):** Playwright-simulated 2026-06-19; real-device verification PENDING
+  (Sarib's session within 24 hours of this commit). Datestamps land per-cell as the session completes; a
+  follow-up living-document maintenance commit flips the Section 4 status to Verified.
+- **Last verified:** 2026-06-19 (simulated). Phase 25.7 closed procedurally at the 25.7.g doc commit.
