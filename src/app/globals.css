@@ -1534,6 +1534,35 @@
     .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
   }
 
+  /* Phase 25.7.e: WCAG 2.5.5 AAA touch target accessibility (44x44 minimum).
+     Footer column links measured 15px tall with 34px vertical pitch (10px gap +
+     15px link), so "RSS" (24x15) directly above "Resume (PDF)" (81x15) at 34px
+     pitch created a mistap region. Sarib reported the actual failure (Resume tap
+     landing on RSS) on iPhone XR per docs/device-testing-results.md item 14.
+
+     Fix: under @media (pointer: coarse), make each footer link a 44px-tall
+     full-column-width flex row with the existing 13px text vertically centered.
+     gap: 0 so adjacent 44px rows are flush, no dead zone between targets means
+     mistapping is structurally impossible within the column.
+
+     Visual text position unchanged (centered in the row); the hit area grows
+     above and below. Footer column height increases on touch devices (intended
+     cost of accessible targets); desktop (fine pointer) is byte-for-byte
+     unchanged. Scoped to .footer-col ul a and .footer-link-button so the brand
+     SLogo anchor (not in a ul), the clock, and .footer-bottom plain-text spans
+     are untouched. Follows the pointer: coarse convention at globals.css:869. */
+  @media (pointer: coarse) {
+    .footer-col ul a,
+    .footer-link-button {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .footer-col ul {
+      gap: 0;
+    }
+  }
+
   /* ----------------------------------------------------------
      LAHORE CLOCK
      Pulsing dot indicator. No blinking colon.
