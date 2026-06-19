@@ -17,6 +17,13 @@ export function GalleryMain() {
   const embedActivated = state.activatedEmbeds.has(idx)
   const isActiveSurface = !state.isFullscreen // inline goes passive while fullscreen is open
   const aspect = current.aspectRatio && current.aspectRatio !== 'auto' ? current.aspectRatio : '16 / 9'
+  // Portrait/square items (e.g. 9:16 Instagram reels) get a height cap so the
+  // frame does not tower at the full stage width. Landscape ratios (default
+  // 16/9, YouTube, video) fall through unchanged. See globals.css 25.7.c.
+  const aspectParts = aspect.split('/').map((n) => parseFloat(n))
+  const aspectW = aspectParts[0] ?? NaN
+  const aspectH = aspectParts[1] ?? NaN
+  const isPortrait = Number.isFinite(aspectW) && Number.isFinite(aspectH) && aspectH >= aspectW
 
   const onActivateEmbed = () => dispatch({ type: 'ACTIVATE_EMBED', index: idx })
 
@@ -43,7 +50,7 @@ export function GalleryMain() {
   return (
     <div className="gallery-main">
       <div
-        className="gallery-main-frame"
+        className={`gallery-main-frame${isPortrait ? ' msarib-gallery-portrait' : ''}`}
         style={{ aspectRatio: aspect }}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}

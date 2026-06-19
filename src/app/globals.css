@@ -4628,6 +4628,29 @@
     border: 1px solid var(--color-border-subtle);
   }
 
+  /* Phase 25.7.c: Instagram reel height cap. The .gallery-ig-embed
+     .instagram-media element already has max-height: 70vh + max-width: 480px
+     (globals.css:4811) for the activated embed, but .gallery-main-frame itself
+     has no cap. Result: the pre-activation placeholder and the frame itself
+     tower as a giant 9:16 portrait dominating the gallery on every device
+     tested.
+
+     Fix: cap portrait/square frames at the same 70vh intent via a vh-derived
+     max-width that, combined with the inline aspect-ratio, bounds height to
+     <=70vh while centering horizontally. min(100%, calc(70vh * 9 / 16)) gives
+     ~39.4vh max-width at 9:16, which the aspect-ratio resolves to a 70vh
+     max-height. Mirrors the existing embed cap by construction (same 70vh
+     value), so placeholder and activated embed agree without parallel rules
+     drifting.
+
+     Only applies to portrait/square aspect ratios (H >= W), gated by the
+     msarib-gallery-portrait class added in GalleryMain.tsx. Landscape items
+     (default 16/9, YouTube, video) are unaffected. */
+  .gallery-main-frame.msarib-gallery-portrait {
+    max-width: min(100%, calc(70vh * 9 / 16));
+    margin-inline: auto;
+  }
+
   .gallery-media-el {
     position: absolute;
     inset: 0;
