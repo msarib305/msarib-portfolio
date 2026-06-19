@@ -19,7 +19,7 @@ Background:
   local Linux Playwright Chromium run is necessary but not sufficient. It masks Windows-specific behavior,
   browser-extension behavior, and real mobile/tablet rendering. The uBlock filter-list collision that hid
   the back-to-top button on Windows Edge was invisible locally and only surfaced on a real device.
-- **DEC-089 (Phase 25, ships in 25.9)** is the full Cross-Environment Resilience Pass writeup: the strategy,
+- **DEC-089 (Phase 25.9)** is the full Cross-Environment Resilience Pass writeup: the strategy,
   the three-tier model rationale, and the per-pillar decisions. This document is the operational companion
   to that decision record.
 

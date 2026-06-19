@@ -54,6 +54,22 @@ Five fixes, all regression / polish on Phase 23 features. Full rationale in DEC-
 New deferred item surfaced (mobile keyboard shortcuts visibility, Issue 6b) is listed below; Phase 25 scope
 is captured in its own section.
 
+## Resolved in Phase 25 (2026-06-19)
+
+Full rationale in DEC-089 (Cross-Environment Resilience Pass, 25.1 to 25.9).
+
+- **Filter-list immunity audit** RESOLVED 25.1 / 25.2. Back-to-top `aria-label` removed (`9d9b2b7`); full audit
+  of 343 selectors / 18 aria-labels / ~22 ids found zero new at-risk matches, so the retroactive sweep was a
+  no-op (no migration needed).
+- **Extension defenses** RESOLVED 25.3 to 25.5. Dark Reader lock (cross-referenced; the meta predates Phase 25
+  via `2932904`), translate identity + layout hardening, Bitwarden attribute, Turnstile email fallback.
+- **Browser / OS edge cases** RESOLVED 25.6. No-JS noscript fallback (`e764943`); Forced Colors pill border
+  (`d31002c`). (`prefers-reduced-data` and `prefers-contrast: more` deferred, see below.)
+- **Real-device test matrix** RESOLVED 25.7. RESILIENCE.md scaffolded with the matrix and failure-handling
+  protocol; running it on hardware surfaced the 25.7.a-e hotfix arc (hero jumble, about zoom, reel height, nav
+  drawer, footer touch targets), all shipped. Real-device re-verification of those fixes is PENDING (below).
+- **Public credibility page** RESOLVED 25.8. `/resilience` shipped (`464ef48`).
+
 ---
 
 ## Copy editorial pass (post-19.7)
@@ -150,10 +166,10 @@ Phase 21 resolved none of the items above; all remain pending. Two new items sur
     touch-only devices. Future consideration: detect `(hover: none)` and `(pointer: coarse)` to hide it on
     touch-only devices. See DEC-088.
 
-## Phase 25 scope -- Cross-Environment Resilience Pass (immediately next)
+## Phase 25 scope -- Cross-Environment Resilience Pass (SHIPPED 2026-06-19)
 
-The largest resilience pass since the site foundation, queued to start right after Phase 24. Estimated 8 to
-12 hours. Scope:
+SHIPPED across 25.1 to 25.9; see "Resolved in Phase 25" above and DEC-089. The original scope is preserved
+below for reference. The largest resilience pass since the site foundation. Scope:
 
 - **Filter-list immunity audit.** Retroactively apply the `msarib-` prefix to existing at-risk public-facing
   CSS classes (the convention was locked in 24.1 for NEW classes; this sweeps the back catalogue). See
@@ -190,6 +206,34 @@ high-contrast case (Windows High Contrast / `forced-colors: active`). Adding `pr
 provide marginal additional hardening on already-covered territory. Revisit if user feedback indicates need
 for softer high-contrast preferences (e.g., users who don't enable Forced Colors but increase system
 contrast).
+
+---
+
+## Deferred during Phase 25.7 to 25.9 (2026-06-19)
+
+Surfaced by the real-device session and the 25.7.f investigation. Full rationale in DEC-089 and RESILIENCE.md
+Section 6.
+
+- **Safari card/glow cosmetics (3 items, 25.7.f).** Expertise-card rounded corners flatten on hover, WIB card
+  top border crops on hover, and the gradient / showreel-glow blur shows an edge on macOS Retina Safari. No
+  clean single-rule fix covered all three. The one candidate (`transform: translateZ(0)` on `.exp-card`)
+  cannot be verified without real Safari and risks a `.exp-tint` mix-blend-mode regression; captured for a
+  future real-device experiment. Safari-only, non-blocking.
+- **Performance "lag after sustained use" (across browsers).** Needs profiling. Hypothesis from the 25.7
+  diagnostic pass: cumulative cost of multiple always-running requestAnimationFrame loops (Cursor, ShowreelGlow
+  canvas, Nav scroll) plus content-visibility re-render on scroll plus the always-on atmospheric-gradient
+  animations. Deferred to a future investigation phase.
+- **Nested-`<main>` in three pages.** `src/app/contact/page.tsx`, `src/app/writings/page.tsx` (the index), and
+  `src/app/design-system/page.tsx` each render their own `<main>` inside the layout's
+  `<main id="main-content">`, a CLAUDE.md one-main violation. `/about` and the new `/resilience` are correct
+  (fragment return). The `writings/[slug]` instance was fixed in 22.5; these three remain. Surfaced during the
+  25.8 pre-flight. Batch in a post-Phase-25 hygiene pass, not piecemeal.
+- **iPhone XR (A12, 3GB) general slowness.** Older-hardware platform reality on an animation-heavy site, not a
+  fix candidate. Recorded so it is not re-investigated as a bug.
+- **25.7.a to 25.7.e real-device re-verification (PENDING).** The five fixes are Playwright-Simulated and
+  shipped; real-device verification on iPhone XR, iPhone 14 Plus, and Pixel 8 Pro is pending Sarib's session
+  and folds into RESILIENCE.md as living-document maintenance (Section 5 datestamps, Section 4 status flip),
+  not a numbered sub-phase. Critical findings would trigger a hotfix sub-phase per RESILIENCE.md Section 6.
 
 ---
 

@@ -2253,3 +2253,112 @@ TOC alignment (delta 0px), 24.3 heading periods (DOM carries the period, TOC str
 24.4 reading progress (61fps, lerp convergence, reduced-motion instant), 24.5 hero (2-column desktop, single
 column at 900px, baseline alignment and 24px tags-to-title spacing across all 8 case studies, 3-viewport
 screenshots). Standing console error remains the report-only CSP notice; none introduced by Phase 24.
+
+Phase 25 (Cross-Environment Resilience Pass) delivered the most thorough application of this principle to
+date. See DEC-089.
+
+## DEC-089 -- Phase 25: Cross-Environment Resilience Pass
+
+Phase 25 takes the DEC-088 principle (a green local Linux Playwright Chromium run is necessary but not
+sufficient) and turns it into a deliberate, multi-pillar pass: harden the site against the browser extensions,
+OS accessibility modes, and real devices the local environment cannot reproduce, then verify on hardware. The
+work splits into defensive patterns (25.1 to 25.6), a living RESILIENCE.md plus real-device test matrix
+(25.7), a real-device hotfix arc the matrix surfaced (25.7.a to 25.7.g), a public credibility page (25.8), and
+this documentation close (25.9). RESILIENCE.md is the operational companion (defensive-patterns table,
+verification log, device matrix, methodology, known limitations); this entry records decisions and trade-offs
+and does not duplicate that table.
+
+### Three-tier support model
+
+The pass is scoped by an explicit three-tier model (canonical in RESILIENCE.md Section 2): Tier 1 fully
+supported, Tier 2 graceful degradation, Tier 3 explicit non-goals. Drawing Tier 3 is what keeps Tier 1 a real
+promise. Every decision below was scoped against it: Tier 1 issues fixed, Tier 2 degraded gracefully, Tier 3
+documented and left alone.
+
+### Pillar 1 -- Filter-list immunity (25.1, 25.2)
+
+The back-to-top button was invisible for some Windows users because uBlock's cosmetic filter matched a generic
+class (the DEC-088 finding). 25.1 (`9d9b2b7`) removed the matched `aria-label` and preserved the accessible
+name via `.msarib-sr-only` text. 25.2 audited the full surface (343 selectors, 18 aria-labels, ~22 ids)
+against a ~63k-rule corpus and found zero new matches, so no migration was needed. Trade-off: none, a clean
+win. Detail in RESILIENCE.md Sections 3 and 4.
+
+### Pillar 2 -- Extension defenses (25.3, 25.4, 25.5)
+
+25.3 (`f59d723`) is a docs-only cross-reference commit; the `darkreader-lock` meta implementation shipped in
+the 2026-05-21 QA audit (`2932904`) before Phase 25 was scoped. Decision: the site is dark-native, so letting
+Dark Reader recolor it breaks the blob blends, mix-blend-mode layers, and 80px glows; locking it preserves the
+authored design and native contrast already meets WCAG. The accepted trade-off (users relying on bespoke Dark
+Reader settings get the site as authored) is documented. 25.4.a/b (`932d979`, `3825683`) protect identity text
+from translation (`translate="no"`) and harden layout for longer strings (`overflow-wrap`, `hyphens`), with
+German the stress case. 25.5.a (`50ee668`) adds Bitwarden's `data-bwignore` alongside the existing
+1Password/LastPass attributes. 25.5.b (`de1782a`) gives the contact form a Turnstile error/timeout email
+fallback so a blocked challenge does not dead-end submission.
+
+### Pillar 3 -- Browser and OS edge cases (25.6)
+
+25.6.a (`e764943`) adds a `<noscript>` that hides the JS-dependent form and surfaces an email fallback. 25.6.b
+(`d31002c`) adds a Forced Colors / Windows High Contrast border to `.pill-btn` via the `ButtonText` system
+color. Both are pure additions with no Tier 1 visual change.
+
+### Pillar 4 -- Real-device test matrix and the hotfix arc (25.7)
+
+25.7 (`4b2dbea`) scaffolded RESILIENCE.md. Sarib ran the matrix on real hardware (Windows across five
+browsers, Pixel 8 Pro across five, iPhone 14 Plus, iPhone XR, MacBook Pro M1), which surfaced more than
+expected. Findings were triaged by the Section 6 protocol:
+
+- 25.7.a (`5837af0`) hero per-line reveal. Per-character inline-block spans jumbled on iOS 18 Safari after a
+  client-side route return (un-remeasured inline-block boxes). Fix: a per-line block reveal with no
+  per-character boxes, opt-in under `prefers-reduced-motion: no-preference`. Trade-off accepted: the per-letter
+  stagger is gone in exchange for structural immunity on every engine, which beats a brittle iOS-only disable.
+- 25.7.b (`ed88f38`) about-hero mobile overflow guard (`overflow-x: clip` at <=900px) for the portrait-glow
+  bleed that read as a zoomed page on mobile Safari. Not reproducible as scrollWidth overflow in Chromium
+  (filter ink-overflow excluded), a textbook DEC-088 gap; real-device verification is load-bearing.
+- 25.7.c (`793cf5a`) Instagram reel height cap: portrait/square frames bounded to <=70vh via a vh-derived
+  `max-width`, mirroring the activated-embed cap so placeholder and embed agree by construction. Landscape and
+  no-reel studies untouched.
+- 25.7.d (`4611270`) nav drawer: removed the redundant in-drawer X and mirrored the backdrop's
+  delayed-visibility transition for a slide-out. Class-driven, no JS state machine.
+- 25.7.e (`e492e57`) footer 44px touch targets under `@media (pointer: coarse)` with `gap: 0` (WCAG 2.5.5),
+  scoped to touch so desktop density is unchanged.
+- 25.7.f Safari card/glow cosmetics: time-boxed, deferred. Investigation surfaced one single-rule candidate
+  (`translateZ(0)` for expertise-card corners) but it could not meet the "reasonable confidence on both Safari
+  engines without regressing other elements" bar: local Chromium does not reproduce the bug, and the
+  `.exp-tint` mix-blend-mode is a documented regression vector for layer promotion. Quality over completeness:
+  shipping unverifiable Safari fixes risks new regressions. Captured for a future real-device experiment.
+- 25.7.g (`ce2e09f`) closed the phase in RESILIENCE.md with fixes recorded Simulated and real-device PENDING.
+  The protocol permits a procedural close while verification proceeds in parallel; critical findings would
+  reopen via a new hotfix sub-phase.
+
+### Pillar 5 -- Public credibility surface (25.8)
+
+25.8 (`464ef48`) added `/resilience`, a plain-language public summary matching the `/about` conventions.
+`/design-system` was deliberately kept internal (three noindex layers, a QA/regression surface); promoting it
+would need a content and structural rework and is out of scope. RESILIENCE.md stays the engineering source of
+truth; `/resilience` is the credibility signal.
+
+### Prior art and the grep-first rule
+
+The most valuable forward rule from Phase 25 is procedural. Two patterns this pass set out to add already
+existed: the `darkreader-lock` meta and the `data-lpignore` attribute both shipped in the 2026-05-21 QA audit
+(`2932904`), before Phase 25 was scoped. 25.3 and 25.5 became cross-references and incremental additions
+(Bitwarden joining the existing attributes) rather than fresh implementations. Locked forward: before scoping
+any extension or OS defensive work, grep the codebase for prior art; a previous hardening pass may already
+cover the ground, and re-implementing risks divergence. This joins the `msarib-` prefix rule (locked 24.1
+forward) as a standing convention.
+
+### Lost audit corpus (25.2)
+
+The 25.2 working corpus (downloaded filter-rule lists and cross-reference scratch files in /tmp) was lost to a
+power-outage reboot. The conclusion is preserved and trustworthy (zero new matches across the audited
+surface); the intermediate artifacts are not reproducible without re-downloading the lists. Recorded for
+honesty: 25.2 stands on its recorded conclusion, not a retained corpus.
+
+### Verification stance
+
+Per DEC-088, Simulated (Playwright or DevTools on local Chromium) is necessary but not sufficient; Verified
+requires real hardware. Phase 25's code sub-phases are Simulated and shipped; the 25.7.x real-device
+re-verification is pending Sarib's session and folds into RESILIENCE.md as living-document maintenance.
+Cross-references: DEC-088 (principle and Phase 24 origin), DEC-086 (scroll/focus guards, relevant to the hero
+and drawer), DEC-083 (section-container and full-bleed, relevant to 25.7.b and 25.7.c), RESILIENCE.md (all
+verification detail).

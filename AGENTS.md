@@ -285,6 +285,49 @@ Full rationale in DEC-088. Reuse these rather than reinventing.
 
 ---
 
+## Component and CSS patterns (Phase 25)
+
+Full rationale in DEC-089. Reuse these rather than reinventing.
+
+- **Per-line over per-character text reveal**: a per-character inline-block split jumbles on iOS 18 Safari
+  after a client-side route return (Safari fails to re-measure the inline-block boxes and wraps one character
+  per line). Animate per line as block-level elements instead. `Hero.tsx` `.msarib-hero-line` is the reference
+  (25.7.a).
+- **Opt-in animation under `prefers-reduced-motion: no-preference`**: the `@layer base` universal
+  reduced-motion collapse zeroes `animation-duration` but NOT `animation-delay`, so a staggered, delayed
+  element stays stuck at its hidden from-frame for the delay window under reduced motion. Define the animation
+  only inside `@media (prefers-reduced-motion: no-preference)` so it does not exist when motion is off (25.7.a).
+- **Portrait-media height cap**: cap portrait or square media frames with a vh-derived `max-width`
+  (`min(100%, calc(70vh * 9 / 16))`) so a 9:16 item does not tower at the full stage width. Mirror any existing
+  cap by construction (same value), not a parallel rule that can drift. `.gallery-main-frame.msarib-gallery-portrait`
+  is the reference (25.7.c).
+- **A `transform` slide-out needs a delayed `visibility` transition**: an element that both slides via
+  `transform` and toggles `visibility: hidden` snaps shut unless `visibility` transitions with a delay equal to
+  the transform duration (mirror the backdrop pattern). The `--open` class is the state; no JS state machine is
+  needed. `.mobile-menu` is the reference (25.7.d).
+- **Touch targets via `@media (pointer: coarse)`, not a width breakpoint**: touch is the problem space. A touch
+  tablet at 1000px needs 44x44 targets and a 700px desktop window does not. Footer `.footer-col ul a` is the
+  reference (25.7.e, WCAG 2.5.5).
+- **Decorative blur bleed needs a mobile `overflow-x: clip` guard**: `filter` blur ink-overflow and
+  negative-offset bleeds do not show up in Chromium `scrollWidth`, so they cannot be reproduced locally (a
+  DEC-088 simulation gap), but they widen the visual viewport on mobile Safari and read as a zoomed page. The
+  `.about-hero` guard at <=900px is the reference (25.7.b).
+- **`/design-system` is internal, do not surface it**: it has three noindex layers (page-level
+  `robots: { index: false }`, a `robots.ts` disallow, absence from the sitemap, and no link) and is a
+  QA/regression surface with stand-in assets. Do not index or footer-link it. `/resilience` is the public
+  credibility page (25.8).
+- **Grep-first for prior art before scoping defensive work**: a previous hardening pass may already cover the
+  ground. The 2026-05-21 QA audit (`2932904`) had already shipped `darkreader-lock` and `data-lpignore` before
+  Phase 25 was scoped, so 25.3 and 25.5 became cross-references and incremental additions. Grep before scoping;
+  re-implementing risks divergence.
+- **Resilience verification is real-device load-bearing**: local Playwright is necessary, not sufficient
+  (DEC-088, reconfirmed across Phase 25). Regressions are triaged by the failure-handling protocol in
+  `docs/RESILIENCE.md` Section 6: Critical (page unrenderable, form unsubmittable, content inaccessible) ships
+  a hotfix sub-phase; Minor cosmetic is documented as a known limitation; Tier 2/3-only is documented with no
+  fix.
+
+---
+
 ## Future work
 
 This section is a queue of intentionally deferred items. Each item is scoped work that Sarib decides when (or whether) to pick up.
@@ -299,9 +342,9 @@ This section is a queue of intentionally deferred items. Each item is scoped wor
 - After repo privatization: un-ignore and track `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Both stay gitignored while the repo is public (private content). See DEC-085.
 - Mobile keyboard shortcuts visibility (Issue 6b, deferred from Phase 24): hide the shortcuts modal / affordance on touch-only devices via `(hover: none)` + `(pointer: coarse)`. See DEC-088.
 
-**Phase 25 -- Cross-Environment Resilience Pass (immediate next phase)**
+**Phase 25 -- Cross-Environment Resilience Pass (COMPLETE, 2026-06-19, DEC-089)**
 
-The largest resilience pass since the site foundation (estimated 8 to 12 hours), queued right after Phase 24. Full scope in `docs/DEFERRED_FIXES.md`. Headline items: retroactive `msarib-` prefix audit of existing at-risk classes; extension-category defensive patterns (Dark Reader, translate, password managers, privacy extensions); browser / OS edge cases (Windows Forced Colors, `prefers-reduced-data`, no-JS, iOS Safari, hybrid devices); and a real-device test matrix to cover what local Linux Playwright Chromium cannot.
+Shipped across 25.1 to 25.9. Filter-list immunity audit (zero new at-risk matches, so a no-op sweep); extension defenses (Dark Reader lock cross-reference, translate identity + layout hardening, Bitwarden attribute, Turnstile email fallback); browser / OS edge cases (no-JS noscript fallback, Forced Colors pill border); `docs/RESILIENCE.md` plus a real-device test matrix; the 25.7.a-e real-device hotfix arc (hero per-line reveal, about overflow guard, reel height cap, nav drawer, footer touch targets); and the `/resilience` public credibility page. Deferred (see `docs/DEFERRED_FIXES.md`): `prefers-reduced-data`, `prefers-contrast: more`, the three Safari card/glow cosmetics (25.7.f), performance "lag over time" profiling, and the nested-`<main>` cleanup in `/contact`, `/writings` index, and `/design-system`. Real-device re-verification of the 25.7.x fixes is PENDING (folds into RESILIENCE.md as living-document maintenance).
 
 **Performance**
 

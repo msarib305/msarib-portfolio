@@ -140,6 +140,22 @@ Full rationale in DEC-088.
 
 ---
 
+## Phase 25 patterns
+
+Full rationale in DEC-089.
+
+- **Per-line over per-character text reveal**: a per-character inline-block split jumbles on iOS 18 Safari after a client-side route return (Safari fails to re-measure the inline-block boxes and wraps one character per line). Animate per line as block elements instead. Reference: `Hero.tsx` `.msarib-hero-line` (25.7.a).
+- **Opt-in animation under `prefers-reduced-motion: no-preference`**: the `@layer base` universal collapse zeroes `animation-duration` but NOT `animation-delay`, so a staggered, delayed element stays at its hidden from-frame under reduced motion. Define the animation only inside `@media (prefers-reduced-motion: no-preference)` so it simply does not exist when motion is off (25.7.a).
+- **Portrait-media height cap**: cap portrait/square media frames with a vh-derived `max-width` (`min(100%, calc(70vh * 9 / 16))`) so a 9:16 item does not tower at full stage width; mirror any existing cap by construction, not a parallel rule that can drift. Reference: `.gallery-main-frame.msarib-gallery-portrait` (25.7.c).
+- **Slide-out needs delayed visibility**: a `transform` slide on an element that also toggles `visibility` snaps shut unless `visibility` transitions with a delay equal to the transform duration (mirror the backdrop pattern). The `--open` class is the state; no JS state machine. Reference: `.mobile-menu` (25.7.d).
+- **Touch targets via `@media (pointer: coarse)`**, not a width breakpoint: touch is the problem space; a touch tablet at 1000px needs 44px targets and a 700px desktop window does not. Reference: footer `.footer-col ul a` (25.7.e, WCAG 2.5.5).
+- **Decorative blur bleed needs a mobile `overflow-x: clip` guard**: `filter` blur ink-overflow and negative-offset bleeds do not appear in Chromium `scrollWidth`, so they cannot be reproduced locally (a DEC-088 gap), but they widen the visual viewport on mobile Safari and read as a zoomed page. Reference: `.about-hero` guard at <=900px (25.7.b).
+- **`/design-system` is internal**: three noindex layers (page `robots: { index: false }`, `robots.ts` disallow, absent from sitemap, no link) and a QA/regression surface. Do not surface, index, or footer-link it. `/resilience` is the public credibility page (25.8).
+- **Grep-first for prior art before defensive work**: a previous hardening pass may already cover the ground (the 2026-05-21 QA audit `2932904` already shipped `darkreader-lock` + `data-lpignore`). Grep before scoping; re-implementing risks divergence.
+- **Resilience verification is real-device load-bearing**: local Playwright is necessary, not sufficient (DEC-088, reconfirmed across Phase 25). Regressions are triaged by the failure-handling protocol in `docs/RESILIENCE.md` Section 6 (Critical to a hotfix sub-phase; Minor cosmetic documented; Tier 2/3 documented, no fix).
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
@@ -150,7 +166,7 @@ Intentionally deferred items. Full details in AGENTS.md under the same heading.
 - **DMARC staged rollout**: `p=none` -> `quarantine` (on/after 2026-06-17) -> `reject` once clean; manual Cloudflare DNS by Sarib (`docs/DNS_CONFIGURATION.md`).
 - **CSP enforcement flip**: report-only -> enforce; the report-only notice is the only standing first-party console error. Not taken in Phase 24; deferred to the end of the resilience arc, per Sarib.
 - **Mobile keyboard shortcuts visibility (Issue 6b)**: hide the shortcuts modal/affordance on touch-only devices via `(hover: none)` + `(pointer: coarse)`. Deferred from Phase 24 (DEC-088).
-- **Phase 25 (Cross-Environment Resilience Pass, immediate next)**: retroactive `msarib-` prefix audit of existing classes, extension-category defensive patterns (Dark Reader, translate, password managers, privacy), browser/OS edge cases (Windows Forced Colors, `prefers-reduced-data`, no-JS, iOS Safari, hybrid), and a real-device test matrix. Est. 8 to 12 hours. Full scope in `docs/DEFERRED_FIXES.md`.
+- **Phase 25 (Cross-Environment Resilience Pass): COMPLETE (2026-06-19, DEC-089).** Shipped 25.1 to 25.9: filter-list audit (zero new matches), extension defenses (Dark Reader, translate, password managers, Turnstile), browser/OS edge cases (no-JS, Forced Colors), RESILIENCE.md + real-device matrix, the 25.7.a-e real-device hotfix arc, and the `/resilience` public page. Real-device re-verification of the 25.7.x fixes is PENDING (RESILIENCE.md living-doc maintenance). `prefers-reduced-data`, `prefers-contrast: more`, and the Safari card/glow cosmetics are deferred (`docs/DEFERRED_FIXES.md`).
 - **Repo privatization (post-Phase-22)**: after Sarib toggles the GitHub repo private, a follow-up commit un-ignores and tracks `docs/MASTER_CONTEXT.md` + `docs/PROFESSIONAL_HISTORY.md`. Until then both stay gitignored (private content, public repo).
 
 - **Showreel video bandwidth**: Home page mobile Lighthouse ~81 due to 3.2 MB video download. Mitigation options: Cloudinary video f_auto (WebM/AV1), poster-first pattern, reduced bitrate.

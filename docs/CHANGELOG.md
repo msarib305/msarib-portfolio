@@ -2,6 +2,43 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-19
+### Phase 25 -- Cross-Environment Resilience Pass
+
+Hardening against browser extensions, OS accessibility modes, and real devices that local Linux Playwright
+Chromium cannot reproduce (the DEC-088 principle applied in full). Defensive patterns (25.1 to 25.6),
+RESILIENCE.md plus a real-device matrix (25.7), a real-device hotfix arc the matrix surfaced (25.7.a to
+25.7.g), the public `/resilience` page (25.8), and this docs close (25.9). Full rationale in DEC-089. Each
+commit independently revertable, HALT at every pre-commit. Forward rules reinforced: the `msarib-` class
+prefix (24.1) and grep-first for prior art before defensive work (the `2932904` QA audit already had
+`darkreader-lock` + `data-lpignore`).
+
+**25.1 -- `9d9b2b7`** back-to-top uBlock immunity: removed the matched `aria-label`, preserved the accessible
+name via `.msarib-sr-only` text.
+**25.2** filter-list audit: 343 selectors / 18 aria-labels / ~22 ids vs a ~63k-rule corpus, zero new matches,
+no code. (Working corpus later lost to a power-outage reboot; conclusion preserved.)
+**25.3 -- `f59d723`** Dark Reader opt-out cross-reference (the `darkreader-lock` meta itself predates Phase 25,
+from `2932904`).
+**25.4.a/b -- `932d979` / `3825683`** `translate="no"` on identity text; layout hardening for longer translated
+strings.
+**25.5.a/b -- `50ee668` / `de1782a`** Bitwarden `data-bwignore`; Turnstile error/timeout email fallback.
+**25.6.a/b -- `e764943` / `d31002c`** no-JS noscript contact fallback; Forced Colors pill-button border.
+**25.7 -- `4b2dbea`** RESILIENCE.md scaffolding (three-tier model, verification log, device matrix,
+failure-handling protocol).
+**25.7.a -- `5837af0`** hero per-line reveal (iOS 18 Safari per-character inline-block jumble immunity).
+**25.7.b -- `ed88f38`** about-hero mobile overflow guard for the portrait-glow bleed.
+**25.7.c -- `793cf5a`** Instagram reel inline height cap (portrait/square <=70vh, centered).
+**25.7.d -- `4611270`** nav drawer single X + slide-close.
+**25.7.e -- `e492e57`** footer 44x44 touch targets under `pointer: coarse` (WCAG 2.5.5).
+**25.7.f** Safari card/glow cosmetics: investigated, deferred to RESILIENCE.md known limitations.
+**25.7.g -- `ce2e09f`** RESILIENCE.md verification update; Phase 25.7 procedural close (real-device PENDING).
+**25.8 -- `464ef48`** `/resilience` public credibility page + sitemap entry + footer Tools link.
+**25.9 -- (this commit)** DEC-089, this entry, DEFERRED_FIXES updates, AGENTS / CLAUDE Phase 25 patterns +
+grep-first rule.
+
+New artifacts: `docs/device-testing-results.md` (real-device session report), `docs/RESILIENCE.md` (resilience
+source of truth), and the `/resilience` public page.
+
 ## 2026-06-18
 ### Phase 24 -- post-Phase-23 regression fixes and case study header rework
 
