@@ -1746,6 +1746,14 @@
     z-index: 0;
     border-radius: var(--radius-32);
     pointer-events: none;
+    /* Phase 25.10.c: radial fade so the glow tapers to transparent before its
+       border-radius box. macOS Safari (Retina) clamps the blur(80px) ink-overflow
+       at the radius boundary and shows a hard rounded edge; pre-fading the canvas
+       content via the mask removes any edge for Safari to render. Geometrically
+       correct for a glow (it should fade radially anyway). Subtly softer edges on
+       Chromium/Firefox, not a regression. */
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 72%);
+    mask-image:         radial-gradient(ellipse at center, #000 35%, transparent 72%);
   }
 
   .reel-label {
@@ -4665,8 +4673,22 @@
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
-    mask-image:         linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    /* Phase 25.10.c (experimental): horizontal fade composited with the existing
+       vertical fade (Smashing Magazine soft-fade pattern) so the blurred wash
+       tapers at all four edges instead of meeting the overflow:hidden clip hard.
+       Low confidence this targets the visible Safari edge (the 104vw horizontal
+       clip sits ~2vw off-screen each side), but it is the documented pattern
+       applied honestly; the Safari batch result informs RESILIENCE.md either way.
+       mask-composite: intersect keeps a pixel only where BOTH gradients are
+       opaque; -webkit-mask-composite: source-in is the legacy WebKit keyword. */
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent),
+      linear-gradient(to right,  transparent, #000 4vw, #000 calc(100% - 4vw), transparent);
+    mask-image:
+      linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent),
+      linear-gradient(to right,  transparent, #000 4vw, #000 calc(100% - 4vw), transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
   }
 
   /* filter: blur() converts the SVG circles into a diffuse atmospheric
