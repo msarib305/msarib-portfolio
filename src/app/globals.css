@@ -3528,7 +3528,74 @@
     }
   }
 
+  /* ----------------------------------------------------------
+     RESILIENCE PAGE (Phase 25.8)
+     Public credibility page. The global reset zeroes margins and
+     list styling and strips link underlines, so this page carries
+     its own measure, rhythm, list, and link rules. Tokens only.
+     ---------------------------------------------------------- */
+  .msarib-resilience {
+    max-width: var(--container-article-sm);
+  }
 
+  .msarib-resilience-lede {
+    color: var(--color-text-secondary);
+    margin-top: 24px;
+  }
+
+  .msarib-resilience-body {
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .msarib-resilience-group h2 {
+    margin-bottom: 24px;
+  }
+
+  .msarib-resilience-group > p {
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .msarib-resilience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msarib-resilience-list li {
+    position: relative;
+    padding-left: 22px;
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+  }
+
+  .msarib-resilience-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  .msarib-resilience-list li strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .msarib-resilience-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .msarib-resilience-closing {
+    color: var(--color-text-secondary);
+  }
 
   /* ----------------------------------------------------------
      WRITINGS, Phase 11
