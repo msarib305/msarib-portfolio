@@ -1600,19 +1600,26 @@
     letter-spacing: -0.025em;
   }
 
-  .hero-headline-accent {
+  /* Per-line reveal (Phase 25.7.a). Each sentence is its own block-level line
+     and animates as one unit. Replaces the old per-character inline-block
+     split (.hero-char inside overflow:hidden .hero-headline-word), which
+     jumbled on iOS 18 Safari after a client-side route return: Safari failed
+     to re-measure the inline-block boxes on remount and wrapped one character
+     per line. A block-level line has no per-character boxes to re-measure, so
+     this is structurally immune and behaves identically on every platform.
+     No overflow:hidden mask is needed (a short fade-up, not a 110% slide). */
+  .msarib-hero-line {
     display: block;
   }
-
-  .hero-headline-word {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: bottom;
-  }
-
-  .hero-char {
-    display: inline-block;
-    animation: hero-char-up 400ms var(--ease-out) both;
+  /* Opt-in reveal: only animate when motion is allowed. Under reduced motion
+     the animation is never defined, so the lines rest at their natural visible
+     state with no delay-induced hidden flash (the base universal collapse only
+     zeroes animation-duration, not animation-delay). */
+  @media (prefers-reduced-motion: no-preference) {
+    .msarib-hero-line {
+      animation: msarib-hero-line-up 600ms var(--ease-out) both;
+    }
+    .msarib-hero-line:nth-child(2) { animation-delay: 120ms; }
   }
 
   /* SUBHEAD, single block reveal. */
@@ -1812,9 +1819,12 @@
   }
 
   /* HERO REDUCED MOTION
-     @layer base already collapses animation-duration to 0.01ms
-     for .hero-char and .hero-subhead, so characters and the
-     subhead block snap to their final state instantly.
+     The headline lines are handled at their definition: .msarib-hero-line only
+     gets its animation inside @media (prefers-reduced-motion: no-preference),
+     so under reduced motion no animation exists and the lines sit at their
+     natural visible state. .hero-subhead relies on the @layer base universal
+     collapse (*, *::before, *::after -> animation-duration: 0.01ms) plus
+     animation-fill: both to land on its end frame instantly.
      Canvas display: none is an extra guard; JS matchMedia also
      prevents the RAF loop from starting. */
   @media (prefers-reduced-motion: reduce) {
@@ -4924,9 +4934,9 @@
   50%       { opacity: 0.35; }
 }
 
-@keyframes hero-char-up {
-  from { transform: translateY(110%); }
-  to   { transform: translateY(0); }
+@keyframes msarib-hero-line-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes hero-block-fade {
