@@ -2231,6 +2231,17 @@
     inset: 0;
     z-index: 0;
     overflow: hidden;
+    /* Phase 25.10.a candidate (e): clip the scaling .exp-img to rounded corners
+       via clip-path on its immediate parent. Candidate (a) overflow: clip on
+       .exp-card did NOT resolve WebKit bug 98538 on Safari 26.5 (real-device
+       verified); that 2012-era workaround appears obsolete or version-specific.
+       clip-path is a different rasterization path (vector clip, not box-model
+       clip) and clips transformed descendants reliably in Safari where overflow
+       does not. On .exp-media (not .exp-card) so the card hover box-shadow glow,
+       the .exp-tint mix-blend-mode, and the .exp-card::after gradient are all
+       untouched. No GPU layer promotion, so the 2149 mix-blend-mode
+       contraindication does not apply. Radius matches .exp-card's var(--radius-16). */
+    clip-path: inset(0 round var(--radius-16));
   }
 
   /* Full-colour still image (Phase 22.8b). The filter is an identity no-op
