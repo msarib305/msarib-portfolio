@@ -2200,7 +2200,14 @@
     position: relative;
     aspect-ratio: 1 / 1.1;
     border-radius: var(--radius-16);
-    overflow: hidden;
+    /* Phase 25.10.a: clip, not hidden. Safari (WebKit bug 98538) fails to
+       re-clip an overflow:hidden + border-radius box to its rounded corners
+       while a child transforms (.exp-img scale(1.06) on hover), so corners go
+       square mid-hover. overflow: clip is a paint-time clip with no GPU layer
+       promotion, so it fixes the corners WITHOUT the mix-blend-mode regression
+       that translateZ(0) would cause on .exp-tint (see the note at the top of
+       this section). Identical to hidden on Chromium/Firefox. */
+    overflow: clip;
     border: 1px solid var(--color-border-faint);
     display: flex;
     align-items: flex-end;
