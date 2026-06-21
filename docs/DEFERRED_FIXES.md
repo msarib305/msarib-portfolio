@@ -155,6 +155,19 @@ Phase 21 resolved none of the items above; all remain pending. Two new items sur
 11. **CSP enforcement flip** (report-only to enforce). The report-only CSP console notice is the only
     standing first-party console error site-wide. Not taken in Phase 24; deferred to the end of the
     resilience arc, per Sarib.
+
+    **Hard prerequisite (surfaced 2026-06-21, post-Phase-25 recovery commits).** Instagram reel embeds
+    on `/projects/exarta-uefn-portfolio` (Enigmara, Clumsy Champions, and the newly added CR-ICE-IS
+    gallery) violate the current report-only CSP. Confirmed via Playwright console during the CR-ICE-IS
+    gallery commit: activating a reel logs `Framing 'https://www.instagram.com/' violates report-only
+    CSP directive: frame-src challenges.cloudflare.com www.youtube-nocookie.com`. Report-only logs but
+    does not block, so reels work today; an enforced flip would BREAK every Instagram embed site-wide.
+    Before flipping, next.config.ts must add www.instagram.com to frame-src and (almost certainly)
+    script-src (the embed.js loader); img-src and connect-src may also need Instagram CDN domains
+    depending on what the embed fetches. Verification: enable the enforced CSP locally, navigate to
+    /projects/exarta-uefn-portfolio, click each gallery's reel, capture every domain the CSP blocks,
+    add those to next.config.ts, re-verify all reels load, then flip production. Recommend a
+    comprehensive sweep of ALL report-only violations before the flip, not just the Instagram one.
 12. **GitHub README rewrite.** Separate effort.
 13. **Full device matrix testing.** Separate effort.
 14. **Code-block copy buttons (future).** A click-to-copy affordance on `<pre>` code blocks in case-study
