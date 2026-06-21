@@ -16,7 +16,7 @@ export const experience: ExperienceItem[] = [
     years:    '07/2025 to Present',
     role:     'Lead Unreal Engine Developer',
     company:  'SwiftNine LLC',
-    location: 'Clutched Studios · Lahore (on-site)',
+    location: 'Clutched Studios · Lahore, PK (On-site)',
     summary:  'Leading engineering on a mobile UE5 portfolio.',
     bullets: [
       'Blueprint coding standards and code review process',
@@ -32,7 +32,7 @@ export const experience: ExperienceItem[] = [
     years:    '04/2024 to 04/2025',
     role:     'Lead Software Developer',
     company:  'Vmmersion LLC',
-    location: 'Remote (US studio)',
+    location: 'Richmond, KY, US (Remote)',
     summary:  'Gameplay systems for an anime-stylized action title showcased at Tokyo Game Show 2024 and released on Steam.',
     bullets: [
       'Locked 60 FPS on mid-range hardware (i7-14700K, RTX 3060 8 GB) for the TGS 2024 demo',
@@ -48,7 +48,7 @@ export const experience: ExperienceItem[] = [
     years:    '11/2022 to 03/2024',
     role:     'Senior Unreal Engine Developer',
     company:  'Exarta',
-    location: 'Lahore (on-site)',
+    location: 'Lahore, PK (On-site)',
     summary:  'Led seven direct reports across UE engineering and 3D art. Scaled the Exarta Metaverse from 10 to 40 concurrent players.',
     bullets: [
       'Custom ReplicationGraph reducing per-client bandwidth by 38%',
@@ -64,7 +64,7 @@ export const experience: ExperienceItem[] = [
     years:    '06/2022 to 10/2022',
     role:     'Unreal Engine Developer',
     company:  'Ideofuzion',
-    location: 'Rawalpindi (on-site, fixed-scope contract)',
+    location: 'Rawalpindi, PK (On-site, fixed-scope contract)',
     summary:  'Mobile VR specialist on a Meta Quest 2 standalone corporate application (NDA).',
     bullets: [
       'Held budget under 1M triangles, 150 draw calls per eye, 200 shader instructions per material',
@@ -78,7 +78,7 @@ export const experience: ExperienceItem[] = [
     years:    '12/2021 to 05/2022',
     role:     'Unreal Engine Developer',
     company:  'Exarta',
-    location: 'Lahore (on-site)',
+    location: 'Lahore, PK (On-site)',
     summary:  'Built the multiplayer replication foundations and Solana blockchain integration for the Exarta Metaverse.',
     bullets: [
       'Replicated variables, multicast RPCs, and session management for the metaverse prototype',
@@ -92,7 +92,7 @@ export const experience: ExperienceItem[] = [
     years:    '06/2019 to 07/2021',
     role:     'Mobile Application Developer',
     company:  'HashTech Systems Inc.',
-    location: 'Islamabad (on-site)',
+    location: 'Islamabad, PK (On-site)',
     summary:  'Parallel tracks: Flutter cross-platform apps for App Store and Play Store, and UE4 indie games for Android.',
     bullets: [
       'Flutter / Dart production apps with full certification cycles on both stores',
