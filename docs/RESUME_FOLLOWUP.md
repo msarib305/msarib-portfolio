@@ -10,7 +10,7 @@ Audit findings from Phase 18 (2026-06-06). Items marked FIXED have been resolved
 |------|---------|--------|
 | File size | 76 KB — well under 500 KB threshold | PASS |
 | GitHub link | ABSENT — correct. Perforce is the games industry VCS standard. GitHub presence on a UE5 portfolio reads as junior/web-dev background. | PASS |
-| LinkedIn link | `linkedin.com/in/msarib305` present | PASS |
+| LinkedIn link | `linkedin.com/in/msarib` present | PASS |
 | YouTube links | `@msarib305` channel + 7 individual project video links present | PASS |
 | Portfolio link | `msarib.dev` present | PASS |
 | Other project links | `samuraisaga.com`, `fortnite.com/@exarta` present | PASS |

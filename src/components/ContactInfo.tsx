@@ -32,7 +32,7 @@ export function ContactInfo() {
         </p>
         <ul className="info-list">
           <InfoLink
-            href="https://linkedin.com/in/msarib/"
+            href="https://www.linkedin.com/in/msarib/"
             label="LinkedIn"
           />
           <InfoLink

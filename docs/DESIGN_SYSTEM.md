@@ -938,7 +938,7 @@ Below the grid: a `footer-bottom` bar with copyright and location.
 ### Social links
 
 - GitHub: `https://github.com/msarib305`
-- LinkedIn: `https://linkedin.com/in/msarib305`
+- LinkedIn: `https://www.linkedin.com/in/msarib/`
 - YouTube: `https://youtube.com/@msarib305`
 - Email: `contact@msarib.dev`
 
