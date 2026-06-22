@@ -44,7 +44,7 @@ Sarib leads engineering at SwiftNine LLC in Lahore, Pakistan. He has shipped on 
 ${caseStudies}
 
 ## More
-- [Resume (PDF)](${SITE}/resume.pdf): Full professional history.
+- [Resume (PDF)](${SITE}/Muhammad_Sarib_Lead_UE5_Developer.pdf): Full professional history.
 - [RSS feed](${SITE}/feed.xml): Engineering writings.
 - [LinkedIn](https://www.linkedin.com/in/msarib/)
 - [YouTube](https://www.youtube.com/@msarib305)

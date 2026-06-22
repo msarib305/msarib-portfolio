@@ -22,6 +22,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // Resume URL was renamed from /resume.pdf to the canonical filename so
+        // the downloaded file matches across all access paths. Protect any
+        // external links (LinkedIn Featured, freelance profiles, bookmarks)
+        // that still point at the old URL. permanent: true emits a 308.
+        source: '/resume.pdf',
+        destination: '/Muhammad_Sarib_Lead_UE5_Developer.pdf',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

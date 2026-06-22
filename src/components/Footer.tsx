@@ -75,7 +75,7 @@ export function Footer() {
           <h3>Tools</h3>
           <ul>
             <li><a href="/feed.xml">RSS</a></li>
-            <li><a href="/resume.pdf" download="Muhammad_Sarib_Lead_UE5_Developer_Resume.pdf">Resume (PDF)</a></li>
+            <li><a href="/Muhammad_Sarib_Lead_UE5_Developer.pdf" download="Muhammad_Sarib_Lead_UE5_Developer.pdf">Resume (PDF)</a></li>
             <li><Link href="/resilience">Resilience</Link></li>
             <li><KeyboardShortcutsLink /></li>
           </ul>
