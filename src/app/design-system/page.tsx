@@ -86,7 +86,7 @@ function configSummary(item: MediaItem): string {
 
 export default function DesignSystemPage() {
   return (
-    <main className="min-h-dvh bg-bg px-8 py-16 space-y-20 max-w-4xl mx-auto">
+    <div className="min-h-dvh bg-bg px-8 py-16 space-y-20 max-w-4xl mx-auto">
 
       <section>
         <Label>S-Logo / mark sizes</Label>
@@ -199,6 +199,6 @@ export default function DesignSystemPage() {
         <Gallery items={MULTI_GALLERY_Y} ariaLabel="Multi-gallery test Y" />
       </section>
 
-    </main>
+    </div>
   )
 }

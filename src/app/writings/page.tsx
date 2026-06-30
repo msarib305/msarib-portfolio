@@ -51,7 +51,7 @@ export default async function WritingsPage() {
   }
 
   return (
-    <main>
+    <>
       <JsonLd schema={writingsSchema} />
       <section className="writings-hero section-container section-container--hero">
         <div className="writings-hero-grid">
@@ -107,6 +107,6 @@ export default async function WritingsPage() {
           ))}
         </section>
       )}
-    </main>
+    </>
   )
 }

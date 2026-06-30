@@ -14,7 +14,7 @@ export default function Error({ error, reset }: ErrorProps) {
   }, [error])
 
   return (
-    <main id="main-content" className="error-page">
+    <div className="error-page">
       <div className="error-page-inner">
         <span className="error-page-code" aria-hidden="true">500</span>
         <h1 className="error-page-heading">Something went wrong</h1>
@@ -30,6 +30,6 @@ export default function Error({ error, reset }: ErrorProps) {
           </PillButton>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

@@ -41,7 +41,7 @@ export default function ContactPage() {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''
 
   return (
-    <main>
+    <>
       <JsonLd schema={contactSchema} />
       <section className="contact-hero section-container section-container--hero">
         <div className="contact-hero-grid">
@@ -86,6 +86,6 @@ export default function ContactPage() {
         <ContactForm turnstileSiteKey={turnstileSiteKey} />
         <ContactInfo />
       </div>
-    </main>
+    </>
   )
 }

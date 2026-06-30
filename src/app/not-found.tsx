@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <main id="main-content" className="error-page">
+    <div className="error-page">
       <div className="error-page-inner">
         <span className="error-page-code" aria-hidden="true">404</span>
         <h1 className="error-page-heading">Page not found</h1>
@@ -17,6 +17,6 @@ export default function NotFound() {
           Back to home
         </PillButton>
       </div>
-    </main>
+    </div>
   )
 }
