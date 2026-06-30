@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useGallery } from './GalleryContext'
 import { Thumbnail } from './Thumbnail'
+import { itemKey } from './types'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 
 export function GalleryThumbnails() {
@@ -47,7 +48,7 @@ export function GalleryThumbnails() {
       <div className="gallery-thumbnails" ref={stripRef} role="group" aria-label="Gallery thumbnails">
         {items.map((item, i) => (
           <Thumbnail
-            key={i}
+            key={itemKey(item)}
             item={item}
             index={i}
             isActive={i === state.currentIndex}

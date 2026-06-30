@@ -49,7 +49,7 @@ export function ImageGrid({ items, ariaLabel }: ImageGridProps) {
 
   return (
     <ul className="image-grid" aria-label={ariaLabel ?? 'Image grid'}>
-      {items.map((item, i) => {
+      {items.map((item) => {
         const img = (
           <CldImage
             src={cloudinaryPublicId(item.src)}
@@ -62,7 +62,7 @@ export function ImageGrid({ items, ariaLabel }: ImageGridProps) {
           />
         )
         return (
-          <li key={i} className="image-grid-item">
+          <li key={item.src} className="image-grid-item">
             <figure>
               {item.href ? (
                 <a

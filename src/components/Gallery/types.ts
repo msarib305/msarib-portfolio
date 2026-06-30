@@ -45,3 +45,18 @@ export function itemLabel(item: MediaItem): string {
   if (item.type === 'image' || item.type === 'gif') return item.alt
   return item.accessibleName
 }
+
+// Stable list key: a type-prefixed identity so React tracks thumbnails across
+// renders by content instead of array position. The type prefix disambiguates the
+// rare case of one asset reused under two types (e.g. the same Cloudinary id as
+// both a video and a gif).
+export function itemKey(item: MediaItem): string {
+  switch (item.type) {
+    case 'image':
+    case 'gif':
+    case 'video':           return `${item.type}:${item.cloudinaryId}`
+    case 'youtube':         return `${item.type}:${item.videoId}`
+    case 'instagram-reel':
+    case 'instagram-post':  return `${item.type}:${item.postUrl}`
+  }
+}
