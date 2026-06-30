@@ -84,7 +84,7 @@ Required environment variables in Vercel Production:
 | `TURNSTILE_SECRET_KEY` | Real Cloudflare secret |
 | `RESEND_API_KEY` | Real Resend API key |
 | `RESEND_FROM_EMAIL` | `hello@msarib.dev` |
-| `RESEND_TO_EMAIL` | `msarib.contact@gmail.com` |
+| `RESEND_TO_EMAIL` | `contact@msarib.dev` (Zoho mailbox; see DEC-090) |
 
 `RESEND_MOCK` and `RATE_LIMIT_TEST_MODE` must NOT be set in Production.
 

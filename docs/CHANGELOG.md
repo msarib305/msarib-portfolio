@@ -2,6 +2,31 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-06-30
+### Post-Phase-25 maintenance (not a numbered phase)
+
+Three independent maintenance commits. Each independently revertable, HALT at every pre-commit.
+
+**fix(layout) nested-`<main>` -- `8079062`** Five pages rendered their own `<main>` inside the layout's
+`<main>` (one-main rule): `/contact`, `/writings`, `/design-system`, `error.tsx`, `not-found.tsx`. Each now
+returns a fragment (or a wrapper `<div>` where styling required it); error/not-found also dropped a duplicate
+`id="main-content"` so the layout main stays the sole skip-link target. The `/writings/[slug]` route was fixed
+earlier in Phase 22.5. Verified: one `<main>` and one `id="main-content"` per route, 404 skip-link intact.
+
+**chore(hygiene) dead code + stable keys -- `f990c7a`** Stripped the unused `video`/`poster` fields from
+`ExpertiseItem` and all 8 items (placeholders for the hover-video removed in Phase 20.2, zero consumers,
+pointed at Cloudinary demo `sea_turtle` URLs), plus the `VID`/`POST` consts and stale docblock. Replaced
+array-index list keys with content identity: `ImageGrid` uses `item.src`; gallery thumbnails use a new
+type-prefixed `itemKey()` helper in `Gallery/types.ts`.
+
+**content(email) post-Zoho audit -- (this commit)** Personal email migrated from Cloudflare Email Routing
+forwarding to Zoho Mail (Forever Free); see DEC-090. `docs/DNS_CONFIGURATION.md` rewritten to current state
+(Zoho MX 10/20/50, root SPF `include:zohomail.com`, `zmail` DKIM selector, DMARC `p=quarantine` relaxed
+alignment, two-sender outbound, Cloudflare Email Routing disabled). `RESEND_TO_EMAIL` repointed from
+`msarib.contact@gmail.com` to the `contact@msarib.dev` Zoho mailbox (`README.md`, `PRE_LAUNCH_CHECKLIST.md`),
+verified by a production contact-form delivery test. No public website surface changed: every public email
+reference already used `contact@msarib.dev`.
+
 ## 2026-06-19
 ### Phase 25 -- Cross-Environment Resilience Pass
 

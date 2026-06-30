@@ -2,7 +2,7 @@
 
 Single source of truth for the DNS state of msarib.dev. Update this file whenever a DNS record changes. Every section includes the current record value and the reason it exists.
 
-Last verified: 2026-06-06
+Last verified: 2026-06-30
 
 ---
 
@@ -39,15 +39,18 @@ Cloudflare's assigned nameservers. Set at Namecheap under Domain List → msarib
 
 Newer Vercel CNAME routing pattern (replaces the older A record `76.76.21.21` approach). Both records must remain grey-cloud. See DEC-004.
 
-### Email routing (inbound)
+### Email (inbound MX, Zoho Mail)
 
 | Type | Name | Value | Priority | TTL |
 |------|------|-------|----------|-----|
-| MX | msarib.dev | route1.mx.cloudflare.net | 54 | 5 min |
-| MX | msarib.dev | route2.mx.cloudflare.net | 94 | 5 min |
-| MX | msarib.dev | route3.mx.cloudflare.net | 99 | 5 min |
+| MX | msarib.dev | mx.zoho.com | 10 | 5 min |
+| MX | msarib.dev | mx2.zoho.com | 20 | 5 min |
+| MX | msarib.dev | mx3.zoho.com | 50 | 5 min |
 
-Auto-added by Cloudflare Email Routing. Routes inbound mail to Gmail forwarding rules.
+Inbound mail is delivered to Zoho Mail (Forever Free) mailboxes. Priorities are
+the Zoho standard (10 / 20 / 50); verify the exact values against the live
+Cloudflare zone. Cloudflare Email Routing is disabled; the old
+route{1,2,3}.mx.cloudflare.net entries were removed during the Zoho migration.
 
 ### Ownership verification
 
@@ -61,34 +64,38 @@ Google Search Console Domain Property verification. Added 2026-06-06. Token valu
 
 | Type | Name | Value | TTL |
 |------|------|-------|-----|
-| TXT | msarib.dev | `v=spf1 include:_spf.mx.cloudflare.net ~all` | 5 min |
+| TXT | msarib.dev | `v=spf1 include:zohomail.com ~all` | 5 min |
 | TXT | send.msarib.dev | `v=spf1 include:amazonses.com ~all` | 5 min |
 
 Two separate SPF records on different hostnames — no conflict (RFC 7208 per-hostname rule).
 
-- Root domain SPF (`msarib.dev`): auto-added by Cloudflare Email Routing. Authorizes Cloudflare's infrastructure for inbound forwarding relay.
+- Root domain SPF (`msarib.dev`): authorizes Zoho's infrastructure to send mail as `@msarib.dev` (Sarib's personal Zoho mailbox). Replaced the Cloudflare Email Routing include (`_spf.mx.cloudflare.net`) during the Zoho migration.
 - Subdomain SPF (`send.msarib.dev`): added by Resend during domain verification. Authorizes Amazon SES for Resend outbound sending. Resend sets `MAIL FROM: @send.msarib.dev` as the Return-Path, so the SPF check resolves against `send.msarib.dev`, not the root. Resend can send from `hello@msarib.dev` without a root-level SPF entry because DMARC alignment uses DKIM, not SPF, as the primary mechanism.
 
 ### Email authentication (DKIM)
 
 | Type | Name | Value | TTL |
 |------|------|-------|-----|
+| TXT | zmail._domainkey.msarib.dev | `v=DKIM1; k=rsa; p=<Zoho public key>` | 5 min |
 | CNAME | resend._domainkey.msarib.dev | resend._domainkey.msarib.dev (→ public key via CNAME chain) | 5 min |
 
-Added by Resend during domain verification. Selector: `resend`. DKIM signing covers all outbound mail sent via Resend from `hello@msarib.dev` or `contact@msarib.dev`. Domain verified in Resend dashboard (eu-west-1 region).
+Two selectors, one per sender:
+
+- `zmail` (Zoho): a TXT record holding the RSA public key. Signs outbound mail from Sarib's personal Zoho mailbox (`contact@msarib.dev`). The full key value lives in the Cloudflare zone (Zoho dashboard → Email Configuration → DKIM); it is not reproduced here.
+- `resend` (Resend): a CNAME chain to Resend's key. Signs the transactional contact-form mail sent from `hello@msarib.dev` via Amazon SES. Domain verified in the Resend dashboard (eu-west-1 region).
 
 ### Email authentication (DMARC)
 
 | Type | Name | Value | TTL |
 |------|------|-------|-----|
-| TXT | _dmarc.msarib.dev | `v=DMARC1; p=none; rua=mailto:contact@msarib.dev; aspf=r; adkim=r` | 5 min |
+| TXT | _dmarc.msarib.dev | `v=DMARC1; p=quarantine; rua=mailto:contact@msarib.dev; aspf=r; adkim=r` | 5 min |
 
-- `p=none`: monitor-only. No mail is rejected or quarantined at this policy level.
-- `rua=mailto:contact@msarib.dev`: aggregate reports forwarded to Gmail via Cloudflare Email Routing.
-- `aspf=r`: relaxed SPF alignment. Allows `send.msarib.dev` subdomain to align with `msarib.dev` for SPF.
-- `adkim=r`: relaxed DKIM alignment.
+- `p=quarantine`: mail failing DMARC is quarantined (spam folder) by the receiver. Raised from `p=none` during the Zoho migration once both senders (Zoho, Resend) were confirmed aligned.
+- `rua=mailto:contact@msarib.dev`: aggregate reports land directly in the Zoho mailbox (no longer forwarded via Cloudflare Email Routing).
+- `aspf=r`: relaxed SPF alignment. Allows the `send.msarib.dev` subdomain to align with `msarib.dev` for Resend's SPF.
+- `adkim=r`: relaxed DKIM alignment. Both the `zmail` (Zoho) and `resend` (Resend) selectors sign under `msarib.dev`.
 
-Upgrade path: after reviewing aggregate reports for one to two weeks with no legitimate sources failing, update to `p=quarantine`, then `p=reject`. Edit the TXT record value in Cloudflare DNS. See DEC-069.
+Upgrade path: after a clean period at `p=quarantine` with no legitimate sources failing, update to `p=reject`. Edit the TXT record value in Cloudflare DNS. See DEC-069 and DEC-090.
 
 ---
 
@@ -150,23 +157,27 @@ SSL cert: `CN=msarib.dev`, issued by Let's Encrypt (R13), expires 2026-08-02. Ve
 
 ---
 
-## Email Routing Configuration
+## Email Configuration
 
-### Inbound routing rules (Cloudflare Email Routing)
+### Inbound (Zoho Mail)
 
-| From | Action | To |
-|------|--------|----|
-| hello@msarib.dev | Forward | msarib.contact@gmail.com |
-| contact@msarib.dev | Forward | msarib.contact@gmail.com |
-| Catch-all @msarib.dev | Forward | msarib.contact@gmail.com |
+Inbound mail to `@msarib.dev` is delivered to Zoho Mail (Forever Free) via the MX
+records above. `contact@msarib.dev` is a real Zoho mailbox, not a forwarding
+alias. Cloudflare Email Routing is disabled; its forwarding rules (`hello@`,
+`contact@`, and catch-all `@msarib.dev` to `msarib.contact@gmail.com`) and the
+auto-added route*.mx.cloudflare.net MX records were removed during the migration.
+The Gmail spam-bypass filter from the old forwarding setup is no longer
+load-bearing.
 
-### Outbound (Resend)
+### Outbound (two senders)
 
-Resend sends FROM `hello@msarib.dev` via Amazon SES (eu-west-1). MAIL FROM is `send.msarib.dev`. SPF check passes against `send.msarib.dev`. DKIM signature from `resend._domainkey.msarib.dev` provides DMARC alignment.
-
-### Recipient-side configuration
-
-Gmail filter on `msarib.contact@gmail.com` whitelists all mail forwarded to `*@msarib.dev` to bypass Gmail's spam filter. Required because Cloudflare-forwarded mail triggers Gmail's heuristic spam flags on new domains until domain reputation is established. Filter created manually in Gmail settings during Phase 17 setup.
+- **Zoho** (personal mail): Sarib sends from `contact@msarib.dev`. SPF authorized
+  via the root `include:zohomail.com`; DKIM signed with the `zmail` selector.
+- **Resend** (transactional contact form): sends FROM `hello@msarib.dev` via
+  Amazon SES (eu-west-1). MAIL FROM is `send.msarib.dev`, so SPF passes against
+  the subdomain; the `resend` DKIM selector provides DMARC alignment. The
+  contact-form Server Action delivers to `RESEND_TO_EMAIL`, the Zoho
+  `contact@msarib.dev` mailbox.
 
 ---
 
@@ -183,17 +194,21 @@ dig +short NS msarib.dev
 dig +short A msarib.dev
 dig +short CNAME www.msarib.dev
 
-# MX records (Cloudflare Email Routing)
+# MX records (Zoho Mail)
 dig +short MX msarib.dev
-# expect: 3 route*.mx.cloudflare.net entries
+# expect: 10 mx.zoho.com, 20 mx2.zoho.com, 50 mx3.zoho.com
 
-# SPF (root — Cloudflare Email Routing)
+# SPF (root — Zoho)
 dig +short TXT msarib.dev | grep "v=spf1"
-# expect: exactly ONE record: v=spf1 include:_spf.mx.cloudflare.net ~all
+# expect: exactly ONE record: v=spf1 include:zohomail.com ~all
 
 # SPF (Resend subdomain)
 dig +short TXT send.msarib.dev | grep "v=spf1"
 # expect: v=spf1 include:amazonses.com ~all
+
+# DKIM (Zoho)
+dig +short TXT zmail._domainkey.msarib.dev
+# expect: v=DKIM1; k=rsa; p=... (Zoho public key)
 
 # DKIM (Resend)
 dig +short CNAME resend._domainkey.msarib.dev
@@ -201,7 +216,7 @@ dig +short CNAME resend._domainkey.msarib.dev
 
 # DMARC
 dig +short TXT _dmarc.msarib.dev
-# expect: "v=DMARC1; p=none; rua=mailto:contact@msarib.dev; aspf=r; adkim=r"
+# expect: "v=DMARC1; p=quarantine; rua=mailto:contact@msarib.dev; aspf=r; adkim=r"
 
 # DNSSEC DS record
 dig +short DS msarib.dev

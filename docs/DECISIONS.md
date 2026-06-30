@@ -990,7 +990,7 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 ## DEC-068: Cloudflare Email Routing for inbound mail on msarib.dev
 
 - **Date:** 2026-06-06
-- **Status:** Accepted
+- **Status:** Superseded by DEC-090 (Zoho Mail migration, 2026-06-30)
 
 **Context:** Inbound mail to `hello@msarib.dev` and `contact@msarib.dev` bounced — no MX records existed. Any recruiter replying to outbound email from Resend received a bounce. Cloudflare Email Routing provides free forwarding from custom domain addresses to a real inbox.
 
@@ -1005,7 +1005,7 @@ Also noted: the `space-y-20` utility (Tailwind default spacing, 80px) used on th
 ## DEC-069: DMARC p=none baseline policy
 
 - **Date:** 2026-06-06
-- **Status:** Accepted
+- **Status:** Superseded by DEC-090 (DMARC raised to p=quarantine, 2026-06-30)
 
 **Context:** A bare `v=DMARC1; p=none;` record existed without a `rua` reporting address. No aggregate reports were being collected. The policy was monitor-only but provided no visibility.
 
@@ -2362,3 +2362,24 @@ re-verification is pending Sarib's session and folds into RESILIENCE.md as livin
 Cross-references: DEC-088 (principle and Phase 24 origin), DEC-086 (scroll/focus guards, relevant to the hero
 and drawer), DEC-083 (section-container and full-bleed, relevant to 25.7.b and 25.7.c), RESILIENCE.md (all
 verification detail).
+
+---
+
+## DEC-090: Migrate personal email from Cloudflare Email Routing to Zoho Mail
+
+- **Date:** 2026-06-30
+- **Status:** Accepted
+- **Supersedes:** DEC-068 (Cloudflare Email Routing), DEC-069 (DMARC p=none baseline)
+
+**Context:** DEC-068 used Cloudflare Email Routing to forward `@msarib.dev` addresses to a personal Gmail inbox (`msarib.contact@gmail.com`). Forwarding has structural limits: no real mailbox at `contact@msarib.dev` (cannot send as the address from a native client), forwarded mail rewrites the envelope and triggers Gmail spam heuristics (mitigated only by a manual filter), and DMARC sat at `p=none` (DEC-069) for lack of confidence that all senders aligned. A real mailbox on the domain removes all three constraints at no cost.
+
+**Decision:** Move inbound mail to Zoho Mail (Forever Free). `contact@msarib.dev` becomes a real Zoho mailbox.
+- MX: `mx.zoho.com` (10), `mx2.zoho.com` (20), `mx3.zoho.com` (50), replacing the Cloudflare route*.mx.cloudflare.net entries.
+- Root SPF: `v=spf1 include:zohomail.com ~all`, replacing the Cloudflare Email Routing include.
+- DKIM: a new `zmail` selector (`zmail._domainkey`, TXT) for Zoho outbound, alongside the existing `resend` selector.
+- DMARC raised to `p=quarantine` (`v=DMARC1; p=quarantine; rua=mailto:contact@msarib.dev; aspf=r; adkim=r`) now that both senders are aligned. `rua` reports land directly in the Zoho mailbox.
+- Cloudflare Email Routing disabled; its forwarding rules and the Gmail spam-bypass filter are retired.
+
+**Consequences:** Two outbound senders coexist, each with its own SPF scope and DKIM selector. Zoho sends Sarib's personal mail from `contact@msarib.dev` (root SPF `include:zohomail.com`, `zmail` DKIM). Resend continues to send the transactional contact-form mail from `hello@msarib.dev` (MAIL FROM `send.msarib.dev`, `resend` DKIM); its DMARC alignment is via DKIM, unaffected by the root SPF change. Relaxed alignment (`aspf=r adkim=r`) keeps both aligned under `p=quarantine`. The contact form's `RESEND_TO_EMAIL` is repointed from `msarib.contact@gmail.com` to the `contact@msarib.dev` Zoho mailbox, verified by a production delivery test before the doc update landed. No public website surface changed: every public email reference already used `contact@msarib.dev`. Full record state in `docs/DNS_CONFIGURATION.md`. Upgrade path: raise DMARC to `p=reject` after a clean period at `p=quarantine`.
+
+**Alternatives considered:** Google Workspace (rejected: cost, for a single-mailbox portfolio). Keep Cloudflare forwarding and only raise DMARC (rejected: forwarding's send-as and spam-heuristic limits remain; a real mailbox is the actual fix). Proton free (rejected: custom-domain sending requires a paid tier).

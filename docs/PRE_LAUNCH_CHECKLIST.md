@@ -43,8 +43,9 @@ Walk this list top to bottom before sharing msarib.dev publicly or doing recruit
   *Confirmed Phase 18 Step 3 via Playwright screenshot.*
 
 - [x] **Contact form delivers email.**
-  Submit the form at `https://msarib.dev/contact` with real content. Verify the email arrives at `msarib.contact@gmail.com`. Check that Turnstile widget loads and validates correctly (not the test widget).
+  Submit the form at `https://msarib.dev/contact` with real content. Verify the email arrives at `contact@msarib.dev` (the Zoho mailbox). Check that Turnstile widget loads and validates correctly (not the test widget).
   *Confirmed Phase 18. Tier 1 (valid submission) delivered to Gmail. Tier 2 (empty form) blocked client-side. Tier 3 (curl POST bypass) returned HTTP 405 — Server Action RPC mechanism rejects direct POST before Turnstile layer. Resend dashboard shows delivered status.*
+  *2026-06-30: re-confirmed after the Zoho migration (DEC-090). `RESEND_TO_EMAIL` repointed to `contact@msarib.dev`; a production test submission landed in the Zoho inbox (not spam) within ~30s under DMARC `p=quarantine`.*
 
 - [x] **Sitemap is reachable and correct.**
   Visit `https://msarib.dev/sitemap.xml`. Confirm it returns 200 and lists all expected routes including project slugs.
@@ -103,7 +104,7 @@ All variables that must be configured in Vercel before launch.
 | `TURNSTILE_SECRET_KEY` | Production + Preview | Real Cloudflare secret; test secret (`1x0000000000000000000000000000000AA`) is fine for Preview |
 | `RESEND_API_KEY` | Production + Preview | Real Resend API key |
 | `RESEND_FROM_EMAIL` | Production + Preview | `hello@msarib.dev` |
-| `RESEND_TO_EMAIL` | Production + Preview | `msarib.contact@gmail.com` |
+| `RESEND_TO_EMAIL` | Production + Preview | `contact@msarib.dev` (Zoho mailbox; repointed from `msarib.contact@gmail.com` 2026-06-30, see DEC-090) |
 | `NEXT_GOOGLE_SITE_VERIFICATION` | Production (if applicable) | Not needed — Search Console uses Domain Property (DNS TXT), not meta tag. See DEC-072. |
 | `RESEND_MOCK` | **Must be absent** in Production | Only set in local `.env.local` for dev/test. Must not appear in Vercel Production env. |
 | `RATE_LIMIT_TEST_MODE` | **Must be absent** in Production | Same as above. |
