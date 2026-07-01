@@ -248,6 +248,40 @@ Section 6.
   and folds into RESILIENCE.md as living-document maintenance (Section 5 datestamps, Section 4 status flip),
   not a numbered sub-phase. Critical findings would trigger a hotfix sub-phase per RESILIENCE.md Section 6.
 
+- **ShowreelGlow cold-load black-video race (macOS Safari) -- Finding 2, HIGH.** On a cold-cache load of the
+  home page in macOS Safari, the showreel `<video>` renders black while the blurred glow `<canvas>` behind it
+  draws the video frames correctly (proof the video is decoding); a force reload clears it. Root cause:
+  `ctx.drawImage(video)` readback on Safari can hand the video's decode surface to the canvas and leave the
+  video element's own compositing layer black until a repaint. Pre-existing (`ShowreelGlow.tsx` untouched since
+  Phase 22.1; git-confirmed not in any Phase 27 / 25.10.d commit); surfaced during the Phase 27.2 MacBook
+  verification. NOT reproducible in Playwright (Linux WebKitGTK) or on iPhone Safari. Candidate fixes (need
+  real-device iteration): (1) a compositor repaint nudge on the video's `playing` event; (2) drive the canvas
+  from `requestVideoFrameCallback` so the video has painted before readback. `readyState` guards will not help
+  (the canvas already has frames). Deferred to a dedicated commit with a macOS Safari iteration budget.
+
+- **Atmospheric wash blocky edges on macOS Safari, root cause is NOT blur radius -- Finding 3, HIGH.** The
+  `.atm-wrapper` / `.atm-blobs` wash shows blocky/tiled edges on Sarib's macOS Safari (Home + About). Phase 27.2
+  reduced `filter: blur(100px)` to 60px, then 27.2.1 to 40px, on the WebKit large-blur-tiling hypothesis; real
+  macOS Safari STILL showed the artifact at 40px (the empirically clean iOS/mobile floor), so blur radius is
+  eliminated as the cause. Both changes were reverted (`cb3accb`); `.atm-blobs` is back to 100/60/40 by
+  viewport. Playwright WebKitGTK rendered all three values cleanly and never reproduced the artifact (DEC-088
+  divergence, reconfirmed). Do NOT iterate blur value alone. Fresh diagnostic path: Sarib captures macOS Safari
+  Web Inspector on `.atm-*` (all mask + filter computed styles), tests with the mask removed vs the dual mask,
+  tests with the filter removed to isolate which layer produces the edges, checks retina (2x) vs 1x, and checks
+  whether `-webkit-mask-composite: source-in` (the legacy keyword WebKit resolves, vs Chromium's `intersect`)
+  or a compositor layer boundary (blur layer + mask layer + animated children) is the cause. Needs Sarib's
+  macOS Safari + macOS version. Extends the pre-existing 25.7.f "gradient / showreel-glow edge cutoff" entry in
+  RESILIENCE.md Section 6. See DEC-091.
+
+- **FeatureShowcase glow blocky halo on macOS Safari -- Finding 4.** `.feature-img-glow` (a duplicate image with
+  `filter: blur(80px) saturate(1.4)`, `q_auto` at quality 40) shows a banded/blocky halo on macOS Safari, the
+  same large-blur family as Finding 3. Phase 27.5 planned to replace the browser blur with a pre-blurred
+  Cloudinary asset (`e_blur`), but that fix assumes the WebKit large-blur diagnosis; since Finding 3 eliminated
+  blur radius as the atmospheric cause, 27.5 was NOT shipped, pending the Finding 3 root-cause diagnosis.
+  Re-scope 27.5 once Finding 3 is understood. 27.5 also carries the separate, low-risk double-optimization
+  cleanup (ExpertiseCard / FeatureShowcase routed through `/_next/image` on top of Cloudinary) and the AboutHero
+  glow `f_auto` addition, both still valid regardless of the blur diagnosis.
+
 ---
 
 ## Notes

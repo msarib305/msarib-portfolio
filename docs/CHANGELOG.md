@@ -2,6 +2,36 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-07-01
+### Phase 27 (performance) opening, Phase 25.10.d, and a reverted atmospheric attempt
+
+Session shipped 27.1 (runtime rAF gating) and 25.10.d (WebKit corner clip), then attempted and reverted the
+atmospheric blur work (27.2 / 27.2.1). Real-device verification on iPhone XR (27.1, 25.10.d) and a fresh macOS
+Safari diagnosis of the atmospheric artifact (Finding 3) are pending.
+
+**perf(runtime) 27.1 rAF gating -- `355b0b4`** Gated the two ungated continuous `requestAnimationFrame` loops
+on `visibilitychange`: `Cursor.tsx` (also idles when the pointer is settled) and `ReadingProgress.tsx` (also
+caches the `scrollHeight`/`innerHeight` layout read, keeping per-frame `scrollY` polling for middle-click
+autoscroll coverage). Measured (Playwright): tab-hidden rAF 60-120/s to 0; Home visible-idle 107 to 60/s
+(residual is the already-gated ShowreelGlow). BackToTop skipped (schedules no rAF). Real-device (iPhone XR)
+pending.
+
+**fix(webkit) 25.10.d clip-path -- `059a7ef`** Extended the 25.10.a clip-path to `.exp-tint` and
+`.exp-card::after` (`clip-path: inset(0 round var(--radius-16))`), the two overlay layers left unclipped in
+25.10.a, resolving the WebKit bug 98538 squared-corner leak on ExpertiseCard hover mid-transition. Verified on
+macOS Safari.
+
+**perf/revert 27.2 + 27.2.1 atmospheric blur -- `02233bf`, `f1d9964`, reverted by `cb3accb`** Reduced
+`.atm-blobs filter: blur()` 100 to 60 to 40px to fix macOS Safari blocky edges and cut runtime paint. macOS
+Safari still showed the artifact at 40px (the clean mobile floor), disproving the blur-radius hypothesis; both
+sub-phases reverted, restoring 100/60/40 by viewport. Atmospheric root cause unknown, moved to a fresh
+diagnostic session. See DEC-091.
+
+**docs Phase 27 findings -- this commit** DEC-091; three DEFERRED_FIXES entries (Finding 2 ShowreelGlow
+cold-load black-video race, Finding 3 atmospheric root-cause-unknown, Finding 4 FeatureShowcase glow); and a
+RESILIENCE.md "Phase 27 macOS Safari findings" subsection. Phase 25.10 is partially closed: a/b/d resolved and
+macOS-verified, c (atmospheric edge) still open.
+
 ## 2026-06-30
 ### Post-Phase-25 maintenance (not a numbered phase)
 

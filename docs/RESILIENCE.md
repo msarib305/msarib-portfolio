@@ -229,6 +229,23 @@ This protocol applies to all real-device test cycles, not just Phase 25.
 - **Edge tracking-prevention console messages.** Edge-specific behavior, not breakage.
 - **CSP report-only warnings.** Expected until the end-of-arc CSP enforcement flip.
 
+#### Phase 27 macOS Safari findings (2026-07-01)
+
+- **Atmospheric wash blocky edges: root cause is NOT blur radius (Finding 3, open).** Extends the 25.7.f
+  "gradient / showreel-glow edge cutoff" entry above. Phase 27.2 / 27.2.1 reduced `.atm-blobs filter: blur()`
+  100 to 60 to 40px; macOS Safari still tiled at 40px (the clean iOS/mobile floor), disproving the blur-radius
+  hypothesis. Reverted (`cb3accb`). Root cause unknown; needs macOS Safari Web Inspector diagnosis (mask vs
+  filter vs compositor layer boundary vs retina, and `-webkit-mask-composite: source-in` vs `intersect`). See
+  DEC-091 and DEFERRED_FIXES.md Finding 3.
+- **Playwright WebKitGTK (Linux) does not equal macOS Safari on large-blur / GPU rasterization (DEC-088,
+  reconfirmed twice this session).** Playwright's WebKit rendered blur(60px) and blur(40px) cleanly while real
+  macOS Safari showed blocky edges at both. A green Playwright WebKit run is necessary but NOT sufficient for
+  blur / large-filter / GPU-layer rendering claims; real macOS Safari plus iPhone verification is load-bearing.
+  Do not iterate a blur-related fix on Playwright evidence alone.
+- **ShowreelGlow cold-load black-video race (Finding 2, open).** macOS Safari only, cold cache: the showreel
+  video renders black while the glow canvas draws its frames; force reload clears it. Canvas `drawImage(video)`
+  readback vs the video element's compositing layer. See DEFERRED_FIXES.md Finding 2.
+
 - _(Real-device findings appended here as the matrix in section 5 is completed.)_
 
 ---

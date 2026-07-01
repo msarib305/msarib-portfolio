@@ -2383,3 +2383,19 @@ verification detail).
 **Consequences:** Two outbound senders coexist, each with its own SPF scope and DKIM selector. Zoho sends Sarib's personal mail from `contact@msarib.dev` (root SPF `include:zohomail.com`, `zmail` DKIM). Resend continues to send the transactional contact-form mail from `hello@msarib.dev` (MAIL FROM `send.msarib.dev`, `resend` DKIM); its DMARC alignment is via DKIM, unaffected by the root SPF change. Relaxed alignment (`aspf=r adkim=r`) keeps both aligned under `p=quarantine`. The contact form's `RESEND_TO_EMAIL` is repointed from `msarib.contact@gmail.com` to the `contact@msarib.dev` Zoho mailbox, verified by a production delivery test before the doc update landed. No public website surface changed: every public email reference already used `contact@msarib.dev`. Full record state in `docs/DNS_CONFIGURATION.md`. Upgrade path: raise DMARC to `p=reject` after a clean period at `p=quarantine`.
 
 **Alternatives considered:** Google Workspace (rejected: cost, for a single-mailbox portfolio). Keep Cloudflare forwarding and only raise DMARC (rejected: forwarding's send-as and spam-heuristic limits remain; a real mailbox is the actual fix). Proton free (rejected: custom-domain sending requires a paid tier).
+
+---
+
+## DEC-091: Phase 27.2 atmospheric blur reduction reverted; blur radius is not the macOS Safari artifact cause
+
+- **Date:** 2026-07-01
+- **Status:** Accepted (revert)
+- **Relates to:** DEC-088 (real-device verification is load-bearing), DEC-089 (Phase 25 resilience), 25.10.c (atmospheric-edge target)
+
+**Context:** The `.atm-blobs` atmospheric wash shows blocky/tiled edges on Sarib's macOS Safari (Home + About). Phase 25.10.c attempted a mask-composite fix (low confidence by its own admission; missed). Phase 27.0 diagnosed the atmospheric wash and the FeatureShowcase glow as WebKit rasterizing large `filter: blur()` radii at reduced resolution in tiles. Phase 27.2 reduced `.atm-blobs` blur 100px to 60px; 27.2.1 reduced it to 40px.
+
+**Decision:** Revert 27.2 (`02233bf`) and 27.2.1 (`f1d9964`) in a single commit (`cb3accb`), restoring `.atm-blobs` to blur(100px) desktop / 60px (max-width:900px) / 40px (max-width:600px). Rationale: 40px is the empirically clean iOS/mobile floor, and macOS Safari STILL showed the artifact at 40px, so blur radius is eliminated as the cause. Continuing to lower the radius is chasing the wrong variable. Playwright's Linux WebKitGTK rendered all three values cleanly and never reproduced the artifact, so it cannot gate this fix (DEC-088 reconfirmed, twice in one session).
+
+**Consequences:** 25.10.c's atmospheric-edge target remains UNRESOLVED; Phase 25.10 is only partially closed (a/b/d resolved and macOS-verified; c open). 27.5 (FeatureShowcase glow) was NOT shipped, because it reused the same blur-radius hypothesis (pre-blurred Cloudinary asset) that Finding 3 disproved. The atmospheric root cause is unknown and moves to a fresh diagnostic session (Finding 3 in DEFERRED_FIXES.md): macOS Safari Web Inspector on `.atm-*`, mask-removed vs dual-mask, filter-removed layer isolation, retina vs 1x, `-webkit-mask-composite: source-in` (WebKit legacy) vs `mask-composite: intersect`, and compositor layer-boundary interactions (blur layer + mask layer + animated children). Preserved and NOT reverted: 27.1 rAF gating (`355b0b4`) and 25.10.d clip-path (`059a7ef`), both real-device-pending on iPhone XR.
+
+**Alternatives considered:** Keep 40px and accept the artifact (rejected: it does not clear the artifact and it degrades the desktop wash character). Switch to a non-blur wash technique now (rejected: premature without the actual cause). Continue lowering the blur radius (rejected: 40px already disproved the blur hypothesis).
