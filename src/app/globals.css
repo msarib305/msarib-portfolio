@@ -2245,10 +2245,18 @@
        verified); that 2012-era workaround appears obsolete or version-specific.
        clip-path is a different rasterization path (vector clip, not box-model
        clip) and clips transformed descendants reliably in Safari where overflow
-       does not. On .exp-media (not .exp-card) so the card hover box-shadow glow,
-       the .exp-tint mix-blend-mode, and the .exp-card::after gradient are all
-       untouched. No GPU layer promotion, so the 2149 mix-blend-mode
-       contraindication does not apply. Radius matches .exp-card's var(--radius-16). */
+       does not. On .exp-media (not .exp-card) the card hover box-shadow glow and
+       the .exp-tint mix-blend-mode stay unaffected. No GPU layer promotion, so
+       the 2149 mix-blend-mode contraindication does not apply. Radius matches
+       .exp-card's var(--radius-16).
+
+       Phase 25.10.d: 25.10.a clipped only .exp-media, on the assumption that
+       .exp-card's overflow: clip would round the .exp-tint (z-3) and
+       .exp-card::after (z-4) overlays too. It does not while .exp-img is
+       transforming (WebKit bug 98538 again), so iPhone SE showed a square-corner
+       leak on those two layers mid-hover. The same clip-path is now applied to
+       both (below); it forces no GPU-layer promotion, so it stays compatible with
+       the .exp-tint mix-blend-mode. */
     clip-path: inset(0 round var(--radius-16));
   }
 
@@ -2284,6 +2292,8 @@
     mix-blend-mode: color;
     opacity: 0.375; /* Phase 22.8b: stronger at-rest tint (+50% from 0.25) */
     transition: opacity 500ms var(--ease-base);
+    /* Phase 25.10.d: clip corners here too (WebKit bug 98538, see .exp-media note). */
+    clip-path: inset(0 round var(--radius-16));
   }
 
   .exp-card:hover .exp-tint { opacity: 0; } /* Phase 22.8b: tint fades fully away on hover */
@@ -2296,6 +2306,8 @@
     background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
     z-index: 4;
     pointer-events: none;
+    /* Phase 25.10.d: clip corners here too (WebKit bug 98538, see .exp-media note). */
+    clip-path: inset(0 round var(--radius-16));
   }
 
   .ec-title {
