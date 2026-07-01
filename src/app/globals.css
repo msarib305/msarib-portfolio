@@ -4709,21 +4709,24 @@
      elements in the same stacking context from its backdrop -- i.e. it
      cannot see siblings within the same wrapper.
 
-     Phase 27.2: radius reduced 100px -> 60px. blur(100px) was rasterized by
-     WebKit at reduced resolution in tiles (visible blocky edges on macOS/iOS
-     Safari, the target Phase 25.10.c attempted via a mask and missed), and it
-     re-ran every frame under the 5 animated child transforms (the DEC-089 /
-     Phase 27.0 B2 always-on paint cost). 60px keeps the diffuse-wash character
-     (the blobs are large and overlap) while staying in WebKit's clean-raster
-     range and cutting per-frame paint. The old max-width:900px override was
-     also 60px, so it is now redundant and removed; max-width:600px still steps
-     down to 40px for the weakest GPUs. */
+     Phase 27.2 / 27.2.1: radius reduced 100px -> 60px -> 40px. blur(100px) was
+     rasterized by WebKit at reduced resolution in tiles (visible blocky edges on
+     macOS/iOS Safari, the target Phase 25.10.c attempted via a mask and missed),
+     and it re-ran every frame under the 5 animated child transforms (the DEC-089
+     / Phase 27.0 B2 always-on paint cost). 60px cut the paint cost, but real
+     macOS Safari still tiled at 60px while Playwright's Linux WebKit did not
+     reproduce it (a DEC-088 divergence), so 27.2.1 dropped to 40px, the largest
+     radius that rasterizes cleanly on macOS Safari for a >500px surface. The
+     blobs are large and overlap, so 40px still reads as a diffuse wash. The old
+     max-width:900px (60px) and max-width:600px (40px) blur overrides are now
+     redundant against the 40px base and removed; the <600px block keeps only the
+     atm-b4/b5 hide. */
   .atm-blobs {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    filter: blur(60px);
+    filter: blur(40px);
   }
 
   /* Phase 21.3: durations 2.5x faster (matches UE gradient pacing). Was
@@ -4741,16 +4744,13 @@
     }
   }
 
-  /* Reduce blur cost on the weakest viewports (integrated GPU mitigation).
-     Phase 27.2: the max-width:900px step was dropped when the base radius
-     became 60px (it set the same value); this 40px step remains for <600px. */
+  /* Phase 27.2.1: the atm-blobs blur step here was dropped when the base radius
+     became 40px (it set the same value); this block now only hides the two
+     smallest blobs on the narrowest viewports to keep the wash uncluttered. */
   @media (max-width: 600px) {
     .atm-b4,
     .atm-b5 {
       display: none;
-    }
-    .atm-blobs {
-      filter: blur(40px);
     }
   }
 
