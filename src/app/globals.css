@@ -4707,13 +4707,23 @@
      wash. Applied as an output filter on the SVG itself rather than
      backdrop-filter on a sibling, because backdrop-filter excludes
      elements in the same stacking context from its backdrop -- i.e. it
-     cannot see siblings within the same wrapper. */
+     cannot see siblings within the same wrapper.
+
+     Phase 27.2: radius reduced 100px -> 60px. blur(100px) was rasterized by
+     WebKit at reduced resolution in tiles (visible blocky edges on macOS/iOS
+     Safari, the target Phase 25.10.c attempted via a mask and missed), and it
+     re-ran every frame under the 5 animated child transforms (the DEC-089 /
+     Phase 27.0 B2 always-on paint cost). 60px keeps the diffuse-wash character
+     (the blobs are large and overlap) while staying in WebKit's clean-raster
+     range and cutting per-frame paint. The old max-width:900px override was
+     also 60px, so it is now redundant and removed; max-width:600px still steps
+     down to 40px for the weakest GPUs. */
   .atm-blobs {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    filter: blur(100px);
+    filter: blur(60px);
   }
 
   /* Phase 21.3: durations 2.5x faster (matches UE gradient pacing). Was
@@ -4731,13 +4741,9 @@
     }
   }
 
-  /* Reduce blur cost on narrower viewports (integrated GPU mitigation) */
-  @media (max-width: 900px) {
-    .atm-blobs {
-      filter: blur(60px);
-    }
-  }
-
+  /* Reduce blur cost on the weakest viewports (integrated GPU mitigation).
+     Phase 27.2: the max-width:900px step was dropped when the base radius
+     became 60px (it set the same value); this 40px step remains for <600px. */
   @media (max-width: 600px) {
     .atm-b4,
     .atm-b5 {
