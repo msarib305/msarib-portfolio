@@ -45,10 +45,12 @@ for (const c of CASES) {
       expect(await page.locator('.spoiler-link').count()).toBe(0)
     }
 
-    // Gallery: all gallery types (image, video, instagram) render inside .gallery-item
+    // Gallery: the redesigned Gallery renders a .gallery-root region whose main
+    // stage (.gallery-main-frame) is always present; the thumbnail strip only
+    // renders for multi-item galleries, so assert on the always-present frame.
     if (c.hasGallery) {
-      await expect(page.locator('.gallery-grid')).toBeVisible()
-      expect(await page.locator('.gallery-item').count()).toBeGreaterThan(0)
+      await expect(page.locator('.gallery-root')).toBeVisible()
+      await expect(page.locator('.gallery-main-frame')).toBeVisible()
     }
 
     expect(errors).toHaveLength(0)
