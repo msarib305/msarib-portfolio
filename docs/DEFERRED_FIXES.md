@@ -284,6 +284,21 @@ Section 6.
 
 ---
 
+## Deferred during Phase 27.6 (2026-07-02)
+
+- **Best Practices console error: `upgrade-insecure-requests` in report-only CSP -- LOW, resolves at the CSP
+  enforce-flip.** Chromium DevTools logs one error on every page load: "The Content Security Policy directive
+  'upgrade-insecure-requests' is ignored when delivered in a report-only policy." This is the sole reason the
+  Lighthouse Best Practices score is 96 (not 100) site-wide; no functional impact. It is expected behavior of
+  `Content-Security-Policy-Report-Only` mode (the directive is only enforced under `Content-Security-Policy`),
+  and it is the same "only standing first-party console error" already tracked under item 11 (CSP enforcement
+  flip). Fix is automatic and requires no standalone code change: it clears when the report-only policy flips to
+  enforced in `next.config.ts`. Do NOT remove the directive from the report-only policy as a workaround; it must
+  stay so the report-only test accurately reflects what enforcement will apply after the flip. Diagnosed during
+  the Phase 27.6 baseline correction; see DEC-092.
+
+---
+
 ## Notes
 
 - These items were surfaced during the Phase 19.7 working-tree audit. The count discrepancies trace to

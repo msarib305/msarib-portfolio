@@ -2,6 +2,21 @@
 
 Timestamped log of every meaningful change to msarib-portfolio. Newest entries at the top.
 
+## 2026-07-02
+### Phase 27.6 baseline correction (documentation only)
+
+Fresh production measurement disproved the Phase 27.0 baseline. Home mobile Lighthouse (msarib.dev, Moto G
+throttle) is Perf 87, A11y 100, Best Practices 96, SEO 100; pa11y (WCAG2AA, 393px) reports 0 issues across
+`/`, `/about`, `/work`, `/projects/samurai-saga`, `/writings`, `/contact`. The Phase 27.0 figures of A11y 79
+/ SEO 82 were a localhost dev-server artifact (dev mode depresses SEO/Best Practices; 27.1 was rAF-only and
+cannot lift structural scores). Phase 27.6 therefore closes with no code changes.
+
+**docs(phase-27.6) baseline correction -- this commit** DEC-092 (baseline correction and rationale); a
+DEFERRED_FIXES entry recording that the lone Best Practices deduction (96, not 100) is the expected
+report-only-CSP `upgrade-insecure-requests` console error, which resolves at the deferred CSP enforce-flip
+(item 11) and must not be stripped as a workaround; a CLAUDE.md "Phase 27 patterns" note (measure against
+production, not localhost). No `src/` changes.
+
 ## 2026-07-01
 ### Phase 27 (performance) opening, Phase 25.10.d, and a reverted atmospheric attempt
 

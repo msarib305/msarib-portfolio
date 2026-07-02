@@ -2399,3 +2399,24 @@ verification detail).
 **Consequences:** 25.10.c's atmospheric-edge target remains UNRESOLVED; Phase 25.10 is only partially closed (a/b/d resolved and macOS-verified; c open). 27.5 (FeatureShowcase glow) was NOT shipped, because it reused the same blur-radius hypothesis (pre-blurred Cloudinary asset) that Finding 3 disproved. The atmospheric root cause is unknown and moves to a fresh diagnostic session (Finding 3 in DEFERRED_FIXES.md): macOS Safari Web Inspector on `.atm-*`, mask-removed vs dual-mask, filter-removed layer isolation, retina vs 1x, `-webkit-mask-composite: source-in` (WebKit legacy) vs `mask-composite: intersect`, and compositor layer-boundary interactions (blur layer + mask layer + animated children). Preserved and NOT reverted: 27.1 rAF gating (`355b0b4`) and 25.10.d clip-path (`059a7ef`), both real-device-pending on iPhone XR.
 
 **Alternatives considered:** Keep 40px and accept the artifact (rejected: it does not clear the artifact and it degrades the desktop wash character). Switch to a non-blur wash technique now (rejected: premature without the actual cause). Continue lowering the blur radius (rejected: 40px already disproved the blur hypothesis).
+
+---
+
+## DEC-092: Phase 27.6 baseline correction; Home mobile Lighthouse 79/82 was a dev-server artifact
+
+- **Date:** 2026-07-02
+- **Status:** Accepted
+- **Relates to:** DEC-088 (real-device / real-environment verification is load-bearing), Phase 27.0 baseline, DEFERRED_FIXES item 11 (CSP enforcement flip)
+
+**Context:** The Phase 27.0 baseline recorded Home mobile Lighthouse scores of A11y 79 and SEO 82, framed as the worst on the site, and Phase 27.6 was scoped to close those two gaps. A fresh production measurement on 2026-07-02 (msarib.dev, `scripts/lighthouse.mjs`, Moto G mobile throttle) shows both scores are already at 100:
+
+- Home mobile: Perf 87, A11y 100, Best Practices 96, SEO 100.
+- Home desktop: Perf 100, A11y 100, Best Practices 96, SEO 100.
+
+pa11y (WCAG2AA, 393px mobile viewport) reports 0 issues on `/`, `/about`, `/work`, `/projects/samurai-saga`, `/writings`, and `/contact`. The axe-core regression gate (`tests/e2e/a11y.spec.ts`, `pnpm test:a11y`) asserts zero serious/critical violations on all tested routes and is green.
+
+**Decision:** Phase 27.6 ships as documentation only. There are no A11y or SEO deficits to fix on Home mobile. The 27.0 79/82 figures were almost certainly a localhost dev-server run (`scripts/lighthouse.mjs` defaults to `localhost:3000`; dev mode depresses SEO and Best Practices scores, and Phase 27.1 was a rAF-only change that cannot lift structural scores from 79 to 100). The one remaining Best Practices deduction (96, not 100) is a single console error emitted by the report-only CSP: "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy." That is expected report-only behavior and is the same "only standing first-party console error" already tracked under DEFERRED_FIXES item 11.
+
+**Consequences:** Phase 27.6 closes with zero code changes. Future baseline captures must run against production, not localhost. The Best Practices 96 to 100 lift is deferred to the CSP enforcement flip (DEFERRED_FIXES item 11); `upgrade-insecure-requests` stays in the report-only policy so the report-only test keeps full fidelity, and removing it as a score workaround is explicitly rejected.
+
+**Alternatives considered:** Drop `upgrade-insecure-requests` from the report-only CSP now to reach Best Practices 100 (rejected: reduces report-only fidelity ahead of the enforce flip, for a 4-point cosmetic gain). Repoint 27.6 at the real weak score, mobile Performance 87 (rejected: that is a separate deferred showreel-bandwidth item, not A11y/SEO, and out of this sub-phase's scope).

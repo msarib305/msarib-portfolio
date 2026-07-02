@@ -156,6 +156,13 @@ Full rationale in DEC-089.
 
 ---
 
+## Phase 27 patterns
+
+- **Measure Lighthouse/pa11y against production, not localhost**: `scripts/lighthouse.mjs` defaults to `localhost:3000`, and dev mode depresses SEO and Best Practices scores. The Phase 27.0 baseline recorded Home mobile A11y 79 / SEO 82; production was actually 100 / 100 the whole time (the 79/82 was a dev-server artifact). Always set `BASE_URL=https://msarib.dev` for a real baseline. **Phase 27.6: CLOSED as documentation-only** for this reason; there were no A11y/SEO deficits to fix. See DEC-092.
+- **Best Practices 96 is one expected console error**: the report-only CSP emits "`upgrade-insecure-requests` is ignored when delivered in a report-only policy" on every page. That single console error is the only thing keeping Best Practices below 100 site-wide. It resolves automatically at the deferred CSP enforce-flip (DEFERRED_FIXES item 11); do NOT strip the directive as a score workaround (it must stay for report-only fidelity).
+
+---
+
 ## Future work
 
 Intentionally deferred items. Full details in AGENTS.md under the same heading.
