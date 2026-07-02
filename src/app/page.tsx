@@ -39,7 +39,13 @@ const homeSchema = {
       'url':           'https://msarib.dev',
       'email':         'contact@msarib.dev',
       'jobTitle':      'Lead Unreal Engine 5 Developer',
-      'worksFor':      { '@type': 'Organization', 'name': 'SwiftNine LLC' },
+      'worksFor':      { '@type': 'Organization', 'name': 'SwiftNine LLC', 'url': 'https://www.swiftnine.com/' },
+      'image': {
+        '@type':  'ImageObject',
+        'url':    'https://res.cloudinary.com/ddgwzcrim/image/upload/f_auto,q_auto:best,c_fill,g_face,w_1200,h_1200/v1780686320/Self_Portrait_bpeyny.jpg',
+        'width':  1200,
+        'height': 1200,
+      },
       'knowsAbout': [
         'Unreal Engine 5', 'Unreal Engine 4', 'C++', 'Blueprint', 'Verse',
         'UEFN', 'Multiplayer replication', 'Replication Graph',
