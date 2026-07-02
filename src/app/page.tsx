@@ -67,16 +67,6 @@ const homeSchema = {
       'description': 'Lead Unreal Engine 5 developer portfolio: C++, GAS, multiplayer, VR, mobile.',
       'publisher':   { '@id': 'https://msarib.dev/#person' },
     },
-    {
-      '@type':       'ProfessionalService',
-      '@id':         'https://msarib.dev/#service',
-      'name':        'Muhammad Sarib · UE5 Engineering',
-      'url':         'https://msarib.dev',
-      'description': 'Senior and lead Unreal Engine 5 engineering. Studio roles in Germany and Japan, freelance worldwide.',
-      'provider':    { '@id': 'https://msarib.dev/#person' },
-      'areaServed':  'Worldwide',
-      'serviceType': 'Game Development Engineering',
-    },
   ],
 }
 
