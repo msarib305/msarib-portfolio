@@ -17,6 +17,29 @@ report-only-CSP `upgrade-insecure-requests` console error, which resolves at the
 (item 11) and must not be stripped as a workaround; a CLAUDE.md "Phase 27 patterns" note (measure against
 production, not localhost). No `src/` changes.
 
+### Phase 27.7 Speed Insights, Person JSON-LD polish, and ProfessionalService removal
+
+Three code commits after the 27.6 docs commit: real-user monitoring, Person schema completion, and a
+structured-data cleanup.
+
+**feat(analytics) 27.7 Vercel Speed Insights -- `c53d9bb`** Installed `@vercel/speed-insights@2.0.0` and
+rendered `<SpeedInsights />` as the last child of `<body>` in `layout.tsx`. Cookieless RUM (Core Web Vitals),
+no PII, no consent banner. No CSP change: the v2 package serves its script and posts its vitals beacon
+same-origin under a rotating prefix (First-Party Ingestion), already covered by `script-src 'self'` and
+`connect-src 'self'`. Verified live: `script.js` 200, vitals beacon POST 200, zero CSP violations. Enabled in
+the Vercel dashboard by Sarib.
+
+**feat(seo) Person JSON-LD image + worksFor URL -- `8011442`** Added an `image` ImageObject to the Person node
+(reusing the About portrait `Self_Portrait_bpeyny.jpg` via `c_fill,g_face,w_1200,h_1200`, so delivered pixels
+match the declared 1200x1200) and `worksFor.url` for SwiftNine LLC. `f_auto` for format negotiation.
+
+**refactor(seo) remove ProfessionalService node -- `3febe71`** Dropped the ProfessionalService node from the
+`@graph`, leaving Person + WebSite. ProfessionalService is a LocalBusiness subtype; its four Rich Results
+warnings (telephone, priceRange, address, image) were a semantic-mismatch signal, not gaps to fill, and a
+portfolio for a remote developer is not a local business. Schema Markup Validator confirms Person + WebSite are
+clean (0 errors / 0 warnings). See DEC-093 (including the Rich Results Test vs Schema Markup Validator
+distinction and the rejected sitelinks-searchbox `SearchAction`).
+
 ## 2026-07-01
 ### Phase 27 (performance) opening, Phase 25.10.d, and a reverted atmospheric attempt
 

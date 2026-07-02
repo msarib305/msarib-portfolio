@@ -299,6 +299,30 @@ Section 6.
 
 ---
 
+## Deferred during the Phase 27 schema session (2026-07-02)
+
+Surfaced while verifying the Home head during the ProfessionalService-removal session (DEC-093). Both are
+LOW-priority console-warning noise, not functional defects.
+
+- **Duplicate font preloads in the HTML head -- Finding 5, LOW.** `PPRightGrotesk-WideBlack.woff2` and
+  `PPRightGroteskText-Regular.woff2` each appear as `<link rel="preload">` more than once in the served HTML
+  head with identical attributes, and Chromium fires "preloaded using link preload but not used within a few
+  seconds from the window's load event" for both. The two manual preloads live in `src/app/layout.tsx` (the
+  above-the-fold font optimization); its own comment already flags that React 19 may hoist a benign duplicate
+  resource-hint `<link>` (browsers dedupe by URL). The PP fonts are loaded via CSS `@font-face`, not `next/font`,
+  so this is not a next/font auto-preload collision. Fix path: confirm whether the duplication is only the React
+  19 resource-hint hoisting quirk (in which case document as known-benign) or a genuine double emission, then
+  collapse to a single preload per file. Impact: browser dedupes on request; the warning obscures real preload
+  issues.
+
+- **Orphaned Next.js chunk preload -- Finding 6, LOW.** `/_next/static/chunks/0i7c0ay3to_8w.js` is preloaded
+  with `fetchPriority=low` but Chromium warns it is not used within a few seconds of window load. Likely the
+  Next.js router prefetching a chunk for a route not navigated to from Home. Investigate whether it is a spurious
+  prefetch that can be disabled, or expected router prefetch behavior; if expected, document as known-benign.
+  Note the chunk hash is build-specific and will change across deploys.
+
+---
+
 ## Notes
 
 - These items were surfaced during the Phase 19.7 working-tree audit. The count discrepancies trace to

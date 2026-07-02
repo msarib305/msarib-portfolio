@@ -2420,3 +2420,25 @@ pa11y (WCAG2AA, 393px mobile viewport) reports 0 issues on `/`, `/about`, `/work
 **Consequences:** Phase 27.6 closes with zero code changes. Future baseline captures must run against production, not localhost. The Best Practices 96 to 100 lift is deferred to the CSP enforcement flip (DEFERRED_FIXES item 11); `upgrade-insecure-requests` stays in the report-only policy so the report-only test keeps full fidelity, and removing it as a score workaround is explicitly rejected.
 
 **Alternatives considered:** Drop `upgrade-insecure-requests` from the report-only CSP now to reach Best Practices 100 (rejected: reduces report-only fidelity ahead of the enforce flip, for a 4-point cosmetic gain). Repoint 27.6 at the real weak score, mobile Performance 87 (rejected: that is a separate deferred showreel-bandwidth item, not A11y/SEO, and out of this sub-phase's scope).
+
+---
+
+## DEC-093: Remove ProfessionalService from homeSchema; Person + WebSite is the portfolio-schema standard
+
+- **Date:** 2026-07-02
+- **Status:** Accepted
+- **Relates to:** DEC-092 (Phase 27.6 baseline correction), the Person JSON-LD image/worksFor commit (`8011442`)
+
+**Context:** `homeSchema` in `src/app/page.tsx` shipped a three-node `@graph`: Person, WebSite, and ProfessionalService. After the Person `image` + `worksFor.url` commit, the Rich Results Test on the ProfessionalService node surfaced four warnings (missing `telephone`, `priceRange`, `address`, `image`). ProfessionalService is a schema.org subtype of LocalBusiness (Thing to Organization to LocalBusiness to ProfessionalService), designed for physically-visited local businesses (law firms, accountants, real estate). msarib.dev is a portfolio for a remote UE5 developer targeting international AAA studios, not a locally-visited business.
+
+**Decision:** Remove the ProfessionalService node entirely; keep Person + WebSite. The four warnings were not cosmetic gaps to fill: they were Google signaling a semantic mismatch. Populating those LocalBusiness fields would assert "this is a local business," a misrepresentation, and would make the site eligible for local-search rich results (map cards, opening hours, phone-first CTAs) that are counterproductive for the German AAA recruiter conversion goal. Person + WebSite together cover everything a portfolio needs for correctness, Knowledge Graph consumption, and category signal.
+
+**Validation tooling distinction (adopt going forward):** Two Google tools serve different purposes, and conflating them is a trap.
+- **Rich Results Test** (`search.google.com/test/rich-results`) validates eligibility for enhanced SERP *features* (Article carousels, Product cards, LocalBusiness map cards, and so on). Person and WebSite do not trigger any rich-result feature on their own; they feed the Knowledge Graph, a separate pipeline. After removal, the Rich Results Test correctly returns "No items detected", because the only rich-result-eligible node (the LocalBusiness-subtype ProfessionalService) is gone. That is the expected, correct outcome, NOT a schema failure.
+- **Schema Markup Validator** (`validator.schema.org`) validates general schema.org correctness. This is the right tool for this site. Post-removal run against `https://msarib.dev`: WebSite 0 errors / 0 warnings; Person (resolved via the `publisher` `@id` reference) 0 errors / 0 warnings; all Person properties intact (`name`, `alternateName`, `url`, `email`, `jobTitle`, `worksFor` with SwiftNine LLC + URL, `image` ImageObject 1200x1200, `sameAs` LinkedIn + YouTube, `knowsAbout` 20 items); `@graph` structure valid and `@id` references resolve.
+
+Use the Schema Markup Validator, not the Rich Results Test, for structured-data validation on this site.
+
+**Consequences:** `homeSchema` `@graph` is now exactly Person + WebSite; this is the standard shape for portfolio-site structured data here. The Rich Results Test will report "No items detected" for the site by design; do not treat that as a regression.
+
+**Alternatives considered:** Keep ProfessionalService and populate `telephone`/`priceRange`/`address`/`image` to clear the warnings (rejected: misrepresents the site as a local business and invites counterproductive local rich results). Add a `SearchAction` `potentialAction` to WebSite for a sitelinks searchbox (rejected: msarib.dev has no site-search endpoint, so the action would be non-functional and spam-adjacent; the small curated structure does not warrant it).
