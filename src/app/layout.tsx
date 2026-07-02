@@ -7,6 +7,7 @@ import { Footer }        from '@/components/Footer'
 import { CursorMount }  from '@/components/CursorMount'
 import { BackToTopMount } from '@/components/BackToTopMount'
 import { KeyboardShortcuts } from '@/components/KeyboardShortcuts'
+import { SpeedInsights }  from '@vercel/speed-insights/next'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets:  ['latin'],
@@ -150,6 +151,13 @@ export default function RootLayout({
         <Footer />
         <BackToTopMount />
         <KeyboardShortcuts />
+        {/* Cookieless real-user monitoring. Script and vitals beacon are
+            served same-origin under /_vercel/speed-insights/* on Vercel
+            (First-Party Ingestion), so the existing CSP script-src 'self'
+            and connect-src 'self' already cover it; no next.config CSP
+            change is needed. Renders no visible UI. Enable in the Vercel
+            project dashboard post-deploy (Phase 27.7). */}
+        <SpeedInsights />
       </body>
     </html>
   )
